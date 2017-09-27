@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.PeriodPaymentMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.PeriodPayment" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="driver_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="car_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="payment" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="payment_platform" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="platform_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="platform_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="comment" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pay_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, driver_id,car_id, payment, payment_platform, platform_number, platform_status, comment,
+    pay_time,create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_period_payment
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectWeekSumByParams"
+          resultType="com.maple.pojo.PeriodPayment" parameterType="map">
+    SELECT pp.driver_id as driverId,pp.car_id as carId,sum(pp.payment) as payment,max(pp.pay_time) as payTime,pp.comment as comment from maple_period_payment as pp
+    <where>
+    and pp.driver_id = #{driverId}
+    and pp.pay_time &gt;= #{startDate}
+    and pp.pay_time &lt;= #{endDate}
+  </where>
+  </select>
+  <select id="selectGeneralListByParams" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
+    SELECT driver_id as driverId ,car_id as carId,sum(payment) as payment,max(pay_time) as payTime
+    from maple_period_payment
+    <where>
+      <if test="driverName!=null">
+        and driver_id in (select id from maple_driver where name like #{driverName})
+      </if>
+      <if test="coModelType!=null">
+        and car_id in (select car_id from maple_co_model where model_type=#{coModelType})
+      </if>
+      <if test="paymentPlatform!=null">
+        and payment_platform=#{paymentPlatform}
+      </if>
+      <if test="platformStatus!=null">
+        and platform_status=#{platformStatus}
+      </if>
+    </where>
+    GROUP BY driver_id
+  </select>
+  <select id="selectListByCarId" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
+    SELECT id,payment,payment_platform as paymentPlatform,pay_time as payTime
+    from maple_period_payment
+    WHERE car_id =#{carId}
+  </select>
+  <select id="selectListByDriverId" resultMap="BaseResultMap" parameterType="map">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_period_payment
+    WHERE driver_id =#{driverId}
+    <if test="startDate!=null">
+    and pay_time >=#{startDate}
+    </if>
+    <if test="endDate!=null">
+    and pay_time &lt;= #{endDate}
+    </if>
+  </select>
+  <select id="checkStatus" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
+    SELECT
+      max(id),
+      sum(platform_status) as platformStatus
+    FROM maple_period_payment
+    WHERE driver_id = #{driverId}
+          and (platform_status = 0 or (platform_status != 0 and platform_number != #{serialNo}))
+          and create_time >= #{startDate}
+          and create_time &lt;= #{endDate}
+  </select>
+    <select id="findAmountReceived" resultType="java.math.BigDecimal">
+      SELECT sum(pp.payment) from maple_period_payment as pp  WHERE pay_time &gt;= #{startDate} and  pay_time &lt;= #{endDate}
+      <if test="coModelType!=null">
+        and (select d.co_model_id from maple_driver as d where d.id=pp.driver_id) in (select cm.id from maple_co_model as cm WHERE cm.model_type =#{coModelType})
+      </if>
+      <if test="paymentPlatform!=null">
+        and pp.payment_platform = #{paymentPlatform}
+      </if>
+    </select>
+  <select id="findTotalReceivedByCarId" resultType="java.math.BigDecimal">
+    SELECT sum(payment) from maple_period_payment where car_id = #{carId}
+  </select>
+  <select id="findOverdueByCarId" resultType="java.lang.Integer">
+    SELECT count(id) from maple_period_payment where car_id = #{carId} and platform_status = 2
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_period_payment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.PeriodPayment" >
+    insert into maple_period_payment (id, driver_id,car_id, payment,
+      payment_platform, platform_number, platform_status, 
+      comment,pay_time,create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER},#{driverId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL},
+      #{paymentPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=INTEGER}, 
+      #{comment,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP},now(), now()
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.PeriodPayment" >
+    insert into maple_period_payment
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="driverId != null" >
+        driver_id,
+      </if>
+      <if test="carId != null" >
+        car_id,
+      </if>
+      <if test="payment != null" >
+        payment,
+      </if>
+      <if test="paymentPlatform != null" >
+        payment_platform,
+      </if>
+      <if test="platformNumber != null" >
+        platform_number,
+      </if>
+      <if test="platformStatus != null" >
+        platform_status,
+      </if>
+      <if test="comment != null" >
+        comment,
+      </if>
+      <if test="payTime != null" >
+        pay_time,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="driverId != null" >
+        #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="carId != null" >
+        #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="payment != null" >
+        #{payment,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentPlatform != null" >
+        #{paymentPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="platformNumber != null" >
+        #{platformNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        #{platformStatus,jdbcType=INTEGER},
+      </if>
+      <if test="comment != null" >
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.PeriodPayment" >
+    update maple_period_payment
+    <set >
+      <if test="driverId != null" >
+        driver_id = #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="carId != null" >
+        car_id = #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="payment != null" >
+        payment = #{payment,jdbcType=DECIMAL},
+      </if>
+      <if test="paymentPlatform != null" >
+        payment_platform = #{paymentPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="platformNumber != null" >
+        platform_number = #{platformNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        platform_status = #{platformStatus,jdbcType=INTEGER},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="payTime != null" >
+        pay_time = #{payTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+        update_time = now(),
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.PeriodPayment" >
+    update maple_period_payment
+    set driver_id = #{driverId,jdbcType=INTEGER},
+      car_id = #{carId,jdbcType=INTEGER},
+      payment = #{payment,jdbcType=DECIMAL},
+      payment_platform = #{paymentPlatform,jdbcType=INTEGER},
+      platform_number = #{platformNumber,jdbcType=VARCHAR},
+      platform_status = #{platformStatus,jdbcType=INTEGER},
+      comment = #{comment,jdbcType=VARCHAR},
+      pay_time = #{payTime,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

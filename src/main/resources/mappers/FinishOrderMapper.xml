@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.FinishOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.jo.FinishOrder" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="driver_id" jdbcType="BIGINT" javaType="java.lang.Long" />
+      <arg column="phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="join_model_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="check_level_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="date" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="finish_flowfee" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="finish_finish_cnt" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="finish_serve_time" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="finish_online_time" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="finish_work_distance" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="finish_fee_time" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="finish_serve_distance" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, driver_id, phone, name, join_model_name, check_level_name, date, finish_flowfee, 
+    finish_finish_cnt, finish_serve_time, finish_online_time, finish_work_distance, finish_fee_time, 
+    finish_serve_distance
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_finish_order
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+  SELECT <include refid="Base_Column_List"/>
+    FROM maple_finish_order
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_finish_order
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.jo.FinishOrder" >
+    insert into maple_finish_order (id, driver_id, phone, 
+      name, join_model_name, check_level_name, 
+      date, finish_flowfee, finish_finish_cnt, 
+      finish_serve_time, finish_online_time, finish_work_distance, 
+      finish_fee_time, finish_serve_distance)
+    values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=BIGINT}, #{phone,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{joinModelName,jdbcType=VARCHAR}, #{checkLevelName,jdbcType=VARCHAR}, 
+      #{date,jdbcType=TIMESTAMP}, #{finishFlowfee,jdbcType=DECIMAL}, #{finishFinishCnt,jdbcType=INTEGER}, 
+      #{finishServeTime,jdbcType=DECIMAL}, #{finishOnlineTime,jdbcType=DECIMAL}, #{finishWorkDistance,jdbcType=DECIMAL}, 
+      #{finishFeeTime,jdbcType=DECIMAL}, #{finishServeDistance,jdbcType=DECIMAL})
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.jo.FinishOrder" >
+    insert into maple_finish_order
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="driverId != null" >
+        driver_id,
+      </if>
+      <if test="phone != null" >
+        phone,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="joinModelName != null" >
+        join_model_name,
+      </if>
+      <if test="checkLevelName != null" >
+        check_level_name,
+      </if>
+      <if test="date != null" >
+        date,
+      </if>
+      <if test="finishFlowfee != null" >
+        finish_flowfee,
+      </if>
+      <if test="finishFinishCnt != null" >
+        finish_finish_cnt,
+      </if>
+      <if test="finishServeTime != null" >
+        finish_serve_time,
+      </if>
+      <if test="finishOnlineTime != null" >
+        finish_online_time,
+      </if>
+      <if test="finishWorkDistance != null" >
+        finish_work_distance,
+      </if>
+      <if test="finishFeeTime != null" >
+        finish_fee_time,
+      </if>
+      <if test="finishServeDistance != null" >
+        finish_serve_distance,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="driverId != null" >
+        #{driverId,jdbcType=BIGINT},
+      </if>
+      <if test="phone != null" >
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="joinModelName != null" >
+        #{joinModelName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkLevelName != null" >
+        #{checkLevelName,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null" >
+        #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishFlowfee != null" >
+        #{finishFlowfee,jdbcType=DECIMAL},
+      </if>
+      <if test="finishFinishCnt != null" >
+        #{finishFinishCnt,jdbcType=INTEGER},
+      </if>
+      <if test="finishServeTime != null" >
+        #{finishServeTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishOnlineTime != null" >
+        #{finishOnlineTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishWorkDistance != null" >
+        #{finishWorkDistance,jdbcType=DECIMAL},
+      </if>
+      <if test="finishFeeTime != null" >
+        #{finishFeeTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishServeDistance != null" >
+        #{finishServeDistance,jdbcType=DECIMAL},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.jo.FinishOrder" >
+    update maple_finish_order
+    <set >
+      <if test="driverId != null" >
+        driver_id = #{driverId,jdbcType=BIGINT},
+      </if>
+      <if test="phone != null" >
+        phone = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="joinModelName != null" >
+        join_model_name = #{joinModelName,jdbcType=VARCHAR},
+      </if>
+      <if test="checkLevelName != null" >
+        check_level_name = #{checkLevelName,jdbcType=VARCHAR},
+      </if>
+      <if test="date != null" >
+        date = #{date,jdbcType=TIMESTAMP},
+      </if>
+      <if test="finishFlowfee != null" >
+        finish_flowfee = #{finishFlowfee,jdbcType=DECIMAL},
+      </if>
+      <if test="finishFinishCnt != null" >
+        finish_finish_cnt = #{finishFinishCnt,jdbcType=INTEGER},
+      </if>
+      <if test="finishServeTime != null" >
+        finish_serve_time = #{finishServeTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishOnlineTime != null" >
+        finish_online_time = #{finishOnlineTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishWorkDistance != null" >
+        finish_work_distance = #{finishWorkDistance,jdbcType=DECIMAL},
+      </if>
+      <if test="finishFeeTime != null" >
+        finish_fee_time = #{finishFeeTime,jdbcType=DECIMAL},
+      </if>
+      <if test="finishServeDistance != null" >
+        finish_serve_distance = #{finishServeDistance,jdbcType=DECIMAL},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.jo.FinishOrder" >
+    update maple_finish_order
+    set driver_id = #{driverId,jdbcType=BIGINT},
+      phone = #{phone,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      join_model_name = #{joinModelName,jdbcType=VARCHAR},
+      check_level_name = #{checkLevelName,jdbcType=VARCHAR},
+      date = #{date,jdbcType=TIMESTAMP},
+      finish_flowfee = #{finishFlowfee,jdbcType=DECIMAL},
+      finish_finish_cnt = #{finishFinishCnt,jdbcType=INTEGER},
+      finish_serve_time = #{finishServeTime,jdbcType=DECIMAL},
+      finish_online_time = #{finishOnlineTime,jdbcType=DECIMAL},
+      finish_work_distance = #{finishWorkDistance,jdbcType=DECIMAL},
+      finish_fee_time = #{finishFeeTime,jdbcType=DECIMAL},
+      finish_serve_distance = #{finishServeDistance,jdbcType=DECIMAL}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

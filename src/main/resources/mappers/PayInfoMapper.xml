@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.PayInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.PayInfo" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="driver_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="order_no" jdbcType="BIGINT" javaType="java.lang.Long" />
+      <arg column="pay_platform" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="platform_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="platform_status" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="payment_type" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, driver_id, order_no, pay_platform, platform_number, platform_status, payment_type, 
+    create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_pay_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectByOrderNum" resultMap="BaseResultMap" parameterType="Long">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_pay_info
+      WHERE order_no = #{orderNum}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_pay_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.PayInfo" >
+    insert into maple_pay_info (id, driver_id, order_no, 
+      pay_platform, platform_number, platform_status, 
+      payment_type, create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{orderNo,jdbcType=BIGINT}, 
+      #{payPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=VARCHAR}, 
+      #{paymentType,jdbcType=INTEGER}, now(), now()
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.PayInfo" >
+    insert into maple_pay_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="driverId != null" >
+        driver_id,
+      </if>
+      <if test="orderNo != null" >
+        order_no,
+      </if>
+      <if test="payPlatform != null" >
+        pay_platform,
+      </if>
+      <if test="platformNumber != null" >
+        platform_number,
+      </if>
+      <if test="platformStatus != null" >
+        platform_status,
+      </if>
+      <if test="paymentType != null" >
+        payment_type,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="driverId != null" >
+        #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="payPlatform != null" >
+        #{payPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="platformNumber != null" >
+        #{platformNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        #{paymentType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.PayInfo" >
+    update maple_pay_info
+    <set >
+      <if test="driverId != null" >
+        driver_id = #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="orderNo != null" >
+        order_no = #{orderNo,jdbcType=BIGINT},
+      </if>
+      <if test="payPlatform != null" >
+        pay_platform = #{payPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="platformNumber != null" >
+        platform_number = #{platformNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="platformStatus != null" >
+        platform_status = #{platformStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="paymentType != null" >
+        payment_type = #{paymentType,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.PayInfo" >
+    update maple_pay_info
+    set driver_id = #{driverId,jdbcType=INTEGER},
+      order_no = #{orderNo,jdbcType=BIGINT},
+      pay_platform = #{payPlatform,jdbcType=INTEGER},
+      platform_number = #{platformNumber,jdbcType=VARCHAR},
+      platform_status = #{platformStatus,jdbcType=VARCHAR},
+      payment_type = #{paymentType,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

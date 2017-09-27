@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.CarMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.Car" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="car_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="plate_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="engine_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="vin" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="pick_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="car_licence_front_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="car_licence_back_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="c_insurance_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="m_insurance_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="gps_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="gps_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id,car_status, name, plate_number, engine_number, vin, pick_date, car_licence_front_image,
+    car_licence_back_image, c_insurance_image, m_insurance_image, gps_number, gps_phone, 
+    create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_car
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByMultiParam" resultMap="BaseResultMap" parameterType="map">
+    SELECT <include refid="Base_Column_List"/>
+    from maple_car
+    <where>
+      <if test="carIdList!=null">
+        and id in
+        <foreach collection="carIdList" close=")" item="item" index="index" open=")" separator=",">
+        #{item}
+        </foreach>
+      </if>
+      <if test="driverName!=null">
+        and name like #{driverName}
+      </if>
+      <if test="plateNumber!=null">
+        and plate_number like #{plateNumber}
+      </if>
+      <if test="name!=null">
+        and name like #{name}
+      </if>
+      <if test="createDateT!=null">
+        and create_time &lt;=#{createDateT}
+      </if>
+      <if test="createDateB!=null">
+        and create_time &gt;=#{createDateB}
+      </if>
+    </where>
+  </select>
+  <select id="selectByVin" resultType="java.lang.Integer">
+    SELECT id from maple_car WHERE vin=#{stringCellValue}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_car
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.Car" useGeneratedKeys="true" keyProperty="id">
+    insert into maple_car (id,car_status, name, plate_number,
+      engine_number, vin, pick_date,
+      car_licence_front_image, car_licence_back_image, 
+      c_insurance_image, m_insurance_image, gps_number,
+      gps_phone, create_time, update_time
+      )
+    values (#{id,jdbcType=INTEGER},#{car_status,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{plateNumber,jdbcType=VARCHAR},
+      #{engineNumber,jdbcType=VARCHAR}, #{vin,jdbcType=VARCHAR}, #{pickDate,jdbcType=DATE},
+      #{carLicenceFrontImage,jdbcType=VARCHAR}, #{carLicenceBackImage,jdbcType=VARCHAR}, 
+      #{cInsuranceImage,jdbcType=VARCHAR}, #{mInsuranceImage,jdbcType=VARCHAR}, #{gpsNumber,jdbcType=VARCHAR}, 
+      #{gpsPhone,jdbcType=VARCHAR}, now(), now()
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.Car" >
+    insert into maple_car
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="carStatus != null" >
+        car_status,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="plateNumber != null" >
+        plate_number,
+      </if>
+      <if test="engineNumber != null" >
+        engine_number,
+      </if>
+      <if test="vin != null" >
+        vin,
+      </if>
+      <if test="pickDate != null" >
+        pick_date,
+      </if>
+      <if test="carLicenceFrontImage != null" >
+        car_licence_front_image,
+      </if>
+      <if test="carLicenceBackImage != null" >
+        car_licence_back_image,
+      </if>
+      <if test="cInsuranceImage != null" >
+        c_insurance_image,
+      </if>
+      <if test="mInsuranceImage != null" >
+        m_insurance_image,
+      </if>
+      <if test="gpsNumber != null" >
+        gps_number,
+      </if>
+      <if test="gpsPhone != null" >
+        gps_phone,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="carStatus != null" >
+        #{carStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="plateNumber != null" >
+        #{plateNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="engineNumber != null" >
+        #{engineNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="vin != null" >
+        #{vin,jdbcType=VARCHAR},
+      </if>
+      <if test="pickDate != null" >
+        #{pickDate,jdbcType=DATE},
+      </if>
+      <if test="carLicenceFrontImage != null" >
+        #{carLicenceFrontImage,jdbcType=VARCHAR},
+      </if>
+      <if test="carLicenceBackImage != null" >
+        #{carLicenceBackImage,jdbcType=VARCHAR},
+      </if>
+      <if test="cInsuranceImage != null" >
+        #{cInsuranceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="mInsuranceImage != null" >
+        #{mInsuranceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="gpsNumber != null" >
+        #{gpsNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="gpsPhone != null" >
+        #{gpsPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Car" >
+    update maple_car
+    <set >
+      <if test="catStatus != null" >
+        car_status = #{carStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="plateNumber != null" >
+        plate_number = #{plateNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="engineNumber != null" >
+        engine_number = #{engineNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="vin != null" >
+        vin = #{vin,jdbcType=VARCHAR},
+      </if>
+      <if test="pickDate != null" >
+        pick_date = #{pickDate,jdbcType=DATE},
+      </if>
+      <if test="carLicenceFrontImage != null" >
+        car_licence_front_image = #{carLicenceFrontImage,jdbcType=VARCHAR},
+      </if>
+      <if test="carLicenceBackImage != null" >
+        car_licence_back_image = #{carLicenceBackImage,jdbcType=VARCHAR},
+      </if>
+      <if test="cInsuranceImage != null" >
+        c_insurance_image = #{cInsuranceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="mInsuranceImage != null" >
+        m_insurance_image = #{mInsuranceImage,jdbcType=VARCHAR},
+      </if>
+      <if test="gpsNumber != null" >
+        gps_number = #{gpsNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="gpsPhone != null" >
+        gps_phone = #{gpsPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.Car" >
+    update maple_car
+    set
+      car_status = #{carStatus,jdbcType=VARCHAR},
+      name = #{name,jdbcType=VARCHAR},
+      plate_number = #{plateNumber,jdbcType=VARCHAR},
+      engine_number = #{engineNumber,jdbcType=VARCHAR},
+      vin = #{vin,jdbcType=VARCHAR},
+      pick_date = #{pickDate,jdbcType=DATE},
+      car_licence_front_image = #{carLicenceFrontImage,jdbcType=VARCHAR},
+      car_licence_back_image = #{carLicenceBackImage,jdbcType=VARCHAR},
+      c_insurance_image = #{cInsuranceImage,jdbcType=VARCHAR},
+      m_insurance_image = #{mInsuranceImage,jdbcType=VARCHAR},
+      gps_number = #{gpsNumber,jdbcType=VARCHAR},
+      gps_phone = #{gpsPhone,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

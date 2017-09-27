@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.PeriodPlanMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.PeriodPlan" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="co_model_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="amount" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="start_date" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="end_date" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, co_model_id, amount, start_date, end_date, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_period_plan
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByCoModelId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_period_plan WHERE co_model_id = #{coModelId}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_period_plan
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.PeriodPlan" >
+    insert into maple_period_plan (id, co_model_id, amount, 
+      start_date, end_date, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{coModelId,jdbcType=INTEGER}, #{amount,jdbcType=DECIMAL}, 
+      #{startDate,jdbcType=TIMESTAMP}, #{endDate,jdbcType=TIMESTAMP}, now(),
+      now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.PeriodPlan" >
+    insert into maple_period_plan
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="coModelId != null" >
+        co_model_id,
+      </if>
+      <if test="amount != null" >
+        amount,
+      </if>
+      <if test="startDate != null" >
+        start_date,
+      </if>
+      <if test="endDate != null" >
+        end_date,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="coModelId != null" >
+        #{coModelId,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="startDate != null" >
+        #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null" >
+        #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.PeriodPlan" >
+    update maple_period_plan
+    <set >
+      <if test="coModelId != null" >
+        co_model_id = #{coModelId,jdbcType=INTEGER},
+      </if>
+      <if test="amount != null" >
+        amount = #{amount,jdbcType=DECIMAL},
+      </if>
+      <if test="startDate != null" >
+        start_date = #{startDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endDate != null" >
+        end_date = #{endDate,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+        update_time = now(),
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.PeriodPlan" >
+    update maple_period_plan
+    set co_model_id = #{coModelId,jdbcType=INTEGER},
+      amount = #{amount,jdbcType=DECIMAL},
+      start_date = #{startDate,jdbcType=TIMESTAMP},
+      end_date = #{endDate,jdbcType=TIMESTAMP},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

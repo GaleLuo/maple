@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.DriverMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.Driver" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="car_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="user_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="co_model_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="id_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="driver_car_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="driver_licence_front_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="driver_licence_back_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="personal_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="work_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="driver_licence_file_number" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="operation_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="periods_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <resultMap id="CarListDriver" type="com.maple.pojo.Driver">
+    <id column="id" property="id"/>
+    <result column="name" property="name"/>
+    <result column="personal_phone" property="personalPhone"/>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, car_id, user_id,co_model_id,name, id_number, driver_car_image, driver_licence_front_image,
+    driver_licence_back_image, personal_phone, work_phone, driver_licence_file_number, operation_status,
+    periods_status, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_driver
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectByDriverIdAndUserId" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+      <include refid="Base_Column_List"/>
+    from maple_driver
+    WHERE id=#{driverId}
+      <if test="userId!=null">
+     and user_id=#{userId}
+      </if>
+    </select>
+  <select id="selectDriverByUserId" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM maple_driver
+    <where>
+      <if test="userId!=null">
+   user_id=#{userId}
+      </if>
+    and status in (0,1,2,3,4)
+    </where>
+    order by create_time desc
+  </select>
+  <select id="selectByUserIdCreateDateNameStatusList" resultMap="BaseResultMap" parameterType="map">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM maple_driver
+    <where>
+      <if test="userId!=null">
+      and user_id=#{userId}
+      </if>
+    <if test="createDateT!=null">
+      and create_time &lt;= #{createDateT}
+    </if>
+      <if test="createDateB!=null">
+        and create_time &gt;= #{createDateB}
+      </if>
+      <if test="name!=null">
+        and name like #{name}
+      </if>
+      <if test="statusList!=null">
+        and status in
+        <foreach collection="statusList" close="(" item="item" index="index" open=")" separator=",">
+        #{item}
+        </foreach>
+      </if>
+    </where>
+  </select>
+  <select id="selectUserIdByCarId" resultType="java.lang.Integer" parameterType="map">
+      SELECT user_id
+      FROM maple_driver
+      WHERE car_id=#{carId}
+  </select>
+  <select id="selectDriverListByCarId" resultMap="CarListDriver"  parameterType="integer">
+    select id,name,personal_phone
+    from maple_driver
+    where car_id=#{carId}
+  </select>
+  <select id="selectCarIdListByUserId" resultType="java.lang.Integer">
+    select DISTINCT car_id
+    from maple_driver
+    where user_id=#{userId}
+  </select>
+  <select id="selectCarIdByDriverId" resultType="java.lang.Integer" parameterType="map">
+    SELECT car_id
+    FROM maple_driver
+    WHERE id=#{driverId}
+  </select>
+  <select id="selectDriverByCoModelType" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_driver
+    <where>
+      <if test="coModelType!=null">
+        and car_id in (select car_id from maple_co_model where model_type=#{coModelType})
+      </if>
+    </where>
+  </select>
+  <select id="selectByCarIdList" resultMap="BaseResultMap" parameterType="list">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_driver
+    WHERE car_id IN <foreach collection="carIdList" separator="," open="(" index="index" item="item" close=")">
+    #{}
+  </foreach>
+
+  </select>
+  <select id="checkId" resultType="java.lang.Integer">
+     SELECT count(id) FROM maple_driver
+    WHERE id_number =#{idNumber}
+  </select>
+  <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
+    select d.id as id,d.car_id as carId FROM maple_driver as d inner join maple_co_model as cm on cm.id=d.co_model_id where cm.period_start_date &lt;= #{endDate}
+    and cm.period_end_date &gt;= #{startDate}
+    <if test="coModelType!=null">
+      and cm.model_type = #{coModelType}
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+  </select>
+  <select id="selectDriverReceived" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE d.id in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate} and pp.platform_status != 0 and (pp.payment!=0 or pp.payment is not null))
+    <if test="coModelType!=null">
+      and d.co_model_id in (select cm.id from maple_co_model as cm where cm.model_type = #{coModelType})
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+  </select>
+  <select id="selectDriverNotReceived" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE (SELECT cm.id from maple_co_model as cm WHERE cm.period_start_date &lt;= #{startDate}
+    and cm.period_end_date &gt; #{startDate}
+    and cm.id=d.co_model_id
+    ) is not null and d.id not in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.pay_time &lt;= #{endDate} and (pp.payment !=0 or pp.payment is not null))
+    <if test="coModelType!=null">
+      and d.co_model_id in (select cm.id from maple_co_model as cm where cm.model_type = #{coModelType})
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+  </select>
+  <select id="selectDriverReceivedPartly" resultType="com.maple.pojo.Driver">
+    select d.id as id,d.car_id as carId from maple_driver as d where d.id in (select d.id as id FROM maple_driver as d inner join maple_co_model as cm on cm.id=d.co_model_id where cm.period_start_date &lt;= #{startDate}
+    and cm.period_end_date &gt; #{startDate}
+    <if test="coModelType!=null">
+      and cm.model_type = #{coModelType}
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+    ) and ((select sum(pp.payment) from maple_period_payment as pp where pp.car_id = d.car_id and pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate}) &lt; (select ppl.amount from maple_period_plan as ppl where ppl.co_model_id = d.co_model_id and ppl.start_date &lt;= #{startDate}
+    and ppl.end_date &gt; #{startDate}))
+  </select>
+  <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
+    SELECT d.id as id,d.car_id as carId,d.operation_status as operationStatus,d.personal_phone as personalPhone,d.name as name,
+    d.co_model_id as coModelId
+    FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id
+    <where>
+      <if test="driverName!=null">
+        and d.name like #{driverName}
+      </if>
+      <if test="phoneNum!=null">
+        and d.personal_phone=#{phoneNum}
+      </if>
+      <if test="driverStatus!=null">
+        and d.operation_status=#{driverStatus}
+      </if>
+      <if test="coModelType">
+        and d.car_id in (select distinct(cm.car_id) from maple_co_model as cm where cm.model_type = #{coModelType} )
+      </if>
+    </where>
+    order by t.score desc
+  </select>
+
+  <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
+    UPDATE status=5
+    FROM maple_driver
+    WHERE user_id=#{userId} and status in (0,4)
+    and id in <foreach collection="driverIdList" separator="," open="(" index="index" item="item" close=")">
+    #{item}
+  </foreach>
+  </update>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_driver
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.Driver" useGeneratedKeys="true" keyProperty="id">
+    insert into maple_driver (id, car_id, user_id,co_model_id,
+      name, id_number, driver_car_image, 
+      driver_licence_front_image, driver_licence_back_image,
+      personal_phone, work_phone, driver_licence_file_number,
+      operation_status, periods_status, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{coModelId,jdbcType=INTEGER},
+      #{name,jdbcType=VARCHAR}, #{idNumber,jdbcType=VARCHAR}, #{driverCarImage,jdbcType=VARCHAR}, 
+      #{driverLicenceFrontImage,jdbcType=VARCHAR}, #{driverLicenceBackImage,jdbcType=VARCHAR},
+      #{personalPhone,jdbcType=VARCHAR}, #{workPhone,jdbcType=VARCHAR}, #{driver_licence_file_number,jdbcType=VARCHAR},
+      #{operationStatus,jdbcType=INTEGER}, #{periodsStatus,jdbcType=INTEGER}, now(),
+            now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.Driver" >
+    insert into maple_driver
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="carId != null" >
+        car_id,
+      </if>
+      <if test="userId != null" >
+        user_id,
+      </if>
+      <if test="coModelId != null" >
+        co_model_id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="idNumber != null" >
+        id_number,
+      </if>
+      <if test="driverCarImage != null" >
+        driver_car_image,
+      </if>
+      <if test="driverLicenceFrontImage != null" >
+        driver_licence_front_image,
+      </if>
+      <if test="driverLicenceBackImage != null" >
+        driver_licence_back_image,
+      </if>
+      <if test="personalPhone != null" >
+        personal_phone,
+      </if>
+      <if test="workPhone != null" >
+        work_phone,
+      </if>
+      <if test="driverLicenceFileNumber != null" >
+        driver_licence_file_number,
+      </if>
+      <if test="operationStatus != null" >
+        operation_status,
+      </if>
+      <if test="periodsStatus != null" >
+        periods_status,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="carId != null" >
+        #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="coModelId != null" >
+        #{coModelId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="idNumber != null" >
+        #{idNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="driverCarImage != null" >
+        #{driverCarImage,jdbcType=VARCHAR},
+      </if>
+      <if test="driverLicenceFrontImage != null" >
+        #{driverLicenceFrontImage,jdbcType=VARCHAR},
+      </if>
+      <if test="driverLicenceBackImage != null" >
+        #{driverLicenceBackImage,jdbcType=VARCHAR},
+      </if>
+      <if test="personalPhone != null" >
+        #{personalPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="workPhone != null" >
+        #{workPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="driverLicenceFileNumber != null" >
+        #{driver_licence_file_number,jdbcType=VARCHAR},
+      </if>
+      <if test="operationStatus != null" >
+        #{operationStatus,jdbcType=INTEGER},
+      </if>
+      <if test="periodsStatus != null" >
+        #{periodsStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Driver" >
+    update maple_driver
+    <set >
+      <if test="carId != null" >
+        car_id = #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null" >
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="coModelId != null" >
+        co_model_id = #{coModelId,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="idNumber != null" >
+        id_number = #{idNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="driverCarImage != null" >
+        driver_car_image = #{driverCarImage,jdbcType=VARCHAR},
+      </if>
+      <if test="driverLicenceFrontImage != null" >
+        driver_licence_front_image = #{driverLicenceFrontImage,jdbcType=VARCHAR},
+      </if>
+      <if test="driverLicenceBackImage != null" >
+        driver_licence_back_image = #{driverLicenceBackImage,jdbcType=VARCHAR},
+      </if>
+      <if test="personalPhone != null" >
+        personal_phone = #{personalPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="workPhone != null" >
+        work_phone = #{workPhone,jdbcType=VARCHAR},
+      </if>
+      <if test="driver_licence_file_number != null" >
+        driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="operationStatus != null" >
+        operation_status = #{operationStatus,jdbcType=INTEGER},
+      </if>
+      <if test="periodsStatus != null" >
+        periods_status = #{periodsStatus,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.Driver" >
+    update maple_driver
+    set car_id = #{carId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      co_model_id = #{coModelId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
+      id_number = #{idNumber,jdbcType=VARCHAR},
+      driver_car_image = #{driverCarImage,jdbcType=VARCHAR},
+      driver_licence_front_image = #{driverLicenceFrontImage,jdbcType=VARCHAR},
+      driver_licence_back_image = #{driverLicenceBackImage,jdbcType=VARCHAR},
+      personal_phone = #{personalPhone,jdbcType=VARCHAR},
+      work_phone = #{workPhone,jdbcType=VARCHAR},
+      driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
+      operation_status = #{operationStatus,jdbcType=INTEGER},
+      periods_status = #{periodsStatus,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="setDriverStatusByUserIdAndDriverIds">
+    UPDATE maple_driver
+    SET operation_status=#{status}
+    <where>
+    <if test="userId!=null">
+    user_id=#{userId}
+    </if>
+    and id in <foreach collection="driverIdList" separator="," open="(" index="index" item="item" close=")">
+    #{item}
+  </foreach>
+    </where>
+  </update>
+</mapper>

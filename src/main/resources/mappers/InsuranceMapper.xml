@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.InsuranceMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.Insurance" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="car_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="insurance_type" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="company_name" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="insurance_price" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="expire_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, car_id, insurance_type, company_name, insurance_price, expire_date, create_time, 
+    update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_insurance
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <select id="selectByMultiParams" resultMap="BaseResultMap" parameterType="map">
+    SELECT <include refid="Base_Column_List"/>
+    From maple_insurance
+    <where>
+      <if test="carIdList!=null">
+        and id in
+        <foreach collection="carIdList" separator="," open="(" index="index" item="item" close=")">
+        #{item}
+        </foreach>
+      </if>
+      <if test="carId!=null">
+        and id=#{carId}
+      </if>
+      <if test="companyName!=null">
+        and company_name like #{companyName}
+      </if>
+      <if test="insuranceType!=null">
+        and insurance_type=#{insuranceType}
+      </if>
+      <if test="createDateTop!=null">
+        and create_time &lt;= #{createDateT}
+      </if>
+      <if test="createDateBut!=null">
+        and create_time &gt;= #{createDateB}
+      </if>
+    </where>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_insurance
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.Insurance" >
+    insert into maple_insurance (id, car_id, insurance_type, 
+      company_name, insurance_price, expire_date, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{insuranceType,jdbcType=INTEGER}, 
+      #{companyName,jdbcType=VARCHAR}, #{insurancePrice,jdbcType=DECIMAL}, #{expireDate,jdbcType=DATE},
+            now(), now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.Insurance" >
+    insert into maple_insurance
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="carId != null" >
+        car_id,
+      </if>
+      <if test="insuranceType != null" >
+        insurance_type,
+      </if>
+      <if test="companyName != null" >
+        company_name,
+      </if>
+      <if test="insurancePrice != null" >
+        insurance_price,
+      </if>
+      <if test="expireDate != null" >
+        expire_date,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="carId != null" >
+        #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="insuranceType != null" >
+        #{insuranceType,jdbcType=INTEGER},
+      </if>
+      <if test="companyName != null" >
+        #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="insurancePrice != null" >
+        #{insurancePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="expireDate != null" >
+        #{expireDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Insurance" >
+    update maple_insurance
+    <set >
+      <if test="carId != null" >
+        car_id = #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="insuranceType != null" >
+        insurance_type = #{insuranceType,jdbcType=INTEGER},
+      </if>
+      <if test="companyName != null" >
+        company_name = #{companyName,jdbcType=VARCHAR},
+      </if>
+      <if test="insurancePrice != null" >
+        insurance_price = #{insurancePrice,jdbcType=DECIMAL},
+      </if>
+      <if test="expireDate != null" >
+        expire_date = #{expireDate,jdbcType=DATE},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.Insurance" >
+    update maple_insurance
+    set car_id = #{carId,jdbcType=INTEGER},
+      insurance_type = #{insuranceType,jdbcType=INTEGER},
+      company_name = #{companyName,jdbcType=VARCHAR},
+      insurance_price = #{insurancePrice,jdbcType=DECIMAL},
+      expire_date = #{expireDate,jdbcType=DATE},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

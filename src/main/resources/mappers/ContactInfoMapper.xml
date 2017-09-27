@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.ContactInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.ContactInfo" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="driver_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="wechat" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="email" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="mail_add" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="living_add" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_name_first" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_phone_first" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_add_first" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_name_second" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_phone_second" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="em_add_second" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, driver_id, wechat, email, mail_add, living_add, em_name_first, em_phone_first, 
+    em_add_first, em_name_second, em_phone_second, em_add_second, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_contact_info
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+    <select id="selectByDriverId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+      from maple_contact_info
+      WHERE driver_id=#{driverId}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_contact_info
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.ContactInfo" >
+    insert into maple_contact_info (id, driver_id, wechat, 
+      email, mail_add, living_add, 
+      em_name_first, em_phone_first, em_add_first, 
+      em_name_second, em_phone_second, em_add_second, 
+      create_time, update_time)
+    values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{wechat,jdbcType=VARCHAR}, 
+      #{email,jdbcType=VARCHAR}, #{mailAdd,jdbcType=VARCHAR}, #{livingAdd,jdbcType=VARCHAR}, 
+      #{emNameFirst,jdbcType=VARCHAR}, #{emPhoneFirst,jdbcType=VARCHAR}, #{emAddFirst,jdbcType=VARCHAR}, 
+      #{emNameSecond,jdbcType=VARCHAR}, #{emPhoneSecond,jdbcType=VARCHAR}, #{emAddSecond,jdbcType=VARCHAR},
+            now(), now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.ContactInfo" >
+    insert into maple_contact_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="driverId != null" >
+        driver_id,
+      </if>
+      <if test="wechat != null" >
+        wechat,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="mailAdd != null" >
+        mail_add,
+      </if>
+      <if test="livingAdd != null" >
+        living_add,
+      </if>
+      <if test="emNameFirst != null" >
+        em_name_first,
+      </if>
+      <if test="emPhoneFirst != null" >
+        em_phone_first,
+      </if>
+      <if test="emAddFirst != null" >
+        em_add_first,
+      </if>
+      <if test="emNameSecond != null" >
+        em_name_second,
+      </if>
+      <if test="emPhoneSecond != null" >
+        em_phone_second,
+      </if>
+      <if test="emAddSecond != null" >
+        em_add_second,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="driverId != null" >
+        #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="wechat != null" >
+        #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mailAdd != null" >
+        #{mailAdd,jdbcType=VARCHAR},
+      </if>
+      <if test="livingAdd != null" >
+        #{livingAdd,jdbcType=VARCHAR},
+      </if>
+      <if test="emNameFirst != null" >
+        #{emNameFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emPhoneFirst != null" >
+        #{emPhoneFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emAddFirst != null" >
+        #{emAddFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emNameSecond != null" >
+        #{emNameSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="emPhoneSecond != null" >
+        #{emPhoneSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="emAddSecond != null" >
+        #{emAddSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.ContactInfo" >
+    update maple_contact_info
+    <set >
+      <if test="driverId != null" >
+        driver_id = #{driverId,jdbcType=INTEGER},
+      </if>
+      <if test="wechat != null" >
+        wechat = #{wechat,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="mailAdd != null" >
+        mail_add = #{mailAdd,jdbcType=VARCHAR},
+      </if>
+      <if test="livingAdd != null" >
+        living_add = #{livingAdd,jdbcType=VARCHAR},
+      </if>
+      <if test="emNameFirst != null" >
+        em_name_first = #{emNameFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emPhoneFirst != null" >
+        em_phone_first = #{emPhoneFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emAddFirst != null" >
+        em_add_first = #{emAddFirst,jdbcType=VARCHAR},
+      </if>
+      <if test="emNameSecond != null" >
+        em_name_second = #{emNameSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="emPhoneSecond != null" >
+        em_phone_second = #{emPhoneSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="emAddSecond != null" >
+        em_add_second = #{emAddSecond,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.ContactInfo" >
+    update maple_contact_info
+    set driver_id = #{driverId,jdbcType=INTEGER},
+      wechat = #{wechat,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      mail_add = #{mailAdd,jdbcType=VARCHAR},
+      living_add = #{livingAdd,jdbcType=VARCHAR},
+      em_name_first = #{emNameFirst,jdbcType=VARCHAR},
+      em_phone_first = #{emPhoneFirst,jdbcType=VARCHAR},
+      em_add_first = #{emAddFirst,jdbcType=VARCHAR},
+      em_name_second = #{emNameSecond,jdbcType=VARCHAR},
+      em_phone_second = #{emPhoneSecond,jdbcType=VARCHAR},
+      em_add_second = #{emAddSecond,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

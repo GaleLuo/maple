@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.maple.dao.CoModelMapper" >
+  <resultMap id="BaseResultMap" type="com.maple.pojo.CoModel" >
+    <constructor >
+      <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="car_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="model_type" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="down_amount" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="total_amount" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="period_num" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="period_start_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="period_end_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="final_amount" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="management_fee" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="deadline" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="comment" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+      <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
+    </constructor>
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, car_id, model_type, down_amount, total_amount, period_num,
+    period_start_date, period_end_date, final_amount, management_fee, deadline, comment, 
+    create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from maple_co_model
+    where id = #{id}
+  </select>
+  <select id="selectByCarId" resultMap="BaseResultMap" parameterType="map">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_co_model
+    WHERE car_id=#{carId}
+  </select>
+
+  <select id="findAmountReceivable" resultType="java.math.BigDecimal">
+    SELECT sum(ppl.amount) from maple_co_model as cm RIGHT JOIN maple_period_plan as ppl on ppl.co_model_id=cm.id WHERE cm.car_id in (SELECT DISTINCT (d.car_id) from maple_driver as d WHERE d.operation_status=2) and (ppl.start_date &lt;= #{endDate} and ppl.end_date &gt;= #{startDate})
+    <if test="coModelType != null">
+      and cm.model_type = #{coModelType}
+    </if>
+  </select>
+
+  <select id="selectByCarIdByNow" resultType="com.maple.pojo.CoModel">
+    select <include refid="Base_Column_List"/>
+    FROM maple_co_model
+    WHERE car_id = #{carId}
+    and period_start_date &lt; now() and now() &lt; period_end_date
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from maple_co_model
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.maple.pojo.CoModel" useGeneratedKeys="true" keyProperty="id">
+    insert into maple_co_model (id, car_id,
+      model_type, down_amount, total_amount, 
+      period_num, period_start_date,
+      period_end_date, final_amount, management_fee, 
+      deadline, comment, create_time, 
+      update_time)
+    values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER},
+      #{modelType,jdbcType=INTEGER}, #{downAmount,jdbcType=DECIMAL}, #{totalAmount,jdbcType=DECIMAL}, 
+      #{periodNum,jdbcType=INTEGER}, #{periodStartDate,jdbcType=DATE},
+      #{periodEndDate,jdbcType=DATE}, #{finalAmount,jdbcType=DECIMAL}, #{managementFee,jdbcType=DECIMAL}, 
+      #{deadline,jdbcType=DATE}, #{comment,jdbcType=VARCHAR}, now(),
+            now())
+  </insert>
+  <insert id="insertSelective" parameterType="com.maple.pojo.CoModel" >
+    insert into maple_co_model
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="carId != null" >
+        car_id,
+      </if>
+      <if test="modelType != null" >
+        model_type,
+      </if>
+      <if test="downAmount != null" >
+        down_amount,
+      </if>
+      <if test="totalAmount != null" >
+        total_amount,
+      </if>
+      <if test="periodNum != null" >
+        period_num,
+      </if>
+      <if test="periodStartDate != null" >
+        period_start_date,
+      </if>
+      <if test="periodEndDate != null" >
+        period_end_date,
+      </if>
+      <if test="finalAmount != null" >
+        final_amount,
+      </if>
+      <if test="managementFee != null" >
+        management_fee,
+      </if>
+      <if test="deadline != null" >
+        deadline,
+      </if>
+      <if test="comment != null" >
+        comment,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="carId != null" >
+        #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="modelType != null" >
+        #{modelType,jdbcType=INTEGER},
+      </if>
+      <if test="downAmount != null" >
+        #{downAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalAmount != null" >
+        #{totalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="periodNum != null" >
+        #{periodNum,jdbcType=INTEGER},
+      </if>
+      <if test="periodPayment != null" >
+        #{periodPayment,jdbcType=DECIMAL},
+      </if>
+      <if test="periodStartDate != null" >
+        #{periodStartDate,jdbcType=DATE},
+      </if>
+      <if test="periodEndDate != null" >
+        #{periodEndDate,jdbcType=DATE},
+      </if>
+      <if test="finalAmount != null" >
+        #{finalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="managementFee != null" >
+        #{managementFee,jdbcType=DECIMAL},
+      </if>
+      <if test="deadline != null" >
+        #{deadline,jdbcType=DATE},
+      </if>
+      <if test="comment != null" >
+        #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        now(),
+      </if>
+      <if test="updateTime != null" >
+        now(),
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.CoModel" >
+    update maple_co_model
+    <set >
+      <if test="carId != null" >
+        car_id = #{carId,jdbcType=INTEGER},
+      </if>
+      <if test="modelType != null" >
+        model_type = #{modelType,jdbcType=INTEGER},
+      </if>
+      <if test="downAmount != null" >
+        down_amount = #{downAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="totalAmount != null" >
+        total_amount = #{totalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="periodNum != null" >
+        period_num = #{periodNum,jdbcType=INTEGER},
+      </if>
+
+
+      <if test="periodStartDate != null" >
+        period_start_date = #{periodStartDate,jdbcType=DATE},
+      </if>
+      <if test="periodEndDate != null" >
+        period_end_date = #{periodEndDate,jdbcType=DATE},
+      </if>
+      <if test="finalAmount != null" >
+        final_amount = #{finalAmount,jdbcType=DECIMAL},
+      </if>
+      <if test="managementFee != null" >
+        management_fee = #{managementFee,jdbcType=DECIMAL},
+      </if>
+      <if test="deadline != null" >
+        deadline = #{deadline,jdbcType=DATE},
+      </if>
+      <if test="comment != null" >
+        comment = #{comment,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = now(),
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.maple.pojo.CoModel" >
+    update maple_co_model
+    set
+      car_id = #{carId,jdbcType=INTEGER},
+      model_type = #{modelType,jdbcType=INTEGER},
+      down_amount = #{downAmount,jdbcType=DECIMAL},
+      total_amount = #{totalAmount,jdbcType=DECIMAL},
+      period_num = #{periodNum,jdbcType=INTEGER},
+      period_start_date = #{periodStartDate,jdbcType=DATE},
+      period_end_date = #{periodEndDate,jdbcType=DATE},
+      final_amount = #{finalAmount,jdbcType=DECIMAL},
+      management_fee = #{managementFee,jdbcType=DECIMAL},
+      deadline = #{deadline,jdbcType=DATE},
+      comment = #{comment,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = now()
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
