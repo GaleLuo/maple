@@ -255,13 +255,9 @@ public class Const {
 
     public enum CoModel{
         FULL_PAYMENT(10,"全款"),
-        FULL_PAYMENT_OVER(11,"全款合作结束"),
         RENT(20,"正常租赁"),
-        RENT_OVER(21,"租赁合作结束"),
         HIRE_PURCHASE_MONTH(30, "租购-月供"),
-        HIRE_PURCHASE_WEEK(40, "租购-周供"),
-        HIRE_PURCHASE_MONTH_OVER(31, "租购月供结束"),
-        HIRE_PURCHASE_WEEK_OVER(41, "租购周供结束"),;
+        HIRE_PURCHASE_WEEK(40, "租购-周供"),;
 
         public static CoModel codeOf(int code) {
             for (CoModel coModel : CoModel.values()) {
