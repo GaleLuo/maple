@@ -250,6 +250,12 @@ public class Test extends TestBase {
             Cell firstPPN = row.getCell(30);//第一周期月数
             //todo 动态查询应交金额，
 
+            Cell secondPP = row.getCell(31);//第一周期金额
+            Cell secondPPN = row.getCell(32);//第一周期月数
+
+            Cell thirdPP = row.getCell(33);//第一周期金额
+            Cell thirdPPN = row.getCell(34);//第一周期月数
+
             Cell totalAmount = row.getCell(35);
             Cell pickDateCell = row.getCell(36);
 
@@ -270,6 +276,9 @@ public class Test extends TestBase {
                 car.setPickDate(startDate);
                 carMapper.insert(car);
 
+                PeriodPlan periodPlan = new PeriodPlan();
+                PeriodPlan secondPlan;
+                PeriodPlan thirdPlan;
 
                 coModel.setCarId(car.getId());
                 if (modelType.getStringCellValue().equals("周")) {
@@ -283,6 +292,34 @@ public class Test extends TestBase {
                         //星期二到星期五则下个星期二
                         startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 7);
                     }
+                    coModel.setPeriodStartDate(startDate);
+                    periodPlan.setStartDate(startDate);
+                    endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                    //结束日期最接近的星期二
+                    endDate = DateTimeUtil.getWeekStartDate(endDate);
+                    if (secondPP != null) {
+                        secondPlan = new PeriodPlan();
+                        secondPlan.setAmount(new BigDecimal(secondPP.getNumericCellValue()));
+                        Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
+                        secondPlan.setStartDate(secondStartDate);//赋值
+                        Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                        secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
+                        if (thirdPP != null) {
+                            thirdPlan = new PeriodPlan();
+                            thirdPlan.setAmount(new BigDecimal(thirdPP.getNumericCellValue()));
+                            Date thirdStartDate = secondEndDate;
+                            thirdPlan.setStartDate(thirdStartDate);
+                            Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                            thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
+                            thirdPlan.setEndDate(thirdEndDate);
+                            secondEndDate.setTime(secondEndDate.getTime() - 1000);
+                        }
+                        secondPlan.setEndDate(secondEndDate);//判断完第三周期之后赋值
+
+                        endDate.setTime(endDate.getTime() - 1000);//同时第一周期结束日期减一秒,防止重复计算应缴额
+
+                    }
+                    periodPlan.setEndDate(endDate);//等判断完第二周期后设置结束日期
 
                 } else if (modelType.getStringCellValue().equals("月")) {
                     coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
@@ -302,8 +339,7 @@ public class Test extends TestBase {
                 coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
                 coModelMapper.insert(coModel);
 
-
-
+                periodPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
 
 
             } else {
@@ -379,7 +415,8 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test3() {
-
+        DateTime dateTime = new DateTime(2017,9,24,0,0,0).withDayOfWeek(2);
+        System.out.println(dateTime);
     }
 }
 
