@@ -284,9 +284,6 @@ public class Test extends TestBase {
                         startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 7);
                     }
 
-
-
-
                 } else if (modelType.getStringCellValue().equals("月")) {
                     coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
                     coModel.setPeriodStartDate(startDate);
@@ -300,12 +297,12 @@ public class Test extends TestBase {
                     coModel.setPeriodEndDate(endDate);
 
                 }
-
                 coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
                 coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
                 coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
                 coModelMapper.insert(coModel);
 
+                
 
 
 

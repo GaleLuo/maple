@@ -15,7 +15,7 @@
       <arg column="personal_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="work_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="driver_licence_file_number" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="operation_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="driver_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="periods_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
       <arg column="update_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -28,7 +28,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, car_id, user_id,co_model_id,name, id_number, driver_car_image, driver_licence_front_image,
-    driver_licence_back_image, personal_phone, work_phone, driver_licence_file_number, operation_status,
+    driver_licence_back_image, personal_phone, work_phone, driver_licence_file_number, driver_status,
     periods_status, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -168,7 +168,7 @@
     and ppl.end_date &gt; #{startDate}))
   </select>
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
-    SELECT d.id as id,d.car_id as carId,d.operation_status as operationStatus,d.personal_phone as personalPhone,d.name as name,
+    SELECT d.id as id,d.car_id as carId,d.driver_status as driverStatus,d.personal_phone as personalPhone,d.name as name,
     d.co_model_id as coModelId
     FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id
     <where>
@@ -179,7 +179,7 @@
         and d.personal_phone=#{phoneNum}
       </if>
       <if test="driverStatus!=null">
-        and d.operation_status=#{driverStatus}
+        and d.driver_status=#{driverStatus}
       </if>
       <if test="coModelType">
         and d.car_id in (select distinct(cm.car_id) from maple_co_model as cm where cm.model_type = #{coModelType} )
@@ -205,13 +205,13 @@
       name, id_number, driver_car_image, 
       driver_licence_front_image, driver_licence_back_image,
       personal_phone, work_phone, driver_licence_file_number,
-      operation_status, periods_status, create_time, 
+      driver_status, periods_status, create_time,
       update_time)
     values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{coModelId,jdbcType=INTEGER},
       #{name,jdbcType=VARCHAR}, #{idNumber,jdbcType=VARCHAR}, #{driverCarImage,jdbcType=VARCHAR}, 
       #{driverLicenceFrontImage,jdbcType=VARCHAR}, #{driverLicenceBackImage,jdbcType=VARCHAR},
       #{personalPhone,jdbcType=VARCHAR}, #{workPhone,jdbcType=VARCHAR}, #{driver_licence_file_number,jdbcType=VARCHAR},
-      #{operationStatus,jdbcType=INTEGER}, #{periodsStatus,jdbcType=INTEGER}, now(),
+      #{driverStatus,jdbcType=INTEGER}, #{periodsStatus,jdbcType=INTEGER}, now(),
             now())
   </insert>
   <insert id="insertSelective" parameterType="com.maple.pojo.Driver" >
@@ -253,8 +253,8 @@
       <if test="driverLicenceFileNumber != null" >
         driver_licence_file_number,
       </if>
-      <if test="operationStatus != null" >
-        operation_status,
+      <if test="driverStatus != null" >
+        driver_status,
       </if>
       <if test="periodsStatus != null" >
         periods_status,
@@ -303,8 +303,8 @@
       <if test="driverLicenceFileNumber != null" >
         #{driver_licence_file_number,jdbcType=VARCHAR},
       </if>
-      <if test="operationStatus != null" >
-        #{operationStatus,jdbcType=INTEGER},
+      <if test="driverStatus != null" >
+        #{driverStatus,jdbcType=INTEGER},
       </if>
       <if test="periodsStatus != null" >
         #{periodsStatus,jdbcType=INTEGER},
@@ -353,8 +353,8 @@
       <if test="driver_licence_file_number != null" >
         driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
       </if>
-      <if test="operationStatus != null" >
-        operation_status = #{operationStatus,jdbcType=INTEGER},
+      <if test="driverStatus != null" >
+        driver_status = #{driverStatus,jdbcType=INTEGER},
       </if>
       <if test="periodsStatus != null" >
         periods_status = #{periodsStatus,jdbcType=INTEGER},
@@ -381,7 +381,7 @@
       personal_phone = #{personalPhone,jdbcType=VARCHAR},
       work_phone = #{workPhone,jdbcType=VARCHAR},
       driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
-      operation_status = #{operationStatus,jdbcType=INTEGER},
+      driver_status = #{driverStatus,jdbcType=INTEGER},
       periods_status = #{periodsStatus,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
@@ -389,7 +389,7 @@
   </update>
   <update id="setDriverStatusByUserIdAndDriverIds">
     UPDATE maple_driver
-    SET operation_status=#{status}
+    SET driver_status=#{status}
     <where>
     <if test="userId!=null">
     user_id=#{userId}

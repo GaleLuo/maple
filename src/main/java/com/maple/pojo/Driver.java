@@ -27,7 +27,7 @@ public class Driver {
 
     private String driverLicenceFileNumber;
 
-    private Integer operationStatus;
+    private Integer driverStatus;
 
     private Integer periodsStatus;
 
@@ -35,7 +35,7 @@ public class Driver {
 
     private Date updateTime;
 
-    public Driver(Integer id, Integer carId, Integer userId, Integer coModelId, String name, String idNumber, String driverCarImage, String driverLicenceFrontImage, String driverLicenceBackImage, String personalPhone, String workPhone, String driverLicenceFileNumber, Integer operationStatus, Integer periodsStatus, Date createTime, Date updateTime) {
+    public Driver(Integer id, Integer carId, Integer userId, Integer coModelId, String name, String idNumber, String driverCarImage, String driverLicenceFrontImage, String driverLicenceBackImage, String personalPhone, String workPhone, String driverLicenceFileNumber, Integer driverStatus, Integer periodsStatus, Date createTime, Date updateTime) {
         this.id = id;
         this.carId = carId;
         this.userId = userId;
@@ -48,7 +48,7 @@ public class Driver {
         this.personalPhone = personalPhone;
         this.workPhone = workPhone;
         this.driverLicenceFileNumber = driverLicenceFileNumber;
-        this.operationStatus = operationStatus;
+        this.driverStatus = driverStatus;
         this.periodsStatus = periodsStatus;
         this.createTime = createTime;
         this.updateTime = updateTime;
@@ -155,11 +155,11 @@ public class Driver {
     }
 
     public Integer getOperationStatus() {
-        return operationStatus;
+        return driverStatus;
     }
 
-    public void setOperationStatus(Integer operationStatus) {
-        this.operationStatus = operationStatus;
+    public void setOperationStatus(Integer driverStatus) {
+        this.driverStatus = driverStatus;
     }
 
     public Integer getPeriodsStatus() {

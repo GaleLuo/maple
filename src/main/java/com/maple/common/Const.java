@@ -1,10 +1,7 @@
 package com.maple.common;
 
 import com.google.common.collect.Sets;
-import com.maple.pojo.Driver;
-import org.apache.ibatis.javassist.runtime.Desc;
 
-import java.beans.PropertyVetoException;
 import java.util.Set;
 
 /**
