@@ -11,7 +11,7 @@
  Target Server Version : 50716
  File Encoding         : utf-8
 
- Date: 09/27/2017 21:13:38 PM
+ Date: 09/28/2017 00:11:03 AM
 */
 
 SET NAMES utf8mb4;
@@ -155,7 +155,7 @@ CREATE TABLE `maple_driver` (
   `personal_phone` varchar(20) NOT NULL COMMENT '私人手机号',
   `work_phone` varchar(20) DEFAULT NULL COMMENT '工作手机号',
   `driver_licence_file_number` varchar(50) DEFAULT NULL COMMENT '驾照档案号',
-  `operation_status` int(4) NOT NULL COMMENT '运营状态:0-意向客户,1-预备上线,2-正常运营,3-解除合作,4-无意向,5-已删除',
+  `driver_status` int(4) NOT NULL COMMENT '司机状态:0-意向客户,1-预备上线,2-正常运营,3-解除合作,4-无意向,5-已删除',
   `periods_status` int(4) DEFAULT NULL COMMENT '分期状态:1-正常,2-有逾期,3-逾期三次及以上',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL COMMENT '最后一次更新时间',

@@ -230,7 +230,7 @@ public class Test extends TestBase {
             Cell driverPhone = row.getCell(1);
             Cell carName = row.getCell(3);
             Cell plateNum = row.getCell(4);//车牌号
-            Cell operationStatus = row.getCell(5);//司机状态
+            Cell driverStatus = row.getCell(5);//司机状态
             Cell idNum = row.getCell(8);//身份证号码
             Cell driverLicenceFileNumber = row.getCell(9);//驾照档案号
             Cell vin = row.getCell(11);//车架号
@@ -261,7 +261,7 @@ public class Test extends TestBase {
             Car car = new Car();
             CoModel coModel = new CoModel();
             Date startDate = pickDateCell.getDateCellValue();
-            Date endDate= endDateCell.getDateCellValue();
+            Date endDate;
             if (carResult == null) {
                 car.setName(carName.getStringCellValue());
                 car.setVin(vin.getStringCellValue());
@@ -293,7 +293,7 @@ public class Test extends TestBase {
                 } else if (modelType.getStringCellValue().equals("全款")) {
                     coModel.setModelType(Const.CoModel.FULL_PAYMENT.getCode());
                     coModel.setPeriodStartDate(startDate);
-                    endDate = new DateTime(startDate).plusYears(3).toDate();
+                    endDate = endDateCell.getDateCellValue();
                     coModel.setPeriodEndDate(endDate);
 
                 }
@@ -302,7 +302,7 @@ public class Test extends TestBase {
                 coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
                 coModelMapper.insert(coModel);
 
-                
+
 
 
 
