@@ -88,8 +88,8 @@
       FROM maple_driver
       WHERE car_id=#{carId}
   </select>
-  <select id="selectDriverListByCarId" resultMap="CarListDriver"  parameterType="integer">
-    select id,name,personal_phone
+  <select id="selectDriverListByCarId" resultMap="BaseResultMap"  parameterType="integer">
+    select <include refid="Base_Column_List"/>
     from maple_driver
     where car_id=#{carId}
   </select>
@@ -105,10 +105,10 @@
   </select>
   <select id="selectDriverByCoModelType" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/>
-    FROM maple_driver
+    FROM maple_driver d
     <where>
       <if test="coModelType!=null">
-        and car_id in (select car_id from maple_co_model where model_type=#{coModelType})
+        and d.car_id in (select cm.car_id from maple_co_model cm where cm.model_type=#{coModelType})
       </if>
     </where>
   </select>

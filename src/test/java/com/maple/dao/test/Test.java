@@ -277,90 +277,176 @@ public class Test extends TestBase {
                 car.setPickDate(startDate);
                 car.setCarStatus((int) carStatus.getNumericCellValue());
                 carMapper.insert(car);
-            }
+                PeriodPlan firstPlan = new PeriodPlan();
+                PeriodPlan secondPlan = null;
+                PeriodPlan thirdPlan = null;
 
-            PeriodPlan firstPlan = new PeriodPlan();
-            PeriodPlan secondPlan=null;
-            PeriodPlan thirdPlan=null;
-
-            coModel.setCarId(car.getId());
-            if (modelType.getStringCellValue().equals("周")) {
-                coModel.setModelType(Const.CoModel.HIRE_PURCHASE_WEEK.getCode());
-                //计算未来最近的星期二
-                int dayOfWeek = new DateTime(startDate).getDayOfWeek();
-                startDate = DateTimeUtil.getWeekStartDate(startDate);
-                if (dayOfWeek > 5 & dayOfWeek < 2) {
-                    startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 14); //如果是星期5-星期一，则下下个星期二为起始日
-                } else {
-                    //星期二到星期五则下个星期二
-                    startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 7);
-                }
-                coModel.setPeriodStartDate(startDate);
-                firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()/4));
-                firstPlan.setStartDate(startDate);
-                endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
-                //结束日期最接近的星期二
-                endDate = DateTimeUtil.getWeekStartDate(endDate);
-                if (secondPP.getNumericCellValue()!=0) {
-                    secondPlan = new PeriodPlan();
-                    secondPlan.setAmount(new BigDecimal(secondPP.getNumericCellValue()/4));
-                    Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
-                    secondPlan.setStartDate(secondStartDate);//赋值
-                    Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
-                    secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
-                    if (thirdPP.getNumericCellValue()!=0) {
-                        thirdPlan = new PeriodPlan();
-                        thirdPlan.setAmount(new BigDecimal(thirdPP.getNumericCellValue()/4));
-                        Date thirdStartDate = secondEndDate;
-                        thirdPlan.setStartDate(thirdStartDate);
-                        Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
-                        thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
-                        thirdPlan.setEndDate(thirdEndDate);
-                        secondEndDate.setTime(secondEndDate.getTime() - 1000);
+                coModel.setCarId(car.getId());
+                if (modelType.getStringCellValue().equals("周")) {
+                    coModel.setModelType(Const.CoModel.HIRE_PURCHASE_WEEK.getCode());
+                    //计算未来最近的星期二
+                    int dayOfWeek = new DateTime(startDate).getDayOfWeek();
+                    startDate = DateTimeUtil.getWeekStartDate(startDate);
+                    if (dayOfWeek > 5 & dayOfWeek < 2) {
+                        startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 14); //如果是星期5-星期一，则下下个星期二为起始日
+                    } else {
+                        //星期二到星期五则下个星期二
+                        startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 7);
                     }
-                    secondPlan.setEndDate(secondEndDate);//判断完第三周期之后赋值
+                    coModel.setPeriodStartDate(startDate);
+                    firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue() / 4));
+                    firstPlan.setStartDate(startDate);
+                    endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                    //结束日期最接近的星期二
+                    endDate = DateTimeUtil.getWeekStartDate(endDate);
+                    if (secondPP.getNumericCellValue() != 0) {
+                        secondPlan = new PeriodPlan();
+                        secondPlan.setAmount(new BigDecimal(secondPP.getNumericCellValue() / 4));
+                        Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
+                        secondPlan.setStartDate(secondStartDate);//赋值
+                        Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                        secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
+                        if (thirdPP.getNumericCellValue() != 0) {
+                            thirdPlan = new PeriodPlan();
+                            thirdPlan.setAmount(new BigDecimal(thirdPP.getNumericCellValue() / 4));
+                            Date thirdStartDate = secondEndDate;
+                            thirdPlan.setStartDate(thirdStartDate);
+                            Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                            thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
+                            thirdPlan.setEndDate(thirdEndDate);
+                            secondEndDate.setTime(secondEndDate.getTime() - 1000);
+                        }
+                        secondPlan.setEndDate(secondEndDate);//判断完第三周期之后赋值
 
-                    endDate.setTime(endDate.getTime() - 1000);//同时第一周期结束日期减一秒,防止重复计算应缴额
+                        endDate.setTime(endDate.getTime() - 1000);//同时第一周期结束日期减一秒,防止重复计算应缴额
 
+                    }
+                    firstPlan.setEndDate(endDate);//等判断完第二周期后设置结束日期
+
+                } else if (modelType.getStringCellValue().equals("月")) {
+                    firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
+                    firstPlan.setStartDate(startDate);
+                    firstPlan.setEndDate(new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate());
+                    coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
+                    coModel.setPeriodStartDate(startDate);
+                    DateTime dateTime = new DateTime(startDate);
+                    endDate = dateTime.plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                    coModel.setPeriodEndDate(endDate);
+                } else if (modelType.getStringCellValue().equals("全款")) {
+                    coModel.setModelType(Const.CoModel.FULL_PAYMENT.getCode());
+                    coModel.setPeriodStartDate(startDate);
                 }
-                firstPlan.setEndDate(endDate);//等判断完第二周期后设置结束日期
+                coModel.setPeriodEndDate(endDateCell.getDateCellValue());
+                coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
+                coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
+                coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
+                coModelMapper.insert(coModel);
+                //非全款添加还款计划
+                if (!modelType.getStringCellValue().equals("全款")) {
+                    firstPlan.setCoModelId(coModel.getId());
+                    periodPlanMapper.insert(firstPlan);
+                    if (secondPlan != null) {
+                        Date secondPlanStartDate = secondPlan.getStartDate();
+                        secondPlanStartDate.setTime(secondPlanStartDate.getTime() + 1000);
+                        secondPlan.setCoModelId(coModel.getId());
+                        periodPlanMapper.insert(secondPlan);
+                    }
+                    if (thirdPlan != null) {
+                        Date thirdPlanStartDate = thirdPlan.getStartDate();
+                        thirdPlanStartDate.setTime(thirdPlanStartDate.getTime() + 1000);
+                        thirdPlan.setCoModelId(coModel.getId());
+                        periodPlanMapper.insert(thirdPlan);
+                    }
+                }
+            } else {
+                //如果已经有车辆
+                List<Driver> drivers = driverMapper.selectDriverListByCarId(car.getId());
+                Driver driver = drivers.get(0);//判断是否是已经合作结束 的司机，是则重新添加新的合作模式
+                if (driver.getDriverStatus() == Const.DriverStatus.TERMINATED_DRIVER.getCode()) {
+                    PeriodPlan firstPlan = new PeriodPlan();
+                    PeriodPlan secondPlan = null;
+                    PeriodPlan thirdPlan = null;
 
-            } else if (modelType.getStringCellValue().equals("月")) {
-                firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
-                firstPlan.setStartDate(startDate);
-                firstPlan.setEndDate(new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate());
-                coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
-                coModel.setPeriodStartDate(startDate);
-                DateTime dateTime = new DateTime(startDate);
-                endDate = dateTime.plusMonths((int) firstPPN.getNumericCellValue()).toDate();
-                coModel.setPeriodEndDate(endDate);
-            } else if (modelType.getStringCellValue().equals("全款")) {
-                coModel.setModelType(Const.CoModel.FULL_PAYMENT.getCode());
-                coModel.setPeriodStartDate(startDate);
+                    coModel.setCarId(car.getId());
+                    if (modelType.getStringCellValue().equals("周")) {
+                        coModel.setModelType(Const.CoModel.HIRE_PURCHASE_WEEK.getCode());
+                        //计算未来最近的星期二
+                        int dayOfWeek = new DateTime(startDate).getDayOfWeek();
+                        startDate = DateTimeUtil.getWeekStartDate(startDate);
+                        if (dayOfWeek > 5 & dayOfWeek < 2) {
+                            startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 14); //如果是星期5-星期一，则下下个星期二为起始日
+                        } else {
+                            //星期二到星期五则下个星期二
+                            startDate.setTime(startDate.getTime() + 3600 * 1000 * 24 * 7);
+                        }
+                        coModel.setPeriodStartDate(startDate);
+                        firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue() / 4));
+                        firstPlan.setStartDate(startDate);
+                        endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                        //结束日期最接近的星期二
+                        endDate = DateTimeUtil.getWeekStartDate(endDate);
+                        if (secondPP.getNumericCellValue() != 0) {
+                            secondPlan = new PeriodPlan();
+                            secondPlan.setAmount(new BigDecimal(secondPP.getNumericCellValue() / 4));
+                            Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
+                            secondPlan.setStartDate(secondStartDate);//赋值
+                            Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                            secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
+                            if (thirdPP.getNumericCellValue() != 0) {
+                                thirdPlan = new PeriodPlan();
+                                thirdPlan.setAmount(new BigDecimal(thirdPP.getNumericCellValue() / 4));
+                                Date thirdStartDate = secondEndDate;
+                                thirdPlan.setStartDate(thirdStartDate);
+                                Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                                thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
+                                thirdPlan.setEndDate(thirdEndDate);
+                                secondEndDate.setTime(secondEndDate.getTime() - 1000);
+                            }
+                            secondPlan.setEndDate(secondEndDate);//判断完第三周期之后赋值
+
+                            endDate.setTime(endDate.getTime() - 1000);//同时第一周期结束日期减一秒,防止重复计算应缴额
+
+                        }
+                        firstPlan.setEndDate(endDate);//等判断完第二周期后设置结束日期
+
+                    } else if (modelType.getStringCellValue().equals("月")) {
+                        firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
+                        firstPlan.setStartDate(startDate);
+                        firstPlan.setEndDate(new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate());
+                        coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
+                        coModel.setPeriodStartDate(startDate);
+                        DateTime dateTime = new DateTime(startDate);
+                        endDate = dateTime.plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                        coModel.setPeriodEndDate(endDate);
+                    } else if (modelType.getStringCellValue().equals("全款")) {
+                        coModel.setModelType(Const.CoModel.FULL_PAYMENT.getCode());
+                        coModel.setPeriodStartDate(startDate);
+                    }
+                    coModel.setPeriodEndDate(endDateCell.getDateCellValue());
+                    coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
+                    coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
+                    coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
+                    coModelMapper.insert(coModel);
+                    //非全款添加还款计划
+                    if (!modelType.getStringCellValue().equals("全款")) {
+                        firstPlan.setCoModelId(coModel.getId());
+                        periodPlanMapper.insert(firstPlan);
+                        if (secondPlan != null) {
+                            Date secondPlanStartDate = secondPlan.getStartDate();
+                            secondPlanStartDate.setTime(secondPlanStartDate.getTime() + 1000);
+                            secondPlan.setCoModelId(coModel.getId());
+                            periodPlanMapper.insert(secondPlan);
+                        }
+                        if (thirdPlan != null) {
+                            Date thirdPlanStartDate = thirdPlan.getStartDate();
+                            thirdPlanStartDate.setTime(thirdPlanStartDate.getTime() + 1000);
+                            thirdPlan.setCoModelId(coModel.getId());
+                            periodPlanMapper.insert(thirdPlan);
+                        }
+                    }
+                }
+                coModel.setId(driver.getCoModelId());
             }
-            coModel.setPeriodEndDate(endDateCell.getDateCellValue());
-            coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
-            coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
-            coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
-            coModelMapper.insert(coModel);
-            //非全款添加还款计划
-            if (!modelType.getStringCellValue().equals("全款")) {
-                firstPlan.setCoModelId(coModel.getId());
-                periodPlanMapper.insert(firstPlan);
-                if (secondPlan != null) {
-                    Date secondPlanStartDate = secondPlan.getStartDate();
-                    secondPlanStartDate.setTime(secondPlanStartDate.getTime() + 1000);
-                    secondPlan.setCoModelId(coModel.getId());
-                    periodPlanMapper.insert(secondPlan);
-                }
-                if (thirdPlan != null) {
-                    Date thirdPlanStartDate = thirdPlan.getStartDate();
-                    thirdPlanStartDate.setTime(thirdPlanStartDate.getTime() + 1000);
-                    thirdPlan.setCoModelId(coModel.getId());
-                    periodPlanMapper.insert(thirdPlan);
-                }
-            }
-
 
             Driver driver = new Driver();
             driver.setName(driverName.getStringCellValue());

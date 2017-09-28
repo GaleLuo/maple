@@ -1,6 +1,7 @@
 package com.maple.common;
 
 import com.google.common.collect.Sets;
+import com.sun.javafx.logging.PulseLogger;
 
 import java.util.Set;
 
@@ -81,6 +82,45 @@ public class Const {
 
         public int getCode() {
             return code;
+        }
+    }
+
+    public enum CarStatus {
+        NORMAL(1, "正常"),
+        TRANSFERRED(2, "已过户"),
+        STOCKING(3,"库存中");
+
+        private int code;
+        private String desc;
+
+        public static CarStatus codeOf(int code) {
+            for (CarStatus carStatus : CarStatus.values()) {
+                if (carStatus.getCode() == code) {
+                    return carStatus;
+                }
+            }
+            throw new RuntimeException("没有找到相应的枚举");
+
+        }
+        CarStatus(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public void setCode(int code) {
+            this.code = code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setDesc(String desc) {
+            this.desc = desc;
         }
     }
 
