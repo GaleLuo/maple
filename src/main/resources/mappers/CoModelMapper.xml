@@ -37,7 +37,7 @@
   </select>
 
   <select id="findAmountReceivable" resultType="java.math.BigDecimal">
-    SELECT sum(ppl.amount) from maple_co_model as cm RIGHT JOIN maple_period_plan as ppl on ppl.co_model_id=cm.id WHERE cm.car_id in (SELECT DISTINCT (d.car_id) from maple_driver as d WHERE d.operation_status=2) and (ppl.start_date &lt;= #{endDate} and ppl.end_date &gt;= #{startDate})
+    SELECT sum(ppl.amount) from maple_co_model as cm RIGHT JOIN maple_period_plan as ppl on ppl.co_model_id=cm.id WHERE cm.car_id in (SELECT DISTINCT (d.car_id) from maple_driver as d WHERE d.driver_status=1) and (ppl.start_date &lt;= #{endDate} and ppl.end_date &gt;= #{startDate})
     <if test="coModelType != null">
       and cm.model_type = #{coModelType}
     </if>

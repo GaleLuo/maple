@@ -58,8 +58,8 @@
       </if>
     </where>
   </select>
-  <select id="selectByVin" resultType="java.lang.Integer">
-    SELECT id from maple_car WHERE vin=#{stringCellValue}
+  <select id="selectByVin" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/> from maple_car WHERE vin=#{stringCellValue}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_car
@@ -72,7 +72,7 @@
       c_insurance_image, m_insurance_image, gps_number,
       gps_phone, create_time, update_time
       )
-    values (#{id,jdbcType=INTEGER},#{car_status,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{plateNumber,jdbcType=VARCHAR},
+    values (#{id,jdbcType=INTEGER},#{carStatus,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{plateNumber,jdbcType=VARCHAR},
       #{engineNumber,jdbcType=VARCHAR}, #{vin,jdbcType=VARCHAR}, #{pickDate,jdbcType=DATE},
       #{carLicenceFrontImage,jdbcType=VARCHAR}, #{carLicenceBackImage,jdbcType=VARCHAR}, 
       #{cInsuranceImage,jdbcType=VARCHAR}, #{mInsuranceImage,jdbcType=VARCHAR}, #{gpsNumber,jdbcType=VARCHAR}, 

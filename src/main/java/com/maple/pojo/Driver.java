@@ -154,11 +154,11 @@ public class Driver {
         this.driverLicenceFileNumber = driverLicenceFileNumber;
     }
 
-    public Integer getOperationStatus() {
+    public Integer getDriverStatus() {
         return driverStatus;
     }
 
-    public void setOperationStatus(Integer driverStatus) {
+    public void setDriverStatus(Integer driverStatus) {
         this.driverStatus = driverStatus;
     }
 

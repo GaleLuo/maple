@@ -219,9 +219,8 @@ public class Const {
 
     public enum DriverStatus{
         POTENTIAL_DRIVER(0,"意向客户"),
-        PREPARED_DRIVER(1,"预备上线"),
-        NORMAL_DRIVER(2,"正常运营"),
-        TERMINATED_DRIVER(3,"合作结束"),
+        NORMAL_DRIVER(1,"正常运营"),
+        TERMINATED_DRIVER(2,"合作结束"),
         POTENTIAL_FREE(4, "无意向"),
         DELETED(5, "已删除");
         private int code;

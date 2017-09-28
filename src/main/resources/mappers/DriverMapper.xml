@@ -210,7 +210,7 @@
     values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{coModelId,jdbcType=INTEGER},
       #{name,jdbcType=VARCHAR}, #{idNumber,jdbcType=VARCHAR}, #{driverCarImage,jdbcType=VARCHAR}, 
       #{driverLicenceFrontImage,jdbcType=VARCHAR}, #{driverLicenceBackImage,jdbcType=VARCHAR},
-      #{personalPhone,jdbcType=VARCHAR}, #{workPhone,jdbcType=VARCHAR}, #{driver_licence_file_number,jdbcType=VARCHAR},
+      #{personalPhone,jdbcType=VARCHAR}, #{workPhone,jdbcType=VARCHAR}, #{driverLicenceFileNumber,jdbcType=VARCHAR},
       #{driverStatus,jdbcType=INTEGER}, #{periodsStatus,jdbcType=INTEGER}, now(),
             now())
   </insert>
@@ -301,7 +301,7 @@
         #{workPhone,jdbcType=VARCHAR},
       </if>
       <if test="driverLicenceFileNumber != null" >
-        #{driver_licence_file_number,jdbcType=VARCHAR},
+        #{driverLicenceFileNumber,jdbcType=VARCHAR},
       </if>
       <if test="driverStatus != null" >
         #{driverStatus,jdbcType=INTEGER},

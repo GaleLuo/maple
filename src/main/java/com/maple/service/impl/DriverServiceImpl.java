@@ -9,19 +9,16 @@ import com.maple.common.ResponseCode;
 import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.pojo.*;
-import com.maple.service.ICoModelService;
 import com.maple.service.IDriverService;
 import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.AccountVo;
-import com.maple.vo.DriverDetailVo;
 import com.maple.vo.DriverListVo;
 import com.maple.vo.DriverVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Months;
-import org.joda.time.Period;
 import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,7 +56,7 @@ public class DriverServiceImpl implements IDriverService {
             }
             driver.setCarId(null);
             driver.setUserId(null);
-            driver.setOperationStatus(null);
+            driver.setDriverStatus(null);
             driver.setPeriodsStatus(null);
             int result = driverMapper.updateByPrimaryKeySelective(driver);
             if (result > 0) {
@@ -67,7 +64,7 @@ public class DriverServiceImpl implements IDriverService {
             }
         } else {
             driver.setUserId(userId);
-            driver.setOperationStatus(Const.DriverStatus.POTENTIAL_DRIVER.getCode());
+            driver.setDriverStatus(Const.DriverStatus.POTENTIAL_DRIVER.getCode());
             Integer i = driverMapper.checkId(driver.getIdNumber());
             if (i != 0){
                 return ServerResponse.createByErrorMessage("已存在该司机信息,请检查");
@@ -246,7 +243,7 @@ public class DriverServiceImpl implements IDriverService {
         driverListVo.setDriverId(driver.getId());
         driverListVo.setDriverName(driver.getName());
         driverListVo.setCoModelType(Const.CoModel.codeOf(coModel.getModelType()).getDesc());
-        driverListVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getOperationStatus()).getDesc());
+        driverListVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
         return driverListVo;
     }
 
@@ -303,7 +300,7 @@ public class DriverServiceImpl implements IDriverService {
 
         BigDecimal balance = BigDecimalUtil.sub(v1.doubleValue(), totalReceived.doubleValue());
 
-        driverVo.setOperationStatus(Const.DriverStatus.codeOf(driver.getOperationStatus()).getDesc());
+        driverVo.setOperationStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
         driverVo.setDriverName(driver.getName());
         driverVo.setPhoneNum(driver.getPersonalPhone());
         driverVo.setIdNum(driver.getIdNumber());
