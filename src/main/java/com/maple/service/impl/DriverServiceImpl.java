@@ -300,7 +300,7 @@ public class DriverServiceImpl implements IDriverService {
 
         BigDecimal balance = BigDecimalUtil.sub(v1.doubleValue(), totalReceived.doubleValue());
 
-        driverVo.setOperationStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
+        driverVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
         driverVo.setDriverName(driver.getName());
         driverVo.setPhoneNum(driver.getPersonalPhone());
         driverVo.setIdNum(driver.getIdNumber());

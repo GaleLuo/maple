@@ -10,6 +10,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
 import com.maple.common.Const;
 import com.maple.common.ServerResponse;
@@ -517,8 +518,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test3() {
-        DateTime dateTime = new DateTime(2017,9,24,0,0,0).withDayOfWeek(2);
-        System.out.println(dateTime);
+
     }
 }
 

@@ -12,7 +12,7 @@ public class DriverVo {
     private String idNum;
     private String vin;
     private String plateNum;
-    private String operationStatus;
+    private String driverStatus;
     private String carName;
     private String startDate;
     private String endDate;
@@ -60,12 +60,12 @@ public class DriverVo {
         this.plateNum = plateNum;
     }
 
-    public String getOperationStatus() {
-        return operationStatus;
+    public String getDriverStatus() {
+        return driverStatus;
     }
 
-    public void setOperationStatus(String operationStatus) {
-        this.operationStatus = operationStatus;
+    public void setDriverStatus(String driverStatus) {
+        this.driverStatus = driverStatus;
     }
 
     public String getDriverName() {
