@@ -288,7 +288,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 Date periodEndDate = periodPlan.getEndDate();
                 System.out.println(periodStartDate.compareTo(startDate));
                 System.out.println(periodEndDate.compareTo(endDate));
-                if ( periodStartDate.compareTo(startDate)>=0 && periodEndDate.compareTo(endDate)<=0) {
+                if ( periodStartDate.compareTo(startDate)<=0 && periodEndDate.compareTo(endDate)>=0) {
                     PlanDetailVo planDetailVo = new PlanDetailVo();
                     planDetailVo.setPlanAmount(periodPlan.getAmount());
                     planDetailVo.setPlanStartDate(DateTimeUtil.dateToStr(periodStartDate));
