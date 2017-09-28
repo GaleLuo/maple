@@ -1,7 +1,6 @@
 package com.maple.vo;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * Created by Maple.Ran on 2017/6/20.
@@ -13,7 +12,7 @@ public class PeriodPaymentListVo {
     private String phoneNum;
     private String plateNum;
     private String carName;
-    private PeriodDetailVo periodDetailVo;//当期应还款金额
+    private PlanDetailVo planDetailVo;//当期应还款金额
     private BigDecimal payment;//当期已还款金额
 
 
@@ -65,12 +64,12 @@ public class PeriodPaymentListVo {
         this.carName = carName;
     }
 
-    public PeriodDetailVo getPeriodDetailVo() {
-        return periodDetailVo;
+    public PlanDetailVo getPlanDetailVo() {
+        return planDetailVo;
     }
 
-    public void setPeriodDetailVo(PeriodDetailVo periodDetailVo) {
-        this.periodDetailVo = periodDetailVo;
+    public void setPlanDetailVo(PlanDetailVo planDetailVo) {
+        this.planDetailVo = planDetailVo;
     }
 
     public BigDecimal getPayment() {

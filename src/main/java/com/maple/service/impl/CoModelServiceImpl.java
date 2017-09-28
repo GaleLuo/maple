@@ -11,8 +11,7 @@ import com.maple.pojo.PeriodPlan;
 import com.maple.service.ICoModelService;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CoModelDetailVo;
-import com.maple.vo.PeriodDetailVo;
-import org.apache.commons.collections.CollectionUtils;
+import com.maple.vo.PlanDetailVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,14 +76,14 @@ public class CoModelServiceImpl implements ICoModelService {
         coModelDetailVo.setModelTypeDesc(Const.CoModel.codeOf(coModel.getModelType()).getDesc());
         coModelDetailVo.setDownAmount(coModel.getDownAmount());
         coModelDetailVo.setTotalAmount(coModel.getTotalAmount());
-        List<PeriodDetailVo> periodDetailVoList = Lists.newArrayList();
+        List<PlanDetailVo> planDetailVoList = Lists.newArrayList();
         List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());//查询出分期计划列表
         for (PeriodPlan periodPlan : periodPlanList) {
-            PeriodDetailVo periodDetailVo = assemblePeriodDetailVo(periodPlan);
-            periodDetailVoList.add(periodDetailVo);
+            PlanDetailVo planDetailVo = assemblePeriodDetailVo(periodPlan);
+            planDetailVoList.add(planDetailVo);
         }
 
-        coModelDetailVo.setPeriodDetailVoList(periodDetailVoList);
+        coModelDetailVo.setPlanDetailVoList(planDetailVoList);
         coModelDetailVo.setFinalAmount(coModel.getFinalAmount());
         coModelDetailVo.setManagementFee(coModel.getManagementFee());
         coModelDetailVo.setDeadline(DateTimeUtil.dateToStr(coModel.getDeadline()));
@@ -92,11 +91,11 @@ public class CoModelServiceImpl implements ICoModelService {
         return coModelDetailVo;
     }
 
-    private PeriodDetailVo assemblePeriodDetailVo(PeriodPlan periodPlan) {
-        PeriodDetailVo periodDetailVo = new PeriodDetailVo();
-        periodDetailVo.setPeriodPayment(periodPlan.getAmount());//分期计划付款金额
-        periodDetailVo.setPeriodStartDate(DateTimeUtil.dateToStr(periodPlan.getStartDate(),"yyyy-MM-dd hh:mm:ss"));//分期起始日
-        periodDetailVo.setPeriodEndDate(DateTimeUtil.dateToStr(periodPlan.getEndDate(),"yyyy-MM-dd hh:mm:ss"));//分期结束日
-        return periodDetailVo;
+    private PlanDetailVo assemblePeriodDetailVo(PeriodPlan periodPlan) {
+        PlanDetailVo planDetailVo = new PlanDetailVo();
+        planDetailVo.setPlanAmount(periodPlan.getAmount());//分期计划付款金额
+        planDetailVo.setPlanStartDate(DateTimeUtil.dateToStr(periodPlan.getStartDate(),"yyyy-MM-dd hh:mm:ss"));//分期起始日
+        planDetailVo.setPlanEndDate(DateTimeUtil.dateToStr(periodPlan.getEndDate(),"yyyy-MM-dd hh:mm:ss"));//分期结束日
+        return planDetailVo;
     }
 }

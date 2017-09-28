@@ -14,9 +14,7 @@ import com.maple.util.DateTimeUtil;
 import com.maple.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.weaver.ast.Var;
 import org.joda.time.DateTime;
-import org.joda.time.Period;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -290,12 +288,12 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 System.out.println(periodStartDate.compareTo(startDate));
                 System.out.println(periodEndDate.compareTo(endDate));
                 if ( periodStartDate.compareTo(startDate)>=0 && periodEndDate.compareTo(endDate)<=0) {
-                    PeriodDetailVo periodDetailVo = new PeriodDetailVo();
-                    periodDetailVo.setPeriodPayment(periodPlan.getAmount());
-                    periodDetailVo.setPeriodStartDate(DateTimeUtil.dateToStr(periodStartDate));
-                    periodDetailVo.setPeriodEndDate(DateTimeUtil.dateToStr(periodEndDate));
+                    PlanDetailVo planDetailVo = new PlanDetailVo();
+                    planDetailVo.setPlanAmount(periodPlan.getAmount());
+                    planDetailVo.setPlanStartDate(DateTimeUtil.dateToStr(periodStartDate));
+                    planDetailVo.setPlanEndDate(DateTimeUtil.dateToStr(periodEndDate));
 
-                    periodPaymentListVo.setPeriodDetailVo(periodDetailVo);
+                    periodPaymentListVo.setPlanDetailVo(planDetailVo);
                 }
             }
         }

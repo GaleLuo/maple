@@ -14,7 +14,7 @@ public class CoModelDetailVo {
     private String modelTypeDesc;//合作模式描述
     private BigDecimal downAmount;//首付金额
     private BigDecimal totalAmount;//总计金额
-    private List<PeriodDetailVo> periodDetailVoList;//分期详情集合
+    private List<PlanDetailVo> planDetailVoList;//分期详情集合
     private BigDecimal finalAmount;//尾款金额
     private BigDecimal managementFee;//管理费金额
     private String deadline;//管理费或尾款交费时间
@@ -68,12 +68,12 @@ public class CoModelDetailVo {
         this.totalAmount = totalAmount;
     }
 
-    public List<PeriodDetailVo> getPeriodDetailVoList() {
-        return periodDetailVoList;
+    public List<PlanDetailVo> getPlanDetailVoList() {
+        return planDetailVoList;
     }
 
-    public void setPeriodDetailVoList(List<PeriodDetailVo> periodDetailVoList) {
-        this.periodDetailVoList = periodDetailVoList;
+    public void setPlanDetailVoList(List<PlanDetailVo> planDetailVoList) {
+        this.planDetailVoList = planDetailVoList;
     }
 
     public BigDecimal getFinalAmount() {
