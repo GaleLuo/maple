@@ -123,7 +123,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             end = start;
         }
         if (coModelType.equals(Const.CoModel.HIRE_PURCHASE_WEEK.getCode())){
-
+        //周租回款总览
         List<Date> weekStartDateList = DateTimeUtil.getWeekStartDateList(DateTimeUtil.getWeekStartDate(new Date(start)),DateTimeUtil.getWeekStartDate(new Date(end)));
             for (Date startDate : weekStartDateList) {
                 Date endDate = DateTimeUtil.getWeekEndDate(startDate);
@@ -131,6 +131,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 periodPaymentGeneralListVoList.add(periodPaymentGeneralListVo);
             }
         } else if (coModelType.equals(Const.CoModel.HIRE_PURCHASE_MONTH.getCode())) {
+            //月租回款总览
             Date startDate = new DateTime(start).dayOfMonth().withMinimumValue().millisOfDay().withMinimumValue().toDate();
             Date endDate = new DateTime(end).dayOfMonth().withMinimumValue().millisOfDay().withMinimumValue().toDate();//
             DateTime startMonth = new DateTime(startDate);

@@ -125,7 +125,7 @@
     WHERE id_number =#{idNumber}
   </select>
   <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
-    select d.id as id,d.car_id as carId FROM maple_driver as d inner join maple_co_model as cm on cm.id=d.co_model_id where cm.period_start_date &lt;= #{endDate}
+    select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where cm.period_start_date &lt;= #{endDate}
     and cm.period_end_date &gt;= #{startDate}
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
@@ -133,6 +133,7 @@
     <if test="driverName!=null">
       and d.name like #{driverName}
     </if>
+    and d.driver_status = 1
   </select>
   <select id="selectDriverReceived" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE d.id in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate} and pp.platform_status != 0 and (pp.payment!=0 or pp.payment is not null))
