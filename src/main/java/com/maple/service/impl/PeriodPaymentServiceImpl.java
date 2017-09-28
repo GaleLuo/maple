@@ -216,10 +216,16 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 DriverTotalPaymentListVoList.add(driverPeriodGeneralListVo);
             }
         }else if (coModel.getModelType().equals(Const.CoModel.HIRE_PURCHASE_MONTH.getCode())){
-            Date startDate = coModel.getPeriodStartDate();//合作起始日
-            Date endDate = coModel.getPeriodEndDate();//合作结束日
+            List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());
+            PeriodPlan periodPlan = periodPlanList.get(0);//月租只有一种情况所以直接取第一个
+
+
+            Date startDate = periodPlan.getStartDate();//合作起始日
+            Date endDate = periodPlan.getEndDate();//合作结束日
+
             DateTime start = new DateTime(startDate);
             DateTime end = new DateTime(endDate);
+
             while (!end.isEqual(start)) {
                 DateTime periodEndDate = start.plusMonths(1).minusSeconds(1);//每周期结束日
                 DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(driverId, start.toDate(), periodEndDate.toDate());

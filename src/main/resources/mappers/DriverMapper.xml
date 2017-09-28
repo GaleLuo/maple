@@ -182,7 +182,7 @@
         and d.driver_status=#{driverStatus}
       </if>
       <if test="coModelType">
-        and d.car_id in (select distinct(cm.car_id) from maple_co_model as cm where cm.model_type = #{coModelType} )
+        and d.co_model_id in (select cm.id  from maple_co_model as cm where cm.model_type = #{coModelType} )
       </if>
     </where>
     order by t.score desc
