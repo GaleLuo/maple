@@ -12,6 +12,7 @@ public class PeriodPaymentListVo {
     private String phoneNum;
     private String plateNum;
     private String carName;
+    //todo 删除这个vo 改为dueAmount
     private PlanDetailVo planDetailVo;//当期应还款金额
     private BigDecimal payment;//当期已还款金额
 
