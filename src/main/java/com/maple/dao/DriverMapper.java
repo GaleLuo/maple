@@ -50,6 +50,8 @@ public interface DriverMapper {
 
     List<Driver> selectDriverReceivable(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);
 
+    List<Driver> selectDriverReceivableGroupByCarId(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);
+
     List<Driver> selectDriverReceived(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);
 
     List<Driver> selectDriverNotReceived(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);

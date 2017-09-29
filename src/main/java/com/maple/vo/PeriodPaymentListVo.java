@@ -12,8 +12,10 @@ public class PeriodPaymentListVo {
     private String phoneNum;
     private String plateNum;
     private String carName;
-    //todo 删除这个vo 改为dueAmount
-    private PlanDetailVo planDetailVo;//当期应还款金额
+//  private PlanDetailVo planDetailVo;
+    //当期应还款金额
+    private BigDecimal dueAmount;
+
     private BigDecimal payment;//当期已还款金额
 
 
@@ -65,12 +67,12 @@ public class PeriodPaymentListVo {
         this.carName = carName;
     }
 
-    public PlanDetailVo getPlanDetailVo() {
-        return planDetailVo;
+    public BigDecimal getDueAmount() {
+        return dueAmount;
     }
 
-    public void setPlanDetailVo(PlanDetailVo planDetailVo) {
-        this.planDetailVo = planDetailVo;
+    public void setDueAmount(BigDecimal dueAmount) {
+        this.dueAmount = dueAmount;
     }
 
     public BigDecimal getPayment() {

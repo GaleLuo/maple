@@ -280,24 +280,9 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentListVo.setDriverId(periodPayment.getDriverId());
         Car car = carMapper.selectByPrimaryKey(periodPayment.getCarId());
         Driver driver = driverMapper.selectByPrimaryKey(periodPayment.getDriverId());
-        List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(driver.getCoModelId());
 
-        if (CollectionUtils.isNotEmpty(periodPlanList)) {
-            for (PeriodPlan periodPlan : periodPlanList) {
-                Date periodStartDate = periodPlan.getStartDate();
-                Date periodEndDate = periodPlan.getEndDate();
-                System.out.println(periodStartDate.compareTo(startDate));
-                System.out.println(periodEndDate.compareTo(endDate));
-                if ( periodStartDate.compareTo(startDate)<=0 && periodEndDate.compareTo(endDate)>=0) {
-                    PlanDetailVo planDetailVo = new PlanDetailVo();
-                    planDetailVo.setPlanAmount(periodPlan.getAmount());
-                    planDetailVo.setPlanStartDate(DateTimeUtil.dateToStr(periodStartDate));
-                    planDetailVo.setPlanEndDate(DateTimeUtil.dateToStr(periodEndDate));
-
-                    periodPaymentListVo.setPlanDetailVo(planDetailVo);
-                }
-            }
-        }
+        BigDecimal driverDueAmount = getDriverDueAmount(periodPayment.getDriverId(), startDate, endDate);
+        periodPaymentListVo.setDueAmount(driverDueAmount);
         periodPaymentListVo.setCarId(periodPayment.getCarId());
         periodPaymentListVo.setDriverName(driver.getName());
         periodPaymentListVo.setPhoneNum(driver.getPersonalPhone());
@@ -321,7 +306,16 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         }
         periodPaymentGeneralListVo.setStartDate(DateTimeUtil.dateToStr(startDate,"yyyy-MM-dd"));
         periodPaymentGeneralListVo.setEndDate(DateTimeUtil.dateToStr(endDate,"yyyy-MM-dd"));
+
+
         BigDecimal amountReceivable = coModelMapper.findAmountReceivable(startDate, endDate,coModelType);
+//        BigDecimal amountReceivable = BigDecimal.ZERO;
+//        List<Driver> driverList = driverMapper.selectDriverReceivableGroupByCarId(startDate, endDate, coModelType, null);
+//        for (Driver driver : driverList) {
+//            BigDecimal driverDueAmount = getDriverDueAmount(driver.getId(), startDate, endDate);
+//            amountReceivable = amountReceivable.add(driverDueAmount);
+//        }
+
         BigDecimal amountReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, null);
         BigDecimal wechatReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.wechat.getCode());
         BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode());
@@ -343,6 +337,41 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
 
         return periodPaymentGeneralListVo;
+    }
+
+    private BigDecimal getDriverDueAmount(Integer driverId, Date startDate, Date endDate) {
+        Driver driver = driverMapper.selectByPrimaryKey(driverId);
+        CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
+        List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(driver.getCoModelId());
+        BigDecimal totalAmount= coModel.getTotalAmount();
+        BigDecimal finalAmount = coModel.getFinalAmount();
+        BigDecimal downAmount = coModel.getDownAmount();
+        //应收
+        BigDecimal receivable = totalAmount.subtract(finalAmount).subtract(downAmount);
+
+        //已收
+        BigDecimal received = periodPaymentMapper.findTotalReceivedByCarId(driver.getCarId());
+
+        //差额
+        BigDecimal dueAmount = receivable.subtract(received);
+
+        if (CollectionUtils.isNotEmpty(periodPlanList)) {
+            for (PeriodPlan periodPlan : periodPlanList) {
+                Date periodStartDate = periodPlan.getStartDate();
+                Date periodEndDate = periodPlan.getEndDate();
+                if (periodStartDate.compareTo(startDate) <= 0 && periodEndDate.compareTo(endDate) >= 0) {
+                    BigDecimal amount = periodPlan.getAmount();
+                    //如果差额小于应收额则收差额
+                    dueAmount = dueAmount.compareTo(amount) <= 0 ? dueAmount : amount;
+
+                    if (coModel.getPeriodEndDate().getTime() <= endDate.getTime()) {
+                        dueAmount = dueAmount.add(coModel.getFinalAmount());
+                    }
+
+                }
+            }
+        }
+        return dueAmount;
     }
 
 }

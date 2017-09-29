@@ -81,7 +81,7 @@
           and create_time &lt;= #{endDate}
   </select>
     <select id="findAmountReceived" resultType="java.math.BigDecimal">
-      SELECT sum(pp.payment) from maple_period_payment as pp  WHERE pay_time &gt;= #{startDate} and  pay_time &lt;= #{endDate}
+      SELECT ifnull(sum(pp.payment),0) from maple_period_payment as pp  WHERE pay_time &gt;= #{startDate} and  pay_time &lt;= #{endDate}
       <if test="coModelType!=null">
         and (select d.co_model_id from maple_driver as d where d.id=pp.driver_id) in (select cm.id from maple_co_model as cm WHERE cm.model_type =#{coModelType})
       </if>
@@ -90,7 +90,7 @@
       </if>
     </select>
   <select id="findTotalReceivedByCarId" resultType="java.math.BigDecimal">
-    SELECT sum(payment) from maple_period_payment where car_id = #{carId}
+    SELECT ifnull(sum(payment),0) from maple_period_payment where car_id = #{carId}
   </select>
   <select id="findOverdueByCarId" resultType="java.lang.Integer">
     SELECT count(id) from maple_period_payment where car_id = #{carId} and platform_status = 2
