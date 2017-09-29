@@ -90,8 +90,8 @@
   </select>
   <select id="selectDriverListByCarId" resultMap="BaseResultMap"  parameterType="integer">
     select <include refid="Base_Column_List"/>
-    from maple_driver
-    where car_id=#{carId}
+    from maple_driver d
+    where d.car_id=#{carId}
   </select>
   <select id="selectCarIdListByUserId" resultType="java.lang.Integer">
     select DISTINCT car_id
@@ -189,7 +189,7 @@
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
     SELECT d.id as id,d.car_id as carId,d.driver_status as driverStatus,d.personal_phone as personalPhone,d.name as name,
     d.co_model_id as coModelId
-    FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id
+    FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id LEFT JOIN maple_co_model as cm on cm.id =d.co_model_id
     <where>
       <if test="driverName!=null">
         and d.name like #{driverName}
@@ -204,7 +204,16 @@
         and d.co_model_id in (select cm.id  from maple_co_model as cm where cm.model_type = #{coModelType} )
       </if>
     </where>
-    order by t.score desc
+    <if test="orderBy=='score'">
+      order by t.score desc
+    </if>
+    <if test="orderBy=='money'">
+      order by t.money desc
+    </if>
+    <if test="orderBy=='startDate'">
+      order by cm.period_start_date desc
+    </if>
+
   </select>
 
   <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">

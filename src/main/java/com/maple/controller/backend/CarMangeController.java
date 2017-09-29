@@ -40,11 +40,11 @@ public class CarMangeController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
-                               @RequestParam(value = "createDateTop", required = false) String createDateTop,
-                               @RequestParam(value = "createDateBut", required = false) String createDateBut,
-                               @RequestParam(value = "driverName",required = false) String driverName,
-                               @RequestParam(value = "plateNumber" ,required = false) String plateNumber,//车牌号
-                               @RequestParam(value = "name", required = false) String name,//车型
+                               @RequestParam(value = "branch",required = false) Integer branch,
+                               @RequestParam(value = "carStatus",required = false) Integer carStatus,
+                               @RequestParam(value = "plateNum" ,required = false) String plateNum,//车牌号
+                               @RequestParam(value = "carName", required = false) String carName,//车型
+                               @RequestParam(value = "orderBy", required = false) String orderBy,//排序
                                @RequestParam(value = "pageNum", defaultValue = "1")int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -52,8 +52,8 @@ public class CarMangeController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return ServerResponse.createByErrorMessage("无权限");
+            return iCarService.list(null,branch,carStatus, plateNum, carName,orderBy, pageNum, pageSize);
         }
-        return iCarService.list(null, driverName, plateNumber, name, createDateTop, createDateBut, pageNum, pageSize);
+        return ServerResponse.createByErrorMessage("无权限");
     }
 }

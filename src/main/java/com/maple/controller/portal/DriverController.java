@@ -68,13 +68,14 @@ public class DriverController {
                                String phoneNum,
                                Integer driverStatus,
                                Integer coModelType,
+                               String orderBy,
                                @RequestParam(value = "pageNum", defaultValue = "1")int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iDriverService.list(user.getId(), driverName, phoneNum, driverStatus, coModelType, pageNum, pageSize);
+        return iDriverService.list(user.getId(), driverName, phoneNum, driverStatus, coModelType, orderBy, pageNum, pageSize);
     }
 
     //搜索

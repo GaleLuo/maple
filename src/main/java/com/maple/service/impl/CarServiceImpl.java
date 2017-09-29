@@ -3,19 +3,24 @@ package com.maple.service.impl;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
+import com.maple.common.Const;
 import com.maple.common.ResponseCode;
 import com.maple.common.ServerResponse;
 import com.maple.dao.CarMapper;
 import com.maple.dao.DriverMapper;
 import com.maple.dao.ProductMapper;
+import com.maple.dao.TicketMapper;
 import com.maple.pojo.Car;
 import com.maple.pojo.Driver;
 import com.maple.pojo.Product;
+import com.maple.pojo.Ticket;
 import com.maple.service.ICarService;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CarListVo;
+import com.maple.vo.DriverCarListVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.sl.draw.binding.CTOfficeArtExtensionList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +38,9 @@ public class CarServiceImpl implements ICarService{
     private DriverMapper driverMapper;
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private TicketMapper ticketMapper;
+
     //返回新增车辆的ID
     public ServerResponse save(Integer productId) {
         if (productId != null) {
@@ -71,27 +79,20 @@ public class CarServiceImpl implements ICarService{
         return ServerResponse.createByErrorMessage("更新司机数据失败");
     }
 
-    public ServerResponse list(Integer userId, String driverName, String plateNumber, String name, String createDateTop, String createDateBut, int pageNum, int pageSize) {
+    public ServerResponse list(Integer userId,Integer branch,Integer carStatus, String plateNumber, String carName, String orderBy,int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        if (driverName != null) {
-            driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
-        }
+//        if (driverName != null) {
+//            driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
+//        }
         if (plateNumber != null) {
             plateNumber = new StringBuilder().append("%").append(plateNumber).append("%").toString();
         }
-        if (name != null) {
-            name = new StringBuilder().append("%").append(name).append("%").toString();
+        if (carName != null) {
+            carName = new StringBuilder().append("%").append(carName).append("%").toString();
         }
         List<Integer> carIdList = Lists.newArrayList();
-        if (userId != null) {
-            //查询出当前用户所拥有的车辆id
-            carIdList = driverMapper.selectCarIdListByUserId(userId);
-        }
-        Date createDateT = StringUtils.isBlank(createDateTop) ? null : DateTimeUtil.strToDate(createDateTop);
-        Date createDateB = StringUtils.isBlank(createDateBut) ? null : DateTimeUtil.strToDate(createDateBut);
-        carIdList=CollectionUtils.isEmpty(carIdList)?null:carIdList;
 
-        List<Car> carList = carMapper.selectByMultiParam(carIdList, driverName, plateNumber, name, createDateT, createDateB);
+        List<Car> carList = carMapper.selectByMultiParam(userId,branch,carStatus, plateNumber, carName,orderBy);
         List<CarListVo> carListVoList = Lists.newArrayList();
         for (Car car : carList) {
             CarListVo carListVo = assembleCarListVo(car);
@@ -104,12 +105,38 @@ public class CarServiceImpl implements ICarService{
 
     private CarListVo assembleCarListVo(Car car) {
         CarListVo carListVo = new CarListVo();
-        carListVo.setId(car.getId());
-        carListVo.setPlateNumber(car.getPlateNumber());
-        carListVo.setName(car.getName());
+        Ticket ticket = ticketMapper.selectByCarId(car.getId());
+        if (ticket == null) {
+            carListVo.setTicketScore("暂未查询");
+            carListVo.setTicketMoney("暂未查询");
+        } else {
+            carListVo.setTicketScore(ticket.getScore().toString());
+            carListVo.setTicketMoney(ticket.getMoney().toString());
+        }
+
+        carListVo.setCarId(car.getId());
+        carListVo.setBranch(Const.Branch.codeOf(car.getBranch()).getDesc());
+        carListVo.setCarStatus(Const.CarStatus.codeOf(car.getCarStatus()).getDesc());
+        carListVo.setPlateNum(car.getPlateNumber());
+        carListVo.setCarName(car.getName());
         List<Driver> driverList = driverMapper.selectDriverListByCarId(car.getId());
-        carListVo.setDriverList(driverList);
-        carListVo.setCreateTime(DateTimeUtil.dateToStr(car.getCreateTime()));
+        List<DriverCarListVo> driverCarListVoList = Lists.newArrayList();
+        for (Driver driver : driverList) {
+            DriverCarListVo driverCarListVo = assembleDriverCarListVo(driver);
+            driverCarListVoList.add(driverCarListVo);
+        }
+        
+        carListVo.setDriverCarListVoList(driverCarListVoList);
+        carListVo.setPickDate(DateTimeUtil.dateToStr(car.getPickDate(),"yyyy 年 MM 月 dd 日"));
         return carListVo;
+    }
+
+    private DriverCarListVo assembleDriverCarListVo(Driver driver) {
+        DriverCarListVo driverCarListVo = new DriverCarListVo();
+        driverCarListVo.setDriverId(driver.getId());
+        driverCarListVo.setDriverName(driver.getName());
+        driverCarListVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
+        driverCarListVo.setPhoneNum(driver.getPersonalPhone());
+        return driverCarListVo;
     }
 }

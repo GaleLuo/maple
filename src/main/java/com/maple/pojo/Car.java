@@ -5,6 +5,8 @@ import java.util.Date;
 public class Car {
     private Integer id;
 
+    private Integer branch;
+
     private Integer carStatus;
 
     private String name;
@@ -33,8 +35,9 @@ public class Car {
 
     private Date updateTime;
 
-    public Car(Integer id, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, String carLicenceFrontImage, String carLicenceBackImage, String cInsuranceImage, String mInsuranceImage, String gpsNumber, String gpsPhone, Date createTime, Date updateTime) {
+    public Car(Integer id, Integer branch, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, String carLicenceFrontImage, String carLicenceBackImage, String cInsuranceImage, String mInsuranceImage, String gpsNumber, String gpsPhone, Date createTime, Date updateTime) {
         this.id = id;
+        this.branch = branch;
         this.carStatus = carStatus;
         this.name = name;
         this.plateNumber = plateNumber;
@@ -49,6 +52,14 @@ public class Car {
         this.gpsPhone = gpsPhone;
         this.createTime = createTime;
         this.updateTime = updateTime;
+    }
+
+    public Integer getBranch() {
+        return branch;
+    }
+
+    public void setBranch(Integer branch) {
+        this.branch = branch;
     }
 
     public Integer getCarStatus() {

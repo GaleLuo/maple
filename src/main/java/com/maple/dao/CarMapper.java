@@ -19,7 +19,7 @@ public interface CarMapper {
 
     int updateByPrimaryKey(Car record);
 
-    List<Car> selectByMultiParam(@Param("carIdList") List<Integer> carIdList, @Param("driverName") String driverName, @Param("plateNumber") String plateNumber, @Param("name") String name, @Param("createDateT") Date createDateT, @Param("createDateB") Date createDateB);
-
     Car selectByVin(String stringCellValue);
+
+    List<Car> selectByMultiParam(@Param("userId") Integer userId, @Param("branch") Integer branch, @Param("carStatus") Integer carStatus, @Param("plateNumber") String plateNumber, @Param("carName") String carName, @Param("orderBy") String orderBy);
 }

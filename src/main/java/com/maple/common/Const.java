@@ -1,7 +1,6 @@
 package com.maple.common;
 
 import com.google.common.collect.Sets;
-import com.sun.javafx.logging.PulseLogger;
 
 import java.util.Set;
 
@@ -86,7 +85,7 @@ public class Const {
     }
 
     public enum CarStatus {
-        NORMAL(1, "正常"),
+        NORMAL(1, "正常运营"),
         TRANSFERRED(2, "已过户"),
         STOCKING(3,"库存中");
 
@@ -144,7 +143,7 @@ public class Const {
                     return paymentPlatform;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应的枚举");
         }
 
         public int getCode() {
@@ -199,10 +198,50 @@ public class Const {
                     return platformStatus;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应的枚举");
         }
 
     }
+
+    public enum Branch {
+        CD(0,"成都"),
+        KM(1,"昆明");
+
+        public static Branch codeOf(int code) {
+            for (Branch branch : Branch.values()) {
+                if (branch.getCode() == code) {
+                    return branch;
+                }
+            }
+            throw new RuntimeException("没有找到相应的枚举");
+        }
+
+
+        private int code;
+        private String desc;
+
+        public int getCode() {
+            return code;
+        }
+
+        public void setCode(int code) {
+            this.code = code;
+        }
+
+        public String getDesc() {
+            return desc;
+        }
+
+        public void setDesc(String desc) {
+            this.desc = desc;
+        }
+
+        Branch(int code, String desc) {
+            this.code = code;
+            this.desc = desc;
+        }
+    }
+
 
     public interface Role{
         int ROLE_SALESMAN =0;//业务员
@@ -225,7 +264,7 @@ public class Const {
                     return insuranceType;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应枚举");
         }
 
         InsuranceType(int code, String desc) {
@@ -272,7 +311,7 @@ public class Const {
                     return driverStatus;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应枚举");
         }
 
         DriverStatus(int code, String desc) {
@@ -301,7 +340,7 @@ public class Const {
                     return coModel;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应枚举");
         }
 
         private int code;
@@ -345,7 +384,7 @@ public class Const {
                     return productStatus;
                 }
             }
-            return null;
+            throw new RuntimeException("没有找到相应枚举");
         }
 
         ProductStatus(int code, String desc) {

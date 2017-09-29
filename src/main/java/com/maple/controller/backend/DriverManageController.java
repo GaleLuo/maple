@@ -72,6 +72,7 @@ public class DriverManageController {
                                String phoneNum,
                                Integer driverStatus,
                                Integer coModelType,
+                               String orderBy,
                                @RequestParam(value = "pageNum", defaultValue = "1")int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
@@ -79,7 +80,7 @@ public class DriverManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return driverService.list(null,driverName,phoneNum,driverStatus,coModelType, pageNum, pageSize);
+            return driverService.list(null,driverName,phoneNum,driverStatus,coModelType,orderBy, pageNum, pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

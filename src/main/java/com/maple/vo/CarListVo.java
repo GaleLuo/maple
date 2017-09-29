@@ -9,49 +9,85 @@ import java.util.List;
  */
 public class CarListVo {
 
-    private Integer id;
-    private String plateNumber;
-    private String name;//车型
-    private List<Driver> driverList;//绑定人集合
-    private String createTime;
+    private Integer carId;
+    private String branch;//分部
+    private String carStatus;//车辆状态
+    private String plateNum;
+    private String carName;//车型
+    private List<DriverCarListVo> driverCarListVoList;//绑定人集合
+    private String ticketScore;
+    private String ticketMoney;
+    private String pickDate;//提车日期
 
-    public Integer getId() {
-        return id;
+    public Integer getCarId() {
+        return carId;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setCarId(Integer carId) {
+        this.carId = carId;
     }
 
-    public String getPlateNumber() {
-        return plateNumber;
+    public String getBranch() {
+        return branch;
     }
 
-    public void setPlateNumber(String plateNumber) {
-        this.plateNumber = plateNumber;
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 
-    public String getName() {
-        return name;
+    public String getCarStatus() {
+        return carStatus;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setCarStatus(String carStatus) {
+        this.carStatus = carStatus;
     }
 
-    public List<Driver> getDriverList() {
-        return driverList;
+    public String getPlateNum() {
+        return plateNum;
     }
 
-    public void setDriverList(List<Driver> driverList) {
-        this.driverList = driverList;
+    public void setPlateNum(String plateNum) {
+        this.plateNum = plateNum;
     }
 
-    public String getCreateTime() {
-        return createTime;
+    public String getCarName() {
+        return carName;
     }
 
-    public void setCreateTime(String createTime) {
-        this.createTime = createTime;
+    public void setCarName(String carName) {
+        this.carName = carName;
+    }
+
+    public List<DriverCarListVo> getDriverCarListVoList() {
+        return driverCarListVoList;
+    }
+
+    public void setDriverCarListVoList(List<DriverCarListVo> driverCarListVoList) {
+        this.driverCarListVoList = driverCarListVoList;
+    }
+
+    public String getTicketScore() {
+        return ticketScore;
+    }
+
+    public void setTicketScore(String ticketScore) {
+        this.ticketScore = ticketScore;
+    }
+
+    public String getTicketMoney() {
+        return ticketMoney;
+    }
+
+    public void setTicketMoney(String ticketMoney) {
+        this.ticketMoney = ticketMoney;
+    }
+
+    public String getPickDate() {
+        return pickDate;
+    }
+
+    public void setPickDate(String pickDate) {
+        this.pickDate = pickDate;
     }
 }

@@ -50,18 +50,18 @@ public class CarController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
-                               @RequestParam(value = "createDateTop", required = false) String createDateTop,
-                               @RequestParam(value = "createDateBut", required = false) String createDateBut,
-                               @RequestParam(value = "driverName",required = false) String driverName,
+                               @RequestParam(value = "branch",required = false) Integer branch,
+                               @RequestParam(value = "carStatus",required = false) Integer carStatus,
                                @RequestParam(value = "plateNumber" ,required = false) String plateNumber,//车牌号
-                               @RequestParam(value = "name", required = false) String name,//车型
+                               @RequestParam(value = "carName", required = false) String carName,//车型
+                               @RequestParam(value = "orderBy", required = false) String orderBy,//排序
                                @RequestParam(value = "pageNum", defaultValue = "1")int pageNum,
                                @RequestParam(value = "pageSize", defaultValue = "10")int pageSize) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iCarService.list(user.getId(), driverName, plateNumber, name, createDateTop, createDateBut, pageNum, pageSize);
+        return iCarService.list(user.getId(),branch,carStatus, plateNumber, carName,orderBy, pageNum, pageSize);
     }
 
 }

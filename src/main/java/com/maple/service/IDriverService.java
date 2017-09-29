@@ -13,7 +13,7 @@ public interface IDriverService {
 
     ServerResponse delete(Integer userId, String driverIds, Integer pageNum, Integer pageSize);
 
-    ServerResponse list(Integer userId, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, int pageNum, int pageSize);
+    ServerResponse list(Integer userId, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize);
 
     ServerResponse search(Integer userId, String createDateTop,String createDateBut, String name, String status, int pageNum, int pageSize);
 

@@ -158,7 +158,7 @@ public class DriverServiceImpl implements IDriverService {
         return ServerResponse.createBySuccess();
     }
 
-    public ServerResponse list(Integer userId, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, int pageNum, int pageSize) {
+    public ServerResponse list(Integer userId, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize) {
 
         PageHelper.startPage(pageNum, pageSize);
         if (StringUtils.isNotBlank(driverName)) {
@@ -171,7 +171,7 @@ public class DriverServiceImpl implements IDriverService {
 
         List<DriverListVo> driverListVoList = Lists.newArrayList();
 
-        List<Driver> driverList = driverMapper.selectByParams(driverName,phoneNum,driverStatus,coModelType);
+        List<Driver> driverList = driverMapper.selectByParams(driverName,phoneNum,driverStatus,coModelType,orderBy);
         //如果结果为空则返回空的分页数据
         if (CollectionUtils.isEmpty(driverList)) {
             PageInfo pageInfo = new PageInfo(driverList);
@@ -232,13 +232,13 @@ public class DriverServiceImpl implements IDriverService {
 
         Ticket ticket = ticketMapper.selectByCarId(driver.getCarId());
         if (ticket == null) {
-            driverListVo.setTicketMoney("未查询");
-            driverListVo.setTicketScore("未查询");
+            driverListVo.setTicketMoney("暂未查询");
+            driverListVo.setTicketScore("暂未查询");
         } else {
             driverListVo.setTicketScore(ticket.getScore().toString());
             driverListVo.setTicketMoney(ticket.getMoney().toString());
         }
-        driverListVo.setPeriodStartDate(DateTimeUtil.dateToStr(coModel.getPeriodStartDate(),"yyyy-MM-dd"));
+        driverListVo.setPeriodStartDate(DateTimeUtil.dateToStr(coModel.getPeriodStartDate(),"yyyy年MM月dd日"));
         driverListVo.setPhoneNum(driver.getPersonalPhone());
         driverListVo.setDriverId(driver.getId());
         driverListVo.setDriverName(driver.getName());

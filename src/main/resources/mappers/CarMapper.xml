@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="com.maple.pojo.Car" >
     <constructor >
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="branch" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="car_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="plate_number" jdbcType="VARCHAR" javaType="java.lang.String" />
@@ -21,7 +22,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id,car_status, name, plate_number, engine_number, vin, pick_date, car_licence_front_image,
+    id,branch,car_status, name, plate_number, engine_number, vin, pick_date, car_licence_front_image,
     car_licence_back_image, c_insurance_image, m_insurance_image, gps_number, gps_phone, 
     create_time, update_time
   </sql>
@@ -31,30 +32,34 @@
     from maple_car
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByMultiParam" resultMap="BaseResultMap" parameterType="map">
-    SELECT <include refid="Base_Column_List"/>
-    from maple_car
+  <select id="selectByMultiParam" resultType="com.maple.pojo.Car" parameterType="map">
+    SELECT c.id as id,c.branch as branch,c.car_status as carStatus,c.name as name, c.plate_number as plateNumber,
+    c.pick_date as pickDate
+    from maple_car c LEFT JOIN maple_ticket t on t.car_id=c.id
     <where>
-      <if test="carIdList!=null">
-        and id in
-        <foreach collection="carIdList" close=")" item="item" index="index" open=")" separator=",">
-        #{item}
-        </foreach>
+      <if test="branch!=null">
+      and c.branch=#{branch}
       </if>
-      <if test="driverName!=null">
-        and name like #{driverName}
+      <if test="carStatus!=null">
+        and c.car_status=#{carStatus}
       </if>
       <if test="plateNumber!=null">
-        and plate_number like #{plateNumber}
+        and c.plate_number like #{plateNumber}
       </if>
-      <if test="name!=null">
-        and name like #{name}
+      <if test="carName!=null">
+        and c.name like #{carName}
       </if>
-      <if test="createDateT!=null">
-        and create_time &lt;=#{createDateT}
+      <if test="userId!=null">
+        and c.id in (select d.car_id from maple_driver d where d.user_id = #{userId})
       </if>
-      <if test="createDateB!=null">
-        and create_time &gt;=#{createDateB}
+      <if test="orderBy=='score'">
+      order by t.score desc
+      </if>
+      <if test="orderBy=='money'">
+        order by t.money desc
+      </if>
+      <if test="orderBy=='pickDate'">
+      order by c.pick_date desc
       </if>
     </where>
   </select>
@@ -66,13 +71,14 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.Car" useGeneratedKeys="true" keyProperty="id">
-    insert into maple_car (id,car_status, name, plate_number,
+    insert into maple_car (id,branch,car_status, name, plate_number,
       engine_number, vin, pick_date,
       car_licence_front_image, car_licence_back_image, 
       c_insurance_image, m_insurance_image, gps_number,
       gps_phone, create_time, update_time
       )
-    values (#{id,jdbcType=INTEGER},#{carStatus,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{plateNumber,jdbcType=VARCHAR},
+    values (#{id,jdbcType=INTEGER},#{branch,jdbcType=INTEGER},#{carStatus,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
+      #{plateNumber,jdbcType=VARCHAR},
       #{engineNumber,jdbcType=VARCHAR}, #{vin,jdbcType=VARCHAR}, #{pickDate,jdbcType=DATE},
       #{carLicenceFrontImage,jdbcType=VARCHAR}, #{carLicenceBackImage,jdbcType=VARCHAR}, 
       #{cInsuranceImage,jdbcType=VARCHAR}, #{mInsuranceImage,jdbcType=VARCHAR}, #{gpsNumber,jdbcType=VARCHAR}, 
@@ -84,6 +90,9 @@
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
         id,
+      </if>
+      <if test="branch != null" >
+        branch,
       </if>
       <if test="carStatus != null" >
         car_status,
@@ -132,6 +141,9 @@
       <if test="id != null" >
         #{id,jdbcType=INTEGER},
       </if>
+      <if test="branch != null" >
+        #{branch,jdbcType=VARCHAR},
+      </if>
       <if test="carStatus != null" >
         #{carStatus,jdbcType=VARCHAR},
       </if>
@@ -179,6 +191,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Car" >
     update maple_car
     <set >
+      <if test="branch != null" >
+        branch = #{branch,jdbcType=VARCHAR},
+      </if>
       <if test="catStatus != null" >
         car_status = #{carStatus,jdbcType=VARCHAR},
       </if>
@@ -227,6 +242,7 @@
   <update id="updateByPrimaryKey" parameterType="com.maple.pojo.Car" >
     update maple_car
     set
+      branch = #{branch,jdbcType=VARCHAR},
       car_status = #{carStatus,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
       plate_number = #{plateNumber,jdbcType=VARCHAR},
