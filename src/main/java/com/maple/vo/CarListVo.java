@@ -15,8 +15,7 @@ public class CarListVo {
     private String plateNum;
     private String carName;//车型
     private List<DriverCarListVo> driverCarListVoList;//绑定人集合
-    private String ticketScore;
-    private String ticketMoney;
+    private String ticket;
     private String pickDate;//提车日期
 
     public Integer getCarId() {
@@ -67,20 +66,12 @@ public class CarListVo {
         this.driverCarListVoList = driverCarListVoList;
     }
 
-    public String getTicketScore() {
-        return ticketScore;
+    public String getTicket() {
+        return ticket;
     }
 
-    public void setTicketScore(String ticketScore) {
-        this.ticketScore = ticketScore;
-    }
-
-    public String getTicketMoney() {
-        return ticketMoney;
-    }
-
-    public void setTicketMoney(String ticketMoney) {
-        this.ticketMoney = ticketMoney;
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
     }
 
     public String getPickDate() {

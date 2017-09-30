@@ -64,6 +64,7 @@ public class DriverController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
+                               String plateNum,
                                String driverName,
                                String phoneNum,
                                Integer driverStatus,
@@ -75,7 +76,7 @@ public class DriverController {
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
-        return iDriverService.list(user.getId(), driverName, phoneNum, driverStatus, coModelType, orderBy, pageNum, pageSize);
+        return iDriverService.list(user.getId(),plateNum, driverName, phoneNum, driverStatus, coModelType, orderBy, pageNum, pageSize);
     }
 
     //搜索

@@ -108,7 +108,7 @@ public class DateTimeUtil {
 
     public static List<Date> getWeekStartDateList(Date startDate, Date endDate){
         List<Date> weekStartDateList = Lists.newArrayList();
-        while (Math.abs(startDate.getTime()-endDate.getTime())>1000){
+        while (Math.abs(startDate.getTime()-endDate.getTime())>1100){
             weekStartDateList.add(startDate);
             DateTime dateTime = new DateTime(startDate);
             dateTime = dateTime.plusWeeks(1);

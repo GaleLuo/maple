@@ -127,7 +127,7 @@
   <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
 #     1.在合同期,2.超过或等于合同期,应付尾款
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
-    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.period_end_date &gt;= #{endDate} and cm.final_amount &gt; 0))
+    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline &gt;= #{endDate} and cm.final_amount &gt; 0))
     and cm.period_start_date &lt;= #{endDate}
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
@@ -141,7 +141,7 @@
   <select id="selectDriverReceivableGroupByCarId" resultType="com.maple.pojo.Driver">
     #     1.在合同期,2.超过或等于合同期,应付尾款
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
-    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.period_end_date &gt;= #{endDate} and cm.final_amount &gt; 0))
+    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline&gt;= #{endDate} and cm.final_amount &gt; 0))
     and cm.period_start_date &lt;= #{endDate}
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
@@ -190,7 +190,11 @@
     SELECT d.id as id,d.car_id as carId,d.driver_status as driverStatus,d.personal_phone as personalPhone,d.name as name,
     d.co_model_id as coModelId
     FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id LEFT JOIN maple_co_model as cm on cm.id =d.co_model_id
+    LEFT JOIN maple_car c on d.car_id = c.id
     <where>
+      <if test="plateNum!=null">
+        and c.plate_number like #{plateNum}
+      </if>
       <if test="driverName!=null">
         and d.name like #{driverName}
       </if>

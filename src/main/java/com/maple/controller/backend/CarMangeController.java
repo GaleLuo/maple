@@ -40,6 +40,7 @@ public class CarMangeController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
+                               @RequestParam(value = "driverName",required = false) String driverName,
                                @RequestParam(value = "branch",required = false) Integer branch,
                                @RequestParam(value = "carStatus",required = false) Integer carStatus,
                                @RequestParam(value = "plateNum" ,required = false) String plateNum,//车牌号
@@ -52,7 +53,7 @@ public class CarMangeController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iCarService.list(null,branch,carStatus, plateNum, carName,orderBy, pageNum, pageSize);
+            return iCarService.list(null,driverName,branch,carStatus, plateNum, carName,orderBy, pageNum, pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

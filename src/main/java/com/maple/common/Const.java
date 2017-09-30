@@ -87,7 +87,9 @@ public class Const {
     public enum CarStatus {
         NORMAL(1, "正常运营"),
         TRANSFERRED(2, "已过户"),
-        STOCKING(3,"库存中");
+        STOCKING(0,"库存中"),
+        REDEEMED(3, "已赎回"),;
+
 
         private int code;
         private String desc;
@@ -166,7 +168,7 @@ public class Const {
     public enum PlatformStatus{
         PAID_NORMAL(1, "正常已付"),
         PAID_OVERDUE(2, "逾期已付"),
-        UNPAID(0, "未付");
+        UNCONFIRMED(0, "未确认");
 
         private int code;
         private String desc;

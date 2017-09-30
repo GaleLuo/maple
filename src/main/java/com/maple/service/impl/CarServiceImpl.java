@@ -79,11 +79,11 @@ public class CarServiceImpl implements ICarService{
         return ServerResponse.createByErrorMessage("更新司机数据失败");
     }
 
-    public ServerResponse list(Integer userId,Integer branch,Integer carStatus, String plateNumber, String carName, String orderBy,int pageNum, int pageSize) {
+    public ServerResponse list(Integer userId,String driverName,Integer branch,Integer carStatus, String plateNumber, String carName, String orderBy,int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-//        if (driverName != null) {
-//            driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
-//        }
+        if (driverName != null) {
+            driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
+       }
         if (plateNumber != null) {
             plateNumber = new StringBuilder().append("%").append(plateNumber).append("%").toString();
         }
@@ -92,7 +92,7 @@ public class CarServiceImpl implements ICarService{
         }
         List<Integer> carIdList = Lists.newArrayList();
 
-        List<Car> carList = carMapper.selectByMultiParam(userId,branch,carStatus, plateNumber, carName,orderBy);
+        List<Car> carList = carMapper.selectByMultiParam(userId,driverName,branch,carStatus, plateNumber, carName,orderBy);
         List<CarListVo> carListVoList = Lists.newArrayList();
         for (Car car : carList) {
             CarListVo carListVo = assembleCarListVo(car);
@@ -107,11 +107,9 @@ public class CarServiceImpl implements ICarService{
         CarListVo carListVo = new CarListVo();
         Ticket ticket = ticketMapper.selectByCarId(car.getId());
         if (ticket == null) {
-            carListVo.setTicketScore("暂未查询");
-            carListVo.setTicketMoney("暂未查询");
+            carListVo.setTicket("暂未查询");
         } else {
-            carListVo.setTicketScore(ticket.getScore().toString());
-            carListVo.setTicketMoney(ticket.getMoney().toString());
+            carListVo.setTicket(ticket.getScore().toString()+" -"+ ticket.getMoney().toString());
         }
 
         carListVo.setCarId(car.getId());
@@ -121,11 +119,17 @@ public class CarServiceImpl implements ICarService{
         carListVo.setCarName(car.getName());
         List<Driver> driverList = driverMapper.selectDriverListByCarId(car.getId());
         List<DriverCarListVo> driverCarListVoList = Lists.newArrayList();
-        for (Driver driver : driverList) {
+        if (CollectionUtils.isNotEmpty(driverList)) {
+            for (Driver driver : driverList) {
+                DriverCarListVo driverCarListVo = assembleDriverCarListVo(driver);
+                driverCarListVoList.add(driverCarListVo);
+            }
+        } else {
+            Driver driver = new Driver();
+            driver.setName("未绑定");
             DriverCarListVo driverCarListVo = assembleDriverCarListVo(driver);
             driverCarListVoList.add(driverCarListVo);
         }
-        
         carListVo.setDriverCarListVoList(driverCarListVoList);
         carListVo.setPickDate(DateTimeUtil.dateToStr(car.getPickDate(),"yyyy 年 MM 月 dd 日"));
         return carListVo;

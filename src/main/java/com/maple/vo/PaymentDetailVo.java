@@ -10,9 +10,19 @@ public class PaymentDetailVo {
     private BigDecimal payment;
     private String paymentPlatform;
     private int paymentPlatformCode;
+    private String paymentStatus;
     private String payTime;
     private String updateTime;
     private String comment;
+
+
+    public String getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(String paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
 
     public String getUpdateTime() {
         return updateTime;

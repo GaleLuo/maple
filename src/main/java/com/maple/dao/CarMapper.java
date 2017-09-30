@@ -21,5 +21,5 @@ public interface CarMapper {
 
     Car selectByVin(String stringCellValue);
 
-    List<Car> selectByMultiParam(@Param("userId") Integer userId, @Param("branch") Integer branch, @Param("carStatus") Integer carStatus, @Param("plateNumber") String plateNumber, @Param("carName") String carName, @Param("orderBy") String orderBy);
+    List<Car> selectByMultiParam(@Param("userId") Integer userId, @Param("driverName") String driverName, @Param("branch") Integer branch, @Param("carStatus") Integer carStatus, @Param("plateNumber") String plateNumber, @Param("carName") String carName, @Param("orderBy") String orderBy);
 }

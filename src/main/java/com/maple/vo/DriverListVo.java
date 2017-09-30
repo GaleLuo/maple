@@ -12,8 +12,7 @@ public class DriverListVo {
     private String periodStartDate;
     private String carName;
     private String plateNum;
-    private String ticketScore;
-    private String ticketMoney;
+    private String ticket;
 
 
     public String getCoModelType() {
@@ -24,20 +23,12 @@ public class DriverListVo {
         this.coModelType = coModelType;
     }
 
-    public String getTicketScore() {
-        return ticketScore;
+    public String getTicket() {
+        return ticket;
     }
 
-    public void setTicketScore(String ticketScore) {
-        this.ticketScore = ticketScore;
-    }
-
-    public String getTicketMoney() {
-        return ticketMoney;
-    }
-
-    public void setTicketMoney(String ticketMoney) {
-        this.ticketMoney = ticketMoney;
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
     }
 
     public String getPhoneNum() {

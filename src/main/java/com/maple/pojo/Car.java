@@ -23,9 +23,9 @@ public class Car {
 
     private String carLicenceBackImage;
 
-    private String cInsuranceImage;
+    private Date transferDate;
 
-    private String mInsuranceImage;
+    private Date redeemDate;
 
     private String gpsNumber;
 
@@ -35,7 +35,7 @@ public class Car {
 
     private Date updateTime;
 
-    public Car(Integer id, Integer branch, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, String carLicenceFrontImage, String carLicenceBackImage, String cInsuranceImage, String mInsuranceImage, String gpsNumber, String gpsPhone, Date createTime, Date updateTime) {
+    public Car(Integer id, Integer branch, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, String carLicenceFrontImage, String carLicenceBackImage, Date transferDate, Date redeemDate, String gpsNumber, String gpsPhone, Date createTime, Date updateTime) {
         this.id = id;
         this.branch = branch;
         this.carStatus = carStatus;
@@ -46,8 +46,8 @@ public class Car {
         this.pickDate = pickDate;
         this.carLicenceFrontImage = carLicenceFrontImage;
         this.carLicenceBackImage = carLicenceBackImage;
-        this.cInsuranceImage = cInsuranceImage;
-        this.mInsuranceImage = mInsuranceImage;
+        this.transferDate = transferDate;
+        this.redeemDate = redeemDate;
         this.gpsNumber = gpsNumber;
         this.gpsPhone = gpsPhone;
         this.createTime = createTime;
@@ -138,20 +138,20 @@ public class Car {
         this.carLicenceBackImage = carLicenceBackImage == null ? null : carLicenceBackImage.trim();
     }
 
-    public String getcInsuranceImage() {
-        return cInsuranceImage;
+    public Date getTransferDate() {
+        return transferDate;
     }
 
-    public void setcInsuranceImage(String cInsuranceImage) {
-        this.cInsuranceImage = cInsuranceImage == null ? null : cInsuranceImage.trim();
+    public void setTransferDate(Date transferDate) {
+        this.transferDate = transferDate;
     }
 
-    public String getmInsuranceImage() {
-        return mInsuranceImage;
+    public Date getRedeemDate() {
+        return redeemDate;
     }
 
-    public void setmInsuranceImage(String mInsuranceImage) {
-        this.mInsuranceImage = mInsuranceImage == null ? null : mInsuranceImage.trim();
+    public void setRedeemDate(Date redeemDate) {
+        this.redeemDate = redeemDate;
     }
 
     public String getGpsNumber() {

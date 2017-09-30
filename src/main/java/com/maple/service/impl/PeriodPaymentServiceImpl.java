@@ -205,15 +205,22 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         List<DriverTotalPaymentListVo> DriverTotalPaymentListVoList = Lists.newArrayList();
 
         if (coModel.getModelType().equals(Const.CoModel.HIRE_PURCHASE_WEEK.getCode())) {
-            List<Date> weekStartDateList = DateTimeUtil.getWeekStartDateList(coModel.getPeriodStartDate(), coModel.getPeriodEndDate());       //整个合同的起始日和结束日得出 每周起始日的列表
-            Date startDate;//每周期的起始日
-            Date endDate;//每周期的结束日
-            for (Date date : weekStartDateList) {
-                startDate = date;
-                endDate = DateTimeUtil.getWeekEndDate(date);
-                DriverTotalPaymentListVo driverPeriodGeneralListVo = assembleDriverTotalPaymentListVo(driverId, startDate, endDate);
-                DriverTotalPaymentListVoList.add(driverPeriodGeneralListVo);
+            List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());
+            for (PeriodPlan periodPlan : periodPlanList) {
+                List<Date> weekStartDateList = DateTimeUtil.getWeekStartDateList(periodPlan.getStartDate(), periodPlan.getEndDate());       //整个合同的起始日和结束日得出 每周起始日的列表
+                Date startDate;//每周期的起始日
+                Date endDate;//每周期的结束日
+                for (Date date : weekStartDateList) {
+                    startDate = date;
+                    endDate = DateTimeUtil.getWeekEndDate(date);
+                    DriverTotalPaymentListVo driverPeriodGeneralListVo = assembleDriverTotalPaymentListVo(driverId, startDate, endDate);
+                    String status = driverPeriodGeneralListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
+                    driverPeriodGeneralListVo.setStatus(status);
+                    driverPeriodGeneralListVo.setDueAmount(periodPlan.getAmount());
+                    DriverTotalPaymentListVoList.add(driverPeriodGeneralListVo);
+                }
             }
+
         }else if (coModel.getModelType().equals(Const.CoModel.HIRE_PURCHASE_MONTH.getCode())){
             List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());
             PeriodPlan periodPlan = periodPlanList.get(0);//月租只有一种情况所以直接取第一个
@@ -228,13 +235,15 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             while (!end.isEqual(start)) {
                 DateTime periodEndDate = start.plusMonths(1).minusSeconds(1);//每周期结束日
                 DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(driverId, start.toDate(), periodEndDate.toDate());
+                String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
+                driverTotalPaymentListVo.setStatus(status);
+                driverTotalPaymentListVo.setDueAmount(periodPlan.getAmount());
+
                 DriverTotalPaymentListVoList.add(driverTotalPaymentListVo);
                 start = start.plusMonths(1);
             }
 
         }//返回司机个人缴费总览月租
-
-
 
         return ServerResponse.createBySuccess(DriverTotalPaymentListVoList);
     }
@@ -244,8 +253,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         driverPeriodGeneralListVo.setDueDate(DateTimeUtil.dateToStr(startDate, "yyyy-MM-dd"));
         List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByDriverId(driverId, startDate, endDate);
         List<PaymentDetailVo> paymentDetailVoList = Lists.newArrayList();
+        BigDecimal receivedAmount = BigDecimal.ZERO;
         if (CollectionUtils.isNotEmpty(periodPaymentList)) {
             for (PeriodPayment periodPayment : periodPaymentList) {
+                receivedAmount = receivedAmount.add(periodPayment.getPayment());
                 PaymentDetailVo paymentDetailVo = assemblePaymentDetailVo(periodPayment);
                 paymentDetailVoList.add(paymentDetailVo);
             }
@@ -257,8 +268,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             paymentDetailVo.setPaymentPlatform("-");
             paymentDetailVo.setComment("-");
             paymentDetailVoList.add(paymentDetailVo);
-
         }
+        driverPeriodGeneralListVo.setReceivedAmount(receivedAmount);
         driverPeriodGeneralListVo.setPaymentDetailVoList(paymentDetailVoList);
         return driverPeriodGeneralListVo;
     }
@@ -266,6 +277,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private PaymentDetailVo assemblePaymentDetailVo(PeriodPayment periodPayment) {
         PaymentDetailVo paymentDetailVo = new PaymentDetailVo();
         paymentDetailVo.setId(periodPayment.getId());
+        paymentDetailVo.setPaymentStatus(Const.PlatformStatus.codeOf(periodPayment.getPlatformStatus()).getDesc());
         paymentDetailVo.setPayment(periodPayment.getPayment());
         paymentDetailVo.setPaymentPlatformCode(periodPayment.getPaymentPlatform());
         paymentDetailVo.setPaymentPlatform(Const.PaymentPlatform.codeOf(periodPayment.getPaymentPlatform()).getDesc());

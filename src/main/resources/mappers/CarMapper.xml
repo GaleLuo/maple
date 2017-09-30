@@ -13,8 +13,8 @@
       <arg column="pick_date" jdbcType="DATE" javaType="java.util.Date" />
       <arg column="car_licence_front_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="car_licence_back_image" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="c_insurance_image" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="m_insurance_image" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="transfer_date" jdbcType="DATE" javaType="java.util.Date" />
+      <arg column="redeem_date" jdbcType="DATE" javaType="java.util.Date" />
       <arg column="gps_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="gps_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -23,7 +23,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id,branch,car_status, name, plate_number, engine_number, vin, pick_date, car_licence_front_image,
-    car_licence_back_image, c_insurance_image, m_insurance_image, gps_number, gps_phone, 
+    car_licence_back_image, transfer_date, redeem_date, gps_number, gps_phone,
     create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -35,8 +35,11 @@
   <select id="selectByMultiParam" resultType="com.maple.pojo.Car" parameterType="map">
     SELECT c.id as id,c.branch as branch,c.car_status as carStatus,c.name as name, c.plate_number as plateNumber,
     c.pick_date as pickDate
-    from maple_car c LEFT JOIN maple_ticket t on t.car_id=c.id
+    from maple_car c LEFT JOIN maple_ticket t on t.car_id=c.id LEFT JOIN maple_driver d on d.car_id=c.id
     <where>
+      <if test="driverName!=null">
+      and d.name like #{driverName}
+      </if>
       <if test="branch!=null">
       and c.branch=#{branch}
       </if>
@@ -52,16 +55,17 @@
       <if test="userId!=null">
         and c.id in (select d.car_id from maple_driver d where d.user_id = #{userId})
       </if>
-      <if test="orderBy=='score'">
-      order by t.score desc
-      </if>
-      <if test="orderBy=='money'">
-        order by t.money desc
-      </if>
-      <if test="orderBy=='pickDate'">
-      order by c.pick_date desc
-      </if>
     </where>
+    group by c.id
+    <if test="orderBy=='score'">
+      order by t.score desc
+    </if>
+    <if test="orderBy=='money'">
+      order by t.money desc
+    </if>
+    <if test="orderBy=='pickDate'">
+      order by c.pick_date desc
+    </if>
   </select>
   <select id="selectByVin" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> from maple_car WHERE vin=#{stringCellValue}
@@ -74,14 +78,14 @@
     insert into maple_car (id,branch,car_status, name, plate_number,
       engine_number, vin, pick_date,
       car_licence_front_image, car_licence_back_image, 
-      c_insurance_image, m_insurance_image, gps_number,
+      transfer_date, redeem_date, gps_number,
       gps_phone, create_time, update_time
       )
     values (#{id,jdbcType=INTEGER},#{branch,jdbcType=INTEGER},#{carStatus,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},
       #{plateNumber,jdbcType=VARCHAR},
       #{engineNumber,jdbcType=VARCHAR}, #{vin,jdbcType=VARCHAR}, #{pickDate,jdbcType=DATE},
-      #{carLicenceFrontImage,jdbcType=VARCHAR}, #{carLicenceBackImage,jdbcType=VARCHAR}, 
-      #{cInsuranceImage,jdbcType=VARCHAR}, #{mInsuranceImage,jdbcType=VARCHAR}, #{gpsNumber,jdbcType=VARCHAR}, 
+      #{carLicenceFrontImage,jdbcType=VARCHAR}, #{carLicenceBackImage,jdbcType=VARCHAR},
+      #{transferDate,jdbcType=DATE}, #{redeemDate,jdbcType=DATE}, #{gpsNumber,jdbcType=VARCHAR},
       #{gpsPhone,jdbcType=VARCHAR}, now(), now()
       )
   </insert>
@@ -118,11 +122,11 @@
       <if test="carLicenceBackImage != null" >
         car_licence_back_image,
       </if>
-      <if test="cInsuranceImage != null" >
-        c_insurance_image,
+      <if test="transferDate != null" >
+        transfer_date,
       </if>
-      <if test="mInsuranceImage != null" >
-        m_insurance_image,
+      <if test="redeemDate != null" >
+        redeem_date,
       </if>
       <if test="gpsNumber != null" >
         gps_number,
@@ -168,11 +172,11 @@
       <if test="carLicenceBackImage != null" >
         #{carLicenceBackImage,jdbcType=VARCHAR},
       </if>
-      <if test="cInsuranceImage != null" >
-        #{cInsuranceImage,jdbcType=VARCHAR},
+      <if test="transferDate != null" >
+        #{transferDate,jdbcType=DATE},
       </if>
-      <if test="mInsuranceImage != null" >
-        #{mInsuranceImage,jdbcType=VARCHAR},
+      <if test="redeemDate != null" >
+        #{redeemDate,jdbcType=DATE},
       </if>
       <if test="gpsNumber != null" >
         #{gpsNumber,jdbcType=VARCHAR},
@@ -218,11 +222,11 @@
       <if test="carLicenceBackImage != null" >
         car_licence_back_image = #{carLicenceBackImage,jdbcType=VARCHAR},
       </if>
-      <if test="cInsuranceImage != null" >
-        c_insurance_image = #{cInsuranceImage,jdbcType=VARCHAR},
+      <if test="transferDate != null" >
+        transfer_date = #{transferDate,jdbcType=DATE},
       </if>
-      <if test="mInsuranceImage != null" >
-        m_insurance_image = #{mInsuranceImage,jdbcType=VARCHAR},
+      <if test="redeemDate != null" >
+        redeem_date = #{redeemDate,jdbcType=DATE},
       </if>
       <if test="gpsNumber != null" >
         gps_number = #{gpsNumber,jdbcType=VARCHAR},
@@ -251,8 +255,8 @@
       pick_date = #{pickDate,jdbcType=DATE},
       car_licence_front_image = #{carLicenceFrontImage,jdbcType=VARCHAR},
       car_licence_back_image = #{carLicenceBackImage,jdbcType=VARCHAR},
-      c_insurance_image = #{cInsuranceImage,jdbcType=VARCHAR},
-      m_insurance_image = #{mInsuranceImage,jdbcType=VARCHAR},
+      transfer_date = #{transferDate,jdbcType=DATE},
+      redeem_date = #{redeemDate,jdbcType=DATE},
       gps_number = #{gpsNumber,jdbcType=VARCHAR},
       gps_phone = #{gpsPhone,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},

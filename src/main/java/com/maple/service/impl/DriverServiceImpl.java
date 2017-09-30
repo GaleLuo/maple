@@ -158,7 +158,7 @@ public class DriverServiceImpl implements IDriverService {
         return ServerResponse.createBySuccess();
     }
 
-    public ServerResponse list(Integer userId, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize) {
+    public ServerResponse list(Integer userId,String plateNum, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize) {
 
         PageHelper.startPage(pageNum, pageSize);
         if (StringUtils.isNotBlank(driverName)) {
@@ -166,12 +166,17 @@ public class DriverServiceImpl implements IDriverService {
         } else {
             driverName = null;
         }
+        if (StringUtils.isNotBlank(plateNum)) {
+            plateNum = new StringBuilder("%").append(StringUtils.upperCase(plateNum)).append("%").toString();
+        } else {
+            plateNum = null;
+        }
         phoneNum = StringUtils.isBlank(phoneNum) ? null : phoneNum;
 
 
         List<DriverListVo> driverListVoList = Lists.newArrayList();
 
-        List<Driver> driverList = driverMapper.selectByParams(driverName,phoneNum,driverStatus,coModelType,orderBy);
+        List<Driver> driverList = driverMapper.selectByParams(plateNum,driverName,phoneNum,driverStatus,coModelType,orderBy);
         //如果结果为空则返回空的分页数据
         if (CollectionUtils.isEmpty(driverList)) {
             PageInfo pageInfo = new PageInfo(driverList);
@@ -227,16 +232,17 @@ public class DriverServiceImpl implements IDriverService {
             Car car = carMapper.selectByPrimaryKey(driver.getCarId());
             driverListVo.setCarName(car.getName());
             driverListVo.setPlateNum(car.getPlateNumber());
+        } else {
+            driverListVo.setCarName("未绑定");
+            driverListVo.setPlateNum("没有记录");
         }
         CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
 
         Ticket ticket = ticketMapper.selectByCarId(driver.getCarId());
         if (ticket == null) {
-            driverListVo.setTicketMoney("暂未查询");
-            driverListVo.setTicketScore("暂未查询");
+            driverListVo.setTicket("暂未查询");
         } else {
-            driverListVo.setTicketScore(ticket.getScore().toString());
-            driverListVo.setTicketMoney(ticket.getMoney().toString());
+            driverListVo.setTicket(ticket.getScore().toString()+" -"+ticket.getMoney().toString());
         }
         driverListVo.setPeriodStartDate(DateTimeUtil.dateToStr(coModel.getPeriodStartDate(),"yyyy年MM月dd日"));
         driverListVo.setPhoneNum(driver.getPersonalPhone());
