@@ -23,6 +23,7 @@ import java.util.List;
 /**
  * Created by Maple.Ran on 2017/6/20.
  */
+//todo 添加车辆详情列表：包括车辆信息，车辆还款明细，添加还款确认列表
 @Controller
 @RequestMapping("/manage/period_payment/")
 public class PeriodPaymentManageController {
