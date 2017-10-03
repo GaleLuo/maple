@@ -25,7 +25,7 @@ public interface PeriodPaymentMapper {
 
     List<PeriodPayment> selectGeneralListByParams(@Param("driverName") String driverName, @Param("coModelType") Integer coModelType, @Param("paymentPlatform") Integer paymentPlatform, @Param("platformStatus") Integer platformStatus);
 
-    List<PeriodPayment> selectListByCarId(int carId);
+    List<PeriodPayment> selectListByCarId(@Param("carId") Integer carId, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
     List<PeriodPayment> selectListByDriverId(@Param("driverId") Integer driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 

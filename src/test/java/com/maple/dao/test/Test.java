@@ -262,6 +262,7 @@ public class Test extends TestBase {
             Cell carStatus = row.getCell(38);
             Cell endDateCell = row.getCell(39);//合作结束日期
 
+            Integer periodNum = 0;
 
             //查询是否已经存在该车辆
             Car car = carMapper.selectByVin(vin.getStringCellValue());
@@ -277,11 +278,12 @@ public class Test extends TestBase {
                 car.setEngineNumber(engineNum.getStringCellValue());
                 car.setPickDate(startDate);
                 car.setCarStatus((int) carStatus.getNumericCellValue());
+                car.setBranch(Const.Branch.CD.getCode());
                 carMapper.insert(car);
                 PeriodPlan firstPlan = new PeriodPlan();
                 PeriodPlan secondPlan = null;
                 PeriodPlan thirdPlan = null;
-
+            //todo 如果已有车辆,则判断司机是否正常,如果非正常,则新建合作模式和还款计划
                 coModel.setCarId(car.getId());
                 if (modelType.getStringCellValue().equals("周")) {
                     coModel.setModelType(Const.CoModel.HIRE_PURCHASE_WEEK.getCode());
@@ -358,6 +360,7 @@ public class Test extends TestBase {
                         thirdPlan.setCoModelId(coModel.getId());
                         periodPlanMapper.insert(thirdPlan);
                     }
+
                 }
             } else {
                 //如果已经有车辆
@@ -445,8 +448,9 @@ public class Test extends TestBase {
                             periodPlanMapper.insert(thirdPlan);
                         }
                     }
+                } else {
+                    coModel.setId(driver.getCoModelId());
                 }
-                coModel.setId(driver.getCoModelId());
             }
 
             Driver driver = new Driver();

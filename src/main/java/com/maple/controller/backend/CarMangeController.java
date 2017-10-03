@@ -22,7 +22,7 @@ import javax.servlet.http.HttpSession;
 public class CarMangeController {
 
     @Autowired
-    private ICarService iCarService;
+    private ICarService carService;
     //更新任意司机数据
     @RequestMapping("update.do")
     @ResponseBody
@@ -32,7 +32,7 @@ public class CarMangeController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            iCarService.update(null, car);
+            carService.update(null, car);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
@@ -53,8 +53,9 @@ public class CarMangeController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iCarService.list(null,driverName,branch,carStatus, plateNum, carName,orderBy, pageNum, pageSize);
+            return carService.list(null,driverName,branch,carStatus, plateNum, carName,orderBy, pageNum, pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
+
 }

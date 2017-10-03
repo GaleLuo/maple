@@ -6,24 +6,24 @@ import com.google.common.collect.Lists;
 import com.maple.common.Const;
 import com.maple.common.ResponseCode;
 import com.maple.common.ServerResponse;
-import com.maple.dao.CarMapper;
-import com.maple.dao.DriverMapper;
-import com.maple.dao.ProductMapper;
-import com.maple.dao.TicketMapper;
-import com.maple.pojo.Car;
-import com.maple.pojo.Driver;
-import com.maple.pojo.Product;
-import com.maple.pojo.Ticket;
+import com.maple.dao.*;
+import com.maple.pojo.*;
 import com.maple.service.ICarService;
+import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CarListVo;
+import com.maple.vo.CarVo;
 import com.maple.vo.DriverCarListVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.sl.draw.binding.CTOfficeArtExtensionList;
+import org.joda.time.DateTime;
+import org.joda.time.Months;
+import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -40,6 +40,13 @@ public class CarServiceImpl implements ICarService{
     private ProductMapper productMapper;
     @Autowired
     private TicketMapper ticketMapper;
+    @Autowired
+    private CoModelMapper coModelMapper;
+    @Autowired
+    private PeriodPaymentMapper periodPaymentMapper;
+    @Autowired
+    private PeriodPlanMapper periodPlanMapper;
+
 
     //返回新增车辆的ID
     public ServerResponse save(Integer productId) {
@@ -102,6 +109,7 @@ public class CarServiceImpl implements ICarService{
         pageInfo.setList(carListVoList);
         return ServerResponse.createBySuccess(pageInfo);
     }
+
 
     private CarListVo assembleCarListVo(Car car) {
         CarListVo carListVo = new CarListVo();

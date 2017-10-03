@@ -262,12 +262,10 @@ public class DriverServiceImpl implements IDriverService {
         Integer overdueNum = periodPaymentMapper.findOverdueByCarId(driver.getCarId());
         Ticket ticket = ticketMapper.selectByCarId(driver.getCarId());
         if (ticket == null) {
-            driverVo.setTicketMoney("未查询");
-            driverVo.setTicketScore("未查询");
+            driverVo.setTicket("未查询");
             driverVo.setTicketUpdateTime("未查询");
         } else {
-            driverVo.setTicketScore(ticket.getScore().toString());
-            driverVo.setTicketMoney(ticket.getMoney().toString());
+            driverVo.setTicket(ticket.getScore().toString()+" - "+ticket.getMoney().toString());
             driverVo.setTicketUpdateTime(DateTimeUtil.dateToStr(ticket.getUpdateTime()));
         }
         double periodPercentage = (totalReceived.doubleValue() + coModel.getDownAmount().doubleValue())/coModel.getTotalAmount().doubleValue();
@@ -302,7 +300,7 @@ public class DriverServiceImpl implements IDriverService {
 
         BigDecimal overdueAmount = BigDecimalUtil.sub(receivableByNow.doubleValue(),totalReceived.doubleValue());
 
-        BigDecimal v1=BigDecimalUtil.sub(coModel.getTotalAmount().doubleValue(),coModel.getDownAmount().doubleValue());
+        BigDecimal v1=BigDecimalUtil.sub(coModel.getTotalAmount().doubleValue(),coModel.getDownAmount().doubleValue());//总额减去首付得到余款
 
         BigDecimal balance = BigDecimalUtil.sub(v1.doubleValue(), totalReceived.doubleValue());
 

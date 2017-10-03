@@ -213,7 +213,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 for (Date date : weekStartDateList) {
                     startDate = date;
                     endDate = DateTimeUtil.getWeekEndDate(date);
-                    DriverTotalPaymentListVo driverPeriodGeneralListVo = assembleDriverTotalPaymentListVo(driverId, startDate, endDate);
+                    DriverTotalPaymentListVo driverPeriodGeneralListVo = assembleDriverTotalPaymentListVo(carId, startDate, endDate);
                     String status = driverPeriodGeneralListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
                     driverPeriodGeneralListVo.setStatus(status);
                     driverPeriodGeneralListVo.setDueAmount(periodPlan.getAmount());
@@ -234,7 +234,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
             while (!end.isEqual(start)) {
                 DateTime periodEndDate = start.plusMonths(1).minusSeconds(1);//每周期结束日
-                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(driverId, start.toDate(), periodEndDate.toDate());
+                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, start.toDate(), periodEndDate.toDate());
                 String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
                 driverTotalPaymentListVo.setStatus(status);
                 driverTotalPaymentListVo.setDueAmount(periodPlan.getAmount());
@@ -248,10 +248,11 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         return ServerResponse.createBySuccess(DriverTotalPaymentListVoList);
     }
 
-    private DriverTotalPaymentListVo assembleDriverTotalPaymentListVo(Integer driverId, Date startDate, Date endDate) {
+    private DriverTotalPaymentListVo assembleDriverTotalPaymentListVo(Integer carId, Date startDate, Date endDate) {
         DriverTotalPaymentListVo driverPeriodGeneralListVo = new DriverTotalPaymentListVo();
         driverPeriodGeneralListVo.setDueDate(DateTimeUtil.dateToStr(startDate, "yyyy-MM-dd"));
-        List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByDriverId(driverId, startDate, endDate);
+        List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByCarId(carId, startDate, endDate);
+
         List<PaymentDetailVo> paymentDetailVoList = Lists.newArrayList();
         BigDecimal receivedAmount = BigDecimal.ZERO;
         if (CollectionUtils.isNotEmpty(periodPaymentList)) {
@@ -276,7 +277,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
     private PaymentDetailVo assemblePaymentDetailVo(PeriodPayment periodPayment) {
         PaymentDetailVo paymentDetailVo = new PaymentDetailVo();
+        Driver driver = driverMapper.selectByPrimaryKey(periodPayment.getDriverId());
+
         paymentDetailVo.setId(periodPayment.getId());
+        paymentDetailVo.setPayer(driver.getName());
         paymentDetailVo.setPaymentStatus(Const.PlatformStatus.codeOf(periodPayment.getPlatformStatus()).getDesc());
         paymentDetailVo.setPayment(periodPayment.getPayment());
         paymentDetailVo.setPaymentPlatformCode(periodPayment.getPaymentPlatform());
@@ -371,7 +375,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             for (PeriodPlan periodPlan : periodPlanList) {
                 Date periodStartDate = periodPlan.getStartDate();
                 Date periodEndDate = periodPlan.getEndDate();
-                if (periodStartDate.compareTo(startDate) <= 0 && periodEndDate.compareTo(endDate) >= 0) {
+                if (periodStartDate.compareTo(startDate) <= 0 || periodEndDate.compareTo(endDate) >= 0) {
                     BigDecimal amount = periodPlan.getAmount();
                     //如果差额小于应收额则收差额
                     dueAmount = dueAmount.compareTo(amount) <= 0 ? dueAmount : amount;

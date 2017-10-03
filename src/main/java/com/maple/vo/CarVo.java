@@ -1,18 +1,18 @@
 package com.maple.vo;
 
+import com.maple.pojo.Driver;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
- * Created by Maple.Ran on 2017/7/17.
+ * Created by Maple.Ran on 2017/10/3.
  */
-public class DriverVo {
-
-    private String driverName;
-    private String phoneNum;
-    private String idNum;
+public class CarVo {
+    private List<Driver> driverList;
     private String vin;
     private String plateNum;
-    private String driverStatus;
+    private String carStatus;
     private String carName;
     private String startDate;
     private String endDate;
@@ -21,26 +21,26 @@ public class DriverVo {
     private BigDecimal totalAmount;
     private BigDecimal downAmount;
     private Integer periodNum;//总周数
-    private Integer overdueNum;//逾期次数
     private BigDecimal overdueAmount;//现在逾期金额
     private BigDecimal balance;//余额
-    private String ticket;//违章分数
+    private String ticket;//违章情况
     private String ticketUpdateTime;
 
-    public String getTicketUpdateTime() {
-        return ticketUpdateTime;
+
+    public List<Driver> getDriverList() {
+        return driverList;
     }
 
-    public void setTicketUpdateTime(String ticketUpdateTime) {
-        this.ticketUpdateTime = ticketUpdateTime;
+    public void setDriverList(List<Driver> driverList) {
+        this.driverList = driverList;
     }
 
-    public String getTicket() {
-        return ticket;
+    public String getVin() {
+        return vin;
     }
 
-    public void setTicket(String ticket) {
-        this.ticket = ticket;
+    public void setVin(String vin) {
+        this.vin = vin;
     }
 
     public String getPlateNum() {
@@ -51,44 +51,12 @@ public class DriverVo {
         this.plateNum = plateNum;
     }
 
-    public String getDriverStatus() {
-        return driverStatus;
+    public String getCarStatus() {
+        return carStatus;
     }
 
-    public void setDriverStatus(String driverStatus) {
-        this.driverStatus = driverStatus;
-    }
-
-    public String getDriverName() {
-        return driverName;
-    }
-
-    public void setDriverName(String driverName) {
-        this.driverName = driverName;
-    }
-
-    public String getPhoneNum() {
-        return phoneNum;
-    }
-
-    public void setPhoneNum(String phoneNum) {
-        this.phoneNum = phoneNum;
-    }
-
-    public String getIdNum() {
-        return idNum;
-    }
-
-    public void setIdNum(String idNum) {
-        this.idNum = idNum;
-    }
-
-    public String getVin() {
-        return vin;
-    }
-
-    public void setVin(String vin) {
-        this.vin = vin;
+    public void setCarStatus(String carStatus) {
+        this.carStatus = carStatus;
     }
 
     public String getCarName() {
@@ -155,14 +123,6 @@ public class DriverVo {
         this.periodNum = periodNum;
     }
 
-    public Integer getOverdueNum() {
-        return overdueNum;
-    }
-
-    public void setOverdueNum(Integer overdueNum) {
-        this.overdueNum = overdueNum;
-    }
-
     public BigDecimal getOverdueAmount() {
         return overdueAmount;
     }
@@ -177,5 +137,21 @@ public class DriverVo {
 
     public void setBalance(BigDecimal balance) {
         this.balance = balance;
+    }
+
+    public String getTicket() {
+        return ticket;
+    }
+
+    public void setTicket(String ticket) {
+        this.ticket = ticket;
+    }
+
+    public String getTicketUpdateTime() {
+        return ticketUpdateTime;
+    }
+
+    public void setTicketUpdateTime(String ticketUpdateTime) {
+        this.ticketUpdateTime = ticketUpdateTime;
     }
 }

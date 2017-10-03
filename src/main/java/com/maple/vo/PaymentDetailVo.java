@@ -7,14 +7,22 @@ import java.math.BigDecimal;
  */
 public class PaymentDetailVo {
     private int id;
-    private BigDecimal payment;
-    private String paymentPlatform;
-    private int paymentPlatformCode;
-    private String paymentStatus;
+    private BigDecimal payment;//付款额
+    private String payer;//付款人
+    private String paymentPlatform;//付款平台
+    private int paymentPlatformCode;//平台流水号
+    private String paymentStatus;//付款状态
     private String payTime;
     private String updateTime;
     private String comment;
 
+    public String getPayer() {
+        return payer;
+    }
+
+    public void setPayer(String payer) {
+        this.payer = payer;
+    }
 
     public String getPaymentStatus() {
         return paymentStatus;

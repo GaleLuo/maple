@@ -54,10 +54,16 @@
     </where>
     GROUP BY driver_id
   </select>
-  <select id="selectListByCarId" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
-    SELECT id,payment,payment_platform as paymentPlatform,pay_time as payTime
-    from maple_period_payment
+  <select id="selectListByCarId" resultMap="BaseResultMap" parameterType="map">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_period_payment
     WHERE car_id =#{carId}
+    <if test="startDate!=null">
+      and pay_time >=#{startDate}
+    </if>
+    <if test="endDate!=null">
+      and pay_time &lt;= #{endDate}
+    </if>
   </select>
   <select id="selectListByDriverId" resultMap="BaseResultMap" parameterType="map">
     SELECT <include refid="Base_Column_List"/>
