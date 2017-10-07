@@ -7,7 +7,7 @@ import com.maple.pojo.Driver;
  * Created by Maple.Ran on 2017/5/26.
  */
 public interface IDriverService {
-    ServerResponse saveDriver(Integer userId, Driver driver);
+    ServerResponse addOrUpdate(Integer userId, Driver driver);
 
     ServerResponse setDriverStatus(Integer userId, String driverIds,Integer status);
 
@@ -24,4 +24,6 @@ public interface IDriverService {
     ServerResponse addAccount(Integer driverId, Integer platformCode, String account);
 
     ServerResponse getAccountList(Integer driverId);
+
+    ServerResponse summary(Integer userId, Integer driverId);
 }

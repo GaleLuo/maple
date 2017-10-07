@@ -8,6 +8,7 @@ import java.util.List;
 /**
  * Created by Maple.Ran on 2017/10/3.
  */
+//未使用
 public class CarVo {
     private List<Driver> driverList;
     private String vin;

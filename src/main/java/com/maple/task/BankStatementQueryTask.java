@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Created by Maple.Ran on 2017/7/12.
  */
-//@Component
+@Component
 public class BankStatementQueryTask {
     @Autowired
     private PeriodPaymentMapper periodPaymentMapper;
@@ -31,7 +31,7 @@ public class BankStatementQueryTask {
     @Autowired
     private CoModelMapper coModelMapper;
 
-//    @Scheduled(cron = "* */60 * * * ?")
+    //    @Scheduled(cron = "* */60 * * * ?")
     private void insertPaymentStatement() throws Exception {
         List<Map<String, Object>> maps = CrawlerUtil.bankStatement(new DateTime("2017-06-15").toDate(), new Date());
         for (Map map : maps) {
@@ -70,10 +70,15 @@ public class BankStatementQueryTask {
                 newPeriod.setId(periodPayment.getId());
                 periodPaymentMapper.updateByPrimaryKeySelective(newPeriod);
             }
-            }
-
         }
 
     }
+
+//    @Scheduled(cron = "0 * * * *")
+    private void ticketQuery() {
+        System.out.println(new Date());
+
+    }
+}
 
 

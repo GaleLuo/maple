@@ -382,7 +382,7 @@
       <if test="workPhone != null" >
         work_phone = #{workPhone,jdbcType=VARCHAR},
       </if>
-      <if test="driver_licence_file_number != null" >
+      <if test="driverLicenceFileNumber != null" >
         driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
       </if>
       <if test="driverStatus != null" >

@@ -35,6 +35,7 @@ public class Driver {
 
     private Date updateTime;
 
+
     public Driver(Integer id, Integer carId, Integer userId, Integer coModelId, String name, String idNumber, String driverCarImage, String driverLicenceFrontImage, String driverLicenceBackImage, String personalPhone, String workPhone, String driverLicenceFileNumber, Integer driverStatus, Integer periodsStatus, Date createTime, Date updateTime) {
         this.id = id;
         this.carId = carId;
@@ -53,6 +54,7 @@ public class Driver {
         this.createTime = createTime;
         this.updateTime = updateTime;
     }
+
 
     public Driver() {
         super();

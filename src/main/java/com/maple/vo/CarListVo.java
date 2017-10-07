@@ -16,7 +16,26 @@ public class CarListVo {
     private String carName;//车型
     private List<DriverCarListVo> driverCarListVoList;//绑定人集合
     private String ticket;
+    private String transferDate; //过户时间
+    private String redeemDate;//赎回时间
     private String pickDate;//提车日期
+
+
+    public String getTransferDate() {
+        return transferDate;
+    }
+
+    public void setTransferDate(String transferDate) {
+        this.transferDate = transferDate;
+    }
+
+    public String getRedeemDate() {
+        return redeemDate;
+    }
+
+    public void setRedeemDate(String redeemDate) {
+        this.redeemDate = redeemDate;
+    }
 
     public Integer getCarId() {
         return carId;

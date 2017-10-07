@@ -73,7 +73,7 @@
       #{deadline,jdbcType=DATE}, #{comment,jdbcType=VARCHAR}, now(),
             now())
   </insert>
-  <insert id="insertSelective" parameterType="com.maple.pojo.CoModel" >
+  <insert id="insertSelective" parameterType="com.maple.pojo.CoModel" useGeneratedKeys="true" keyProperty="id">
     insert into maple_co_model
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -112,12 +112,12 @@
       <if test="comment != null" >
         comment,
       </if>
-      <if test="createTime != null" >
+
         create_time,
-      </if>
-      <if test="updateTime != null" >
+
+
         update_time,
-      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -138,9 +138,7 @@
       <if test="periodNum != null" >
         #{periodNum,jdbcType=INTEGER},
       </if>
-      <if test="periodPayment != null" >
-        #{periodPayment,jdbcType=DECIMAL},
-      </if>
+
       <if test="periodStartDate != null" >
         #{periodStartDate,jdbcType=DATE},
       </if>
@@ -159,12 +157,12 @@
       <if test="comment != null" >
         #{comment,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null" >
+
         now(),
-      </if>
-      <if test="updateTime != null" >
+
+
         now(),
-      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.CoModel" >

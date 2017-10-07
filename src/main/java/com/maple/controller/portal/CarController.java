@@ -36,15 +36,6 @@ public class CarController {
         return iCarService.save(productId);
     }
 
-    @RequestMapping("update.do")
-    @ResponseBody
-    public ServerResponse update(HttpSession session, Car car) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
-        }
-        return iCarService.update(user.getId(),car);
-    }
 
 
     @RequestMapping("list.do")

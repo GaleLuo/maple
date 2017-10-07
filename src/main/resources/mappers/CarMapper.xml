@@ -34,7 +34,7 @@
   </select>
   <select id="selectByMultiParam" resultType="com.maple.pojo.Car" parameterType="map">
     SELECT c.id as id,c.branch as branch,c.car_status as carStatus,c.name as name, c.plate_number as plateNumber,
-    c.pick_date as pickDate
+    c.pick_date as pickDate,c.transfer_date as transferDate, c.redeem_date as redeemDate
     from maple_car c LEFT JOIN maple_ticket t on t.car_id=c.id LEFT JOIN maple_driver d on d.car_id=c.id
     <where>
       <if test="driverName!=null">
@@ -70,7 +70,17 @@
   <select id="selectByVin" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> from maple_car WHERE vin=#{stringCellValue}
   </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectCarListForTicket" resultMap="BaseResultMap">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_car
+      WHERE car_status &lt;= 1
+    </select>
+  <select id="selectWhereUnchecked" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_car c
+    WHERE (select t.score from maple_ticket t where c.id=t.car_id)=0 and (select t.money from maple_ticket t where c.id=t.car_id)=0
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_car
     where id = #{id,jdbcType=INTEGER}
   </delete>
@@ -134,12 +144,10 @@
       <if test="gpsPhone != null" >
         gps_phone,
       </if>
-      <if test="createTime != null" >
         create_time,
-      </if>
-      <if test="updateTime != null" >
+
         update_time,
-      </if>
+
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -184,12 +192,10 @@
       <if test="gpsPhone != null" >
         #{gpsPhone,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null" >
         now(),
-      </if>
-      <if test="updateTime != null" >
+
         now(),
-      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Car" >
@@ -198,7 +204,7 @@
       <if test="branch != null" >
         branch = #{branch,jdbcType=VARCHAR},
       </if>
-      <if test="catStatus != null" >
+      <if test="carStatus != null" >
         car_status = #{carStatus,jdbcType=VARCHAR},
       </if>
       <if test="name != null" >
@@ -237,9 +243,7 @@
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="updateTime != null" >
         update_time = now(),
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -259,7 +263,6 @@
       redeem_date = #{redeemDate,jdbcType=DATE},
       gps_number = #{gpsNumber,jdbcType=VARCHAR},
       gps_phone = #{gpsPhone,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>

@@ -185,4 +185,26 @@ public class Car {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id=" + id +
+                ", branch=" + branch +
+                ", carStatus=" + carStatus +
+                ", name='" + name + '\'' +
+                ", plateNumber='" + plateNumber + '\'' +
+                ", engineNumber='" + engineNumber + '\'' +
+                ", vin='" + vin + '\'' +
+                ", pickDate=" + pickDate +
+                ", carLicenceFrontImage='" + carLicenceFrontImage + '\'' +
+                ", carLicenceBackImage='" + carLicenceBackImage + '\'' +
+                ", transferDate=" + transferDate +
+                ", redeemDate=" + redeemDate +
+                ", gpsNumber='" + gpsNumber + '\'' +
+                ", gpsPhone='" + gpsPhone + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                '}';
+    }
 }

@@ -2,6 +2,7 @@ package com.maple.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.github.pagehelper.StringUtil;
 import com.google.common.collect.Lists;
 import com.maple.common.Const;
 import com.maple.common.ResponseCode;
@@ -9,21 +10,15 @@ import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.pojo.*;
 import com.maple.service.ICarService;
-import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CarListVo;
-import com.maple.vo.CarVo;
+import com.maple.vo.CarSummaryVo;
 import com.maple.vo.DriverCarListVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.sl.draw.binding.CTOfficeArtExtensionList;
-import org.joda.time.DateTime;
-import org.joda.time.Months;
-import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -64,40 +59,74 @@ public class CarServiceImpl implements ICarService{
         return ServerResponse.createByErrorMessage("添加车辆数据失败");
     }
 
-    public ServerResponse update(Integer userId, Car car) {
-        if (car.getId() != null) {
+
+
+    public ServerResponse addOrUpdate(Integer userId, Integer id, Integer branch, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, Date transferDate, Date redeemDate, String gpsNumber, String gpsPhone) {
+        //将空字符串置为null
+        name = StringUtil.isEmpty(name) ? null : name;
+        plateNumber = StringUtil.isEmpty(plateNumber) ? null : plateNumber;
+        engineNumber = StringUtil.isEmpty(engineNumber) ? null : engineNumber;
+        vin = StringUtil.isEmpty(vin) ? null : vin;
+        gpsNumber = StringUtil.isEmpty(gpsNumber) ? null : gpsNumber;
+        gpsPhone = StringUtil.isEmpty(gpsPhone) ? null : gpsPhone;
+
+        Car car = new Car();
+        car.setId(id);
+        car.setBranch(branch);
+        car.setCarStatus(carStatus);
+        car.setName(name);
+        car.setPlateNumber(plateNumber);
+        car.setEngineNumber(engineNumber);
+        car.setVin(vin);
+        car.setPickDate(pickDate);
+        car.setTransferDate(transferDate);
+        car.setRedeemDate(redeemDate);
+        car.setGpsNumber(gpsNumber);
+        car.setGpsPhone(gpsPhone);
+
+        if (id != null) {
             //如果有前台userid数据则判断是否是属于自己的车辆
             if (userId != null) {
                 List<Integer> carIdList = driverMapper.selectCarIdListByUserId(userId);
-                if (carIdList.contains(car.getId())) {
+                if (carIdList.contains(id)) {
                     int result = carMapper.updateByPrimaryKeySelective(car);
                     if (result > 0) {
-                        return ServerResponse.createBySuccessMessage("更新司机数据成功");
+                        return ServerResponse.createBySuccessMessage("更新车辆数据成功");
                     }
                 }
                 //没有,则认为是管理员操作,不判断是否是自己车辆
             } else {
-                int result = carMapper.updateByPrimaryKeySelective(car);
+                int result = carMapper.updateByPrimaryKey(car);
                 if (result > 0) {
-                    return ServerResponse.createBySuccessMessage("更新司机数据成功");
+                    return ServerResponse.createBySuccessMessage("更新车辆数据成功");
                 }
             }
+        } else {
+            int result = carMapper.insertSelective(car);
+            if (result>0) {
+                return ServerResponse.createBySuccess();
+            }
         }
-        return ServerResponse.createByErrorMessage("更新司机数据失败");
+        return ServerResponse.createByErrorMessage("更新车辆数据失败");
     }
 
     public ServerResponse list(Integer userId,String driverName,Integer branch,Integer carStatus, String plateNumber, String carName, String orderBy,int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        if (driverName != null) {
+        if (StringUtils.isNotEmpty(driverName)) {
             driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
-       }
-        if (plateNumber != null) {
+        } else {
+            driverName = null;
+        }
+        if (StringUtils.isNotEmpty(plateNumber)) {
             plateNumber = new StringBuilder().append("%").append(plateNumber).append("%").toString();
+        } else {
+            plateNumber = null;
         }
-        if (carName != null) {
+        if (StringUtils.isNotEmpty(carName)) {
             carName = new StringBuilder().append("%").append(carName).append("%").toString();
+        } else {
+            carName = null;
         }
-        List<Integer> carIdList = Lists.newArrayList();
 
         List<Car> carList = carMapper.selectByMultiParam(userId,driverName,branch,carStatus, plateNumber, carName,orderBy);
         List<CarListVo> carListVoList = Lists.newArrayList();
@@ -110,6 +139,48 @@ public class CarServiceImpl implements ICarService{
         return ServerResponse.createBySuccess(pageInfo);
     }
 
+    public ServerResponse summary(Integer carId) {
+        Car car = carMapper.selectByPrimaryKey(carId);
+        if (car == null) {
+            return ServerResponse.createByErrorMessage("查询错误");
+        }
+        return ServerResponse.createBySuccess(assembleCarSummaryVo(car));
+    }
+
+    public ServerResponse bind(Integer driverId, Integer carId) {
+        Driver driver = driverMapper.selectByPrimaryKey(driverId);
+        if (driver != null && carId !=null) {
+            CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
+            driver.setCarId(carId);
+            coModel.setCarId(carId);
+            driverMapper.updateByPrimaryKey(driver);
+            coModelMapper.updateByPrimaryKey(coModel);
+            Car car = carMapper.selectByPrimaryKey(carId);
+            car.setCarStatus(Const.CarStatus.NORMAL.getCode());
+            carMapper.updateByPrimaryKey(car);
+            return ServerResponse.createBySuccess("绑定车辆成功");
+        }
+        return ServerResponse.createByErrorMessage("绑定车辆失败");
+    }
+
+    private CarSummaryVo assembleCarSummaryVo(Car car) {
+        CarSummaryVo carSummaryVo = new CarSummaryVo();
+        carSummaryVo.setCarId(car.getId());
+        carSummaryVo.setBranch(car.getBranch().toString());
+        carSummaryVo.setCarName(car.getName());
+        carSummaryVo.setCarStatus(car.getCarStatus().toString());
+        carSummaryVo.setPlateNum(car.getPlateNumber());
+        carSummaryVo.setEngineNum(car.getEngineNumber());
+        carSummaryVo.setVin(car.getVin());
+        carSummaryVo.setPickDate(DateTimeUtil.dateToStr(car.getPickDate()));
+        carSummaryVo.setTransferDate(DateTimeUtil.dateToStr(car.getTransferDate()));
+        carSummaryVo.setRedeemDate(DateTimeUtil.dateToStr(car.getRedeemDate()));
+        carSummaryVo.setGpsNum(car.getGpsNumber());
+        carSummaryVo.setGpsPhoneNum(car.getGpsPhone());
+
+        return carSummaryVo;
+    }
+
 
     private CarListVo assembleCarListVo(Car car) {
         CarListVo carListVo = new CarListVo();
@@ -117,7 +188,7 @@ public class CarServiceImpl implements ICarService{
         if (ticket == null) {
             carListVo.setTicket("暂未查询");
         } else {
-            carListVo.setTicket(ticket.getScore().toString()+" -"+ ticket.getMoney().toString());
+            carListVo.setTicket(ticket.getScore().toString()+" | "+ ticket.getMoney().toString());
         }
 
         carListVo.setCarId(car.getId());
@@ -133,12 +204,21 @@ public class CarServiceImpl implements ICarService{
                 driverCarListVoList.add(driverCarListVo);
             }
         } else {
-            Driver driver = new Driver();
-            driver.setName("未绑定");
-            DriverCarListVo driverCarListVo = assembleDriverCarListVo(driver);
+            DriverCarListVo driverCarListVo = new DriverCarListVo();
+            driverCarListVo.setDriverName("未绑定");
+            driverCarListVo.setDriverStatus(Const.DriverStatus.UNBOUND.getDesc());
             driverCarListVoList.add(driverCarListVo);
         }
         carListVo.setDriverCarListVoList(driverCarListVoList);
+        Date transferDate1 = car.getTransferDate();
+        Date redeemDate1 = car.getRedeemDate();
+
+        String transferDate = car.getTransferDate() == null ? "-" : DateTimeUtil.dateToStr(transferDate1, "yyyy 年 MM 月 dd 日");
+        String redeemDate = car.getRedeemDate() == null ? "-" : DateTimeUtil.dateToStr(redeemDate1, "yyyy 年 MM 月 dd 日");
+
+            carListVo.setTransferDate(transferDate);
+
+            carListVo.setRedeemDate(redeemDate);
         carListVo.setPickDate(DateTimeUtil.dateToStr(car.getPickDate(),"yyyy 年 MM 月 dd 日"));
         return carListVo;
     }

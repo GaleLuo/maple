@@ -25,16 +25,6 @@ public class DriverController {
     private IDriverService iDriverService;
 
 
-    //创建或更新司机信息
-    @RequestMapping("save_driver.do")
-    @ResponseBody
-    public ServerResponse saveDriver(HttpSession session, Driver driver) {
-        User user = (User) session.getAttribute(Const.CURRENT_USER);
-        if (user == null) {
-            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
-        }
-        return iDriverService.saveDriver(user.getId(), driver);
-    }
 
     //设置为无意向客户
     @RequestMapping("set_potential_free.do")

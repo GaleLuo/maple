@@ -1,19 +1,13 @@
 package com.maple.dao.test;
 
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.DefaultAlipayClient;
-import com.alipay.api.request.AlipayDataDataserviceBillDownloadurlQueryRequest;
-import com.alipay.api.response.AlipayDataDataserviceBillDownloadurlQueryResponse;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
-import com.github.pagehelper.PageHelper;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.maple.common.Const;
-import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.jo.FinishOrder;
 import com.maple.jo.TicketJo;
@@ -29,7 +23,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.eclipse.jetty.util.DateCache;
 import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -72,14 +65,17 @@ public class Test extends TestBase {
     private TicketMapper ticketMapper;
     @Autowired
     private PeriodPlanMapper periodPlanMapper;
-
+    @Autowired
+    private UserMapper userMapper;
 
     @org.junit.Test
     public void Task1Test() throws IOException, InterruptedException {
-        String t = "1503894370812";
-        Long aLong = Long.parseLong(t);
-        Date date = new Date(aLong);
-        System.out.println(date);
+        User user = new User();
+        user.setUsername("slh001");
+        user.setPassword(MD5Util.MD5EncodeUtf8("cdslhQc"));
+        user.setName("一般用户");
+        user.setRole(Const.Role.ROLE_SALESMAN);
+        userMapper.insert(user);
     }
 
     @org.junit.Test
@@ -98,9 +94,11 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void driverTest() throws Exception {
-        Date strToDate = DateTimeUtil.strToDate("2017/2/10", "yyyy/MM/dd");
-        System.out.println(strToDate);
-
+        Car car = carMapper.selectByPrimaryKey(100001);
+        String vin = car.getVin().substring(11, 17);
+        String engineNum = car.getEngineNumber().substring(1, 7);
+        System.out.println(vin);
+        System.out.println(engineNum);
     }
 
     @org.junit.Test
@@ -145,14 +143,43 @@ public class Test extends TestBase {
     }
 
     @org.junit.Test
-    public void pageTest() throws AlipayApiException {
-        AlipayClient alipayClient = new DefaultAlipayClient("https://openapi.alipay.com/gateway.do", "2017091208700001", "MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDPnBS68scX1tzNH4Cm6Ce/9A+koLCmIhDn+GCH49jaeJhq2ZMembW82C4HJzMif8Y2LpPrqq3Wt9QZTYbdKf1gUbfuCVsP69qYfR48PzjnzqDnpFIa96pCdSOj4KenHxblTYRxf6k6FggbPOC/IIu/LQKclZsRTVhLoJ3HS3u+5sJ3mrqyiyxy7xG000S0H8fbaIDkzgL7cZ3iBnhwMLuIpQS2yR1cNtvpRIRgKar4x6ZOKShsj7iiMwd9bMAJp4RRsAljjh6EBLJ2fCHe28gPXRdglC7CpKU//UiBFKaVmuf75arfnyQnrwaRKiZl5BykZ9ZxcIB8kdetWdICfq3rAgMBAAECggEADAmoyg45rRAwTVR+SS883sxv+8O1emyPPmQQdNCpSkGj1M440ZVoDEMcqB2FwYJXI90fhpKm8cRG8BCmuTwuDN+wIoU4Wnv6eM0Ia8XertI0Ujoc6KNjo+bW4jGshuwuj60m+M3GKjAM2Ed3YJ2qfLNHa3zhOOebLwdpHp0p16++6CNY3Y1pocuFQjX3ceGEA2w32RKqmxI61z7qjNF4LakurIaJSaZXIF1Y09DJeClQgwWoiFZFCVPXO/AMqmQyEGVjVzXY6xqToueEojmexoK1hPirGnWcQAK5ChiC6OddWrGX52RoTmRTboajigIsJWqC5D1JthrYvKLHKZssgQKBgQDtAkDw9nuTw6/vggSuWWEzZ19z8a5o3LvVxie2deKTukAyBluWQ3kDlfehrV4uIJmlseelEDU2Dw7to/PgjjIy586t19XkyTFOCPfndl3oZfV78HJyZQFNgbOn4T+p7xJga63zBLsWBV9jRS3H9ELw28Yh1Q+4Mhp+dECdJLwMWQKBgQDgPsPknxLikt/NvI9rP7t88iIpKE9SDa1Mlyu0ypttY5cxKM0Rl/VN5zWhaE+2cquIIgnDF3LwjBNbE7oLgvINvGBMJT1WOtwZrw461GYXtBVqalNQXZcIraZBceq/HXzKQRAzNSS/zE5v55okMaYlWBUE/4hDezQO4hdVcloz4wKBgQDJ1Pt8uEpwgVrX+b8GwnK2FbgBwrSl9CO5Xq/+/9DdwOReNW/VPMxXM2TYOA1V9skhg6kitfS6foRV9yL9/dnd4+3ruTwbQwJL0/NZF0HNYNZ2n0K3DDDZ0jQuKPHQQxlBJzHRHBw+GoEqxoTAHNDM0DugIBLs5y4Mte84Y0oIsQKBgQCFmT9SROeWb1TBGRcFGYpVDVkG1kozo4xc9i+G3bKuAEiCdEGAutzd1eMgz6m2FClXyJeyUJUc9QdPGribxR76ygFBPGqHpjedYasDp6lPc+3SYZhTZ/7kn7hOg1UNGb9QLGU/bOkBD/KnPv+Zkq7eztRvDuKa+ZrxRwgJ00AkawKBgEWfh1Phu+Bz6ZqCx+PFxTnEGYGGv1nnPtHsKmqU2Mu3iSvuCKnDzUGezm4mYgnvwdm589zzV3tplQ1lDeJ+tVGY+Kt03ZhNbw0hGCFLEORVpU5TZ0fj1yOP93B+6hfV6TSn55KqXcYEAhDCSkEUyltODF3d+jUfx3jhW9ObTPT+", "json", "UTF-8", "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApZ6Eps/+MJ9yPuIbcvjK9OsR6rusOQw6cjD+gdE1XAycvmq90g0J2L5aaDWJdSkdC1H42HHp9wNr3lEJHjeIAHRFXmGe2WgMnrHneDhw8VzJSOULC79ALWYspJHkB0V6UoPksONrRrCa8+cCNiJX3nIcrtvMdO1uyY/+scHyuBa4DpzWZUrWiXBfLU9h8tDKqect29xn1Pdo0fLmT6tpBWTUxzrHja00ibysqYbFISdykWXDXcD93ZM7t7WaadbFvGX+VFExhjS5KA0WB3Pukkz3Y5xwC/iRju8P3ZbcLV07KSv9mcQm+fDqx38uPyM6qUNS4BS6dzzho5LSfVJuVwIDAQAB", "RSA2");
-        AlipayDataDataserviceBillDownloadurlQueryRequest request = new AlipayDataDataserviceBillDownloadurlQueryRequest();//创建API对应的request类
-        request.setBizContent("{" +
-                "    \"bill_type\":\"trade\"," +
-                "    \"bill_date\":\"2017-09-11\"}"); //设置业务参数
-        AlipayDataDataserviceBillDownloadurlQueryResponse response = alipayClient.execute(request);//通过alipayClient调用API，获得对应的response类
-        System.out.print(response.getBody());
+    public void pageTest() throws IOException {
+        String userAgent = "Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Mobile/15A372 MicroMessenger/6.5.9 NetType/WIFI Language/zh_CN";
+        String origin = "https://wx.wcar.net.cn";
+        String referer = "https://wx.wcar.net.cn/wechat-weiche.php";
+        String wx = "https://wx.wcar.net.cn/front/do-weiche.php";
+        HashMap<String, String> Headers = Maps.newHashMap();
+        //设置header
+        Headers.put("User-Agent", userAgent);
+        Headers.put("Origin", origin);
+        Headers.put("Referer", referer);
+        URL url = new URL(wx);
+        WebClient webClient = new WebClient();
+        WebRequest request = new WebRequest(url);
+        request.setHttpMethod(HttpMethod.POST);
+        webClient.getOptions().setUseInsecureSSL(true);
+        webClient.getOptions().setJavaScriptEnabled(true);
+        webClient.getOptions().setCssEnabled(false);
+        webClient.getCookieManager().setCookiesEnabled(true);
+        webClient.getOptions().setRedirectEnabled(true);
+        webClient.getOptions().setThrowExceptionOnScriptError(false);
+        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+        //设置cookies
+        webClient.getCookieManager().addCookie(new Cookie("wx.wcar.net.cn","Hm_lpvt_d2abe42fa456dc1fead1fb628c78e264","1507220182"));
+        webClient.getCookieManager().addCookie(new Cookie("wx.wcar.net.cn","Hm_lvt_d2abe42fa456dc1fead1fb628c78e264","1505279007,1507218255"));
+        webClient.getCookieManager().addCookie(new Cookie("wx.wcar.net.cn","WEICHE_wx_wcar_net_cn","nr37urb1onu41an3s6lg21gq30"));
+        request.setAdditionalHeaders(Headers);
+        List<NameValuePair> params = Lists.newArrayList();
+//        params.add(new NameValuePair("limit_push", "0"));
+//        params.add(new NameValuePair("violation_push", "0"));
+        params.add(new NameValuePair("action", "violations"));
+        params.add(new NameValuePair("vid", "11292279"));
+        params.add(new NameValuePair("page", "0"));
+        request.setRequestParameters(params);
+
+        HtmlPage page = webClient.getPage(request);
+        String result = page.asText();
+        System.out.println(result);
     }
 
     @org.junit.Test
@@ -300,6 +327,7 @@ public class Test extends TestBase {
                     firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue() / 4));
                     firstPlan.setStartDate(startDate);
                     endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                    periodNum = +(int)firstPPN.getNumericCellValue();
                     //结束日期最接近的星期二
                     endDate = DateTimeUtil.getWeekStartDate(endDate);
                     if (secondPP.getNumericCellValue() != 0) {
@@ -308,6 +336,7 @@ public class Test extends TestBase {
                         Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
                         secondPlan.setStartDate(secondStartDate);//赋值
                         Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                        periodNum = +(int) secondPPN.getNumericCellValue();
                         secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
                         if (thirdPP.getNumericCellValue() != 0) {
                             thirdPlan = new PeriodPlan();
@@ -315,6 +344,7 @@ public class Test extends TestBase {
                             Date thirdStartDate = secondEndDate;
                             thirdPlan.setStartDate(thirdStartDate);
                             Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                            periodNum = +(int) thirdPPN.getNumericCellValue();
                             thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
                             thirdPlan.setEndDate(thirdEndDate);
                             secondEndDate.setTime(secondEndDate.getTime() - 1000);
@@ -330,6 +360,7 @@ public class Test extends TestBase {
                     firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
                     firstPlan.setStartDate(startDate);
                     firstPlan.setEndDate(new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate());
+                    periodNum = +(int)firstPPN.getNumericCellValue();
                     coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
                     coModel.setPeriodStartDate(startDate);
                     DateTime dateTime = new DateTime(startDate);
@@ -343,6 +374,7 @@ public class Test extends TestBase {
                 coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
                 coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
                 coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
+                coModel.setPeriodNum(periodNum);
                 coModelMapper.insert(coModel);
                 //非全款添加还款计划
                 if (!modelType.getStringCellValue().equals("全款")) {
@@ -387,6 +419,8 @@ public class Test extends TestBase {
                         firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue() / 4));
                         firstPlan.setStartDate(startDate);
                         endDate = new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate();
+                        periodNum = +(int)firstPPN.getNumericCellValue();
+
                         //结束日期最接近的星期二
                         endDate = DateTimeUtil.getWeekStartDate(endDate);
                         if (secondPP.getNumericCellValue() != 0) {
@@ -395,6 +429,8 @@ public class Test extends TestBase {
                             Date secondStartDate = endDate;//第二个周期起始时间为第一周期结束时间
                             secondPlan.setStartDate(secondStartDate);//赋值
                             Date secondEndDate = new DateTime(secondStartDate).plusMonths((int) secondPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                            periodNum = +(int)secondPPN.getNumericCellValue();
+
                             secondEndDate = DateTimeUtil.getWeekStartDate(secondEndDate);//最近的星期二
                             if (thirdPP.getNumericCellValue() != 0) {
                                 thirdPlan = new PeriodPlan();
@@ -402,6 +438,7 @@ public class Test extends TestBase {
                                 Date thirdStartDate = secondEndDate;
                                 thirdPlan.setStartDate(thirdStartDate);
                                 Date thirdEndDate = new DateTime(thirdStartDate).plusMonths((int) thirdPPN.getNumericCellValue()).toDate();//第二周结束日期为加上相应月数
+                                periodNum = +(int)thirdPPN.getNumericCellValue();
                                 thirdEndDate = DateTimeUtil.getWeekStartDate(thirdEndDate);//最近的星期二
                                 thirdPlan.setEndDate(thirdEndDate);
                                 secondEndDate.setTime(secondEndDate.getTime() - 1000);
@@ -417,6 +454,7 @@ public class Test extends TestBase {
                         firstPlan.setAmount(new BigDecimal(firstPP.getNumericCellValue()));
                         firstPlan.setStartDate(startDate);
                         firstPlan.setEndDate(new DateTime(startDate).plusMonths((int) firstPPN.getNumericCellValue()).toDate());
+                        periodNum = +(int)firstPPN.getNumericCellValue();
                         coModel.setModelType(Const.CoModel.HIRE_PURCHASE_MONTH.getCode());
                         coModel.setPeriodStartDate(startDate);
                         DateTime dateTime = new DateTime(startDate);
@@ -430,6 +468,7 @@ public class Test extends TestBase {
                     coModel.setDownAmount(new BigDecimal(downAmount.getNumericCellValue()));
                     coModel.setTotalAmount(new BigDecimal(totalAmount.getNumericCellValue()));
                     coModel.setFinalAmount(new BigDecimal(finalAmount.getNumericCellValue()));
+                    coModel.setPeriodNum(periodNum);
                     coModelMapper.insert(coModel);
                     //非全款添加还款计划
                     if (!modelType.getStringCellValue().equals("全款")) {
@@ -483,16 +522,29 @@ public class Test extends TestBase {
 //        JsonNode lists = result.get("lists");
 //        List<TicketJo> ticketJoList = mapper.readValue(lists, new TypeReference<List<TicketJo>>() {
 //        });
-        Driver driver = driverMapper.selectByPrimaryKey(61222);
-        Car car = carMapper.selectByPrimaryKey(driver.getCarId());
+
+
+        List<Car> carList = carMapper.selectCarListForTicket();
+        Car car = carList.get(0);
 
         String ticket = TicketQueryUtil.getTicket("SC_CD", car.getPlateNumber(), car.getEngineNumber(), car.getVin());
+        System.out.println(ticket);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode root = mapper.readTree(ticket);
         JsonNode resultcodeNode = root.get("resultcode");
         Integer resultCode = mapper.readValue(resultcodeNode, Integer.class);
         JsonNode result = root.get("result");
+        /*
+        错误信息:
+        {
+            "resultcode":"209",
+            "reason":"内部异常：其他信息错误",
+            "result":[
 
+            ],
+            "error_code":203609
+        }
+         */
         JsonNode lists = result.get("lists");
         List<TicketJo> ticketJoList = mapper.readValue(lists, new TypeReference<List<TicketJo>>() {
         });
@@ -504,6 +556,7 @@ public class Test extends TestBase {
         }
         Ticket newTicket = new Ticket();
         newTicket.setCarId(car.getId());
+        newTicket.setPlateNum(car.getPlateNumber());
         newTicket.setMoney(money);
         newTicket.setScore(fen);
         newTicket.setTicketTimes(ticketJoList.size());
@@ -521,8 +574,56 @@ public class Test extends TestBase {
     }
 
     @org.junit.Test
-    public void Test3() {
+    public void Test3() throws InterruptedException {
+        List<Car> carList = carMapper.selectCarListForTicket();
+//        List<Car> carList = carMapper.selectWhereUnchecked();
+        System.out.println("共"+carList.size()+"待查车辆");
+        for (int i =0;i<carList.size();i++){
+//        Car car = carMapper.selectByPrimaryKey(100046);
+            System.out.println("第"+(i+1)+"车辆正在查询");
+        Car car = carList.get(i);
+            Map ticketMap = null;
+            String vid = null;
+            try {
+            String vin = car.getVin().substring(11, 17);
+            String carEngineNumber = car.getEngineNumber();
+            String engineNum = carEngineNumber.substring(carEngineNumber.length() - 6, carEngineNumber.length());
 
+
+                ticketMap = WeiCheUtil.getTicket("成都", car.getPlateNumber(), vin, engineNum);
+                vid = (String) ticketMap.get("vid");
+            } catch (Exception e) {
+                continue;
+            }
+            String ticketScore = (String) ticketMap.get("ticketScore");
+            String ticketMoney = (String) ticketMap.get("ticketMoney");
+            String ticketTimes = (String) ticketMap.get("ticketTimes");
+
+
+            Ticket newTicket = new Ticket();
+            newTicket.setCarId(car.getId());
+            newTicket.setPlateNum(car.getPlateNumber());
+            newTicket.setMoney(Integer.parseInt(ticketMoney));
+            newTicket.setScore(Integer.parseInt(ticketScore));
+            newTicket.setTicketTimes(Integer.parseInt(ticketTimes));
+            Ticket ticketResult = ticketMapper.selectByCarId(car.getId());
+
+            if (ticketResult == null) {
+                ticketMapper.insert(newTicket);
+            } else {
+                newTicket.setId(ticketResult.getId());
+                Integer newScore = newTicket.getScore() - ticketResult.getScore();
+                Integer newMoney = newTicket.getMoney() - ticketResult.getMoney();
+                if ( newScore> 0) {
+                    System.out.println(ticketResult.getPlateNum()+ "-新增分数:"+newScore);
+                }
+                if ( newMoney> 0) {
+                    System.out.println(ticketResult.getPlateNum()+ "-新增罚款:"+newMoney);
+                }
+                ticketMapper.updateByPrimaryKeySelective(newTicket);
+            }
+            Thread.sleep(100);
+        }
     }
 }
 

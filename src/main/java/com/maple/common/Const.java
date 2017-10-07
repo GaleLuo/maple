@@ -125,11 +125,13 @@ public class Const {
         }
     }
 
-    public enum PaymentPlatform{
+    public enum PaymentPlatform {
         alipay(1, "支付宝"),
         wechat(2, "微信"),
         cash(3, "现金"),
-        bank(4, "银行转账"),;
+        bank(4, "银行转账"),
+        pos(5, "POS机"),;
+
 
         private int code;
         private String desc;
@@ -299,7 +301,7 @@ public class Const {
     }
 
     public enum DriverStatus{
-        POTENTIAL_DRIVER(0,"意向客户"),
+        UNBOUND(0,"未绑定车辆"),
         NORMAL_DRIVER(1,"正常运营"),
         TERMINATED_DRIVER(2,"合作结束"),
         POTENTIAL_FREE(4, "无意向"),

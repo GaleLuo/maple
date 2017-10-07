@@ -7,6 +7,8 @@ public class Ticket {
 
     private Integer carId;
 
+    private String plateNum;
+
     private Integer ticketTimes;
 
     private Integer score;
@@ -17,9 +19,10 @@ public class Ticket {
 
     private Date updateTime;
 
-    public Ticket(Integer id, Integer carId, Integer ticketTimes, Integer score, Integer money, Date createTime, Date updateTime) {
+    public Ticket(Integer id, Integer carId, String plateNum, Integer ticketTimes, Integer score, Integer money, Date createTime, Date updateTime) {
         this.id = id;
         this.carId = carId;
+        this.plateNum = plateNum;
         this.ticketTimes = ticketTimes;
         this.score = score;
         this.money = money;
@@ -29,6 +32,14 @@ public class Ticket {
 
     public Ticket() {
         super();
+    }
+
+    public String getPlateNum() {
+        return plateNum;
+    }
+
+    public void setPlateNum(String plateNum) {
+        this.plateNum = plateNum;
     }
 
     public Integer getId() {

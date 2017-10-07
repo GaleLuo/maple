@@ -38,4 +38,5 @@ public interface PeriodPaymentMapper {
     BigDecimal findTotalReceivedByCarId(Integer carId);
 
     Integer findOverdueByCarId(Integer carId);
+
 }

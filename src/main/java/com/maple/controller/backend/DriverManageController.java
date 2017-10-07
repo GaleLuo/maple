@@ -37,15 +37,15 @@ public class DriverManageController {
     @Autowired
     private IFileService fileService;
     //创建或更新司机信息
-    @RequestMapping("save_driver.do")
+    @RequestMapping("add_or_update.do")
     @ResponseBody
-    public ServerResponse saveDriver(HttpSession session, Driver driver) {
+    public ServerResponse addOrOUpdate(HttpSession session, Driver driver) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return driverService.saveDriver(user.getId(), driver);
+            return driverService.addOrUpdate(user.getId(), driver);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
@@ -121,6 +121,18 @@ public class DriverManageController {
         return ServerResponse.createByErrorMessage("无权限");
     }
 
+    @RequestMapping("summary.do")
+    @ResponseBody
+    public ServerResponse summary(HttpSession session, Integer driverId) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
+            return driverService.summary(null,driverId);
+        }
+        return ServerResponse.createByErrorMessage("无权限");
+    }
     //上传图片
     @RequestMapping("upload.do")
     @ResponseBody

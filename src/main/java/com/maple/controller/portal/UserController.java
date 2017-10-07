@@ -30,7 +30,7 @@ public class UserController {
         ServerResponse<User> response = iUserService.login(user.getUsername(), user.getPassword());
         if (response.isSuccess()) {
             session.setAttribute(Const.CURRENT_USER, response.getData());
-            System.out.println(session.getId());
+            session.setMaxInactiveInterval(60*60*24);
         }
         return response;
     }

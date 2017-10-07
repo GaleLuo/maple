@@ -12,9 +12,11 @@ import com.maple.service.IPeriodPaymentService;
 import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.*;
+import com.mysql.jdbc.log.Log4JLogger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by Maple.Ran on 2017/6/13.
@@ -39,7 +42,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     @Autowired
     private CoModelMapper coModelMapper;
 
-    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String payTime){
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
+
+
+    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String platformNum,String payTime){
 
         if (driverId == null || payment == null || paymentPlatform == null || StringUtils.isBlank(payTime)) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
@@ -50,12 +56,14 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         newPeriodPayment.setCarId(driver.getCarId());
         newPeriodPayment.setPayment(payment);
         newPeriodPayment.setPaymentPlatform(paymentPlatform);
+        newPeriodPayment.setPlatformNumber(platformNum);
         Date payDate = DateTimeUtil.webStrToDate(payTime);
 
         newPeriodPayment.setPayTime(payDate);
-        newPeriodPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
+        newPeriodPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
         String comment = "添加人:" + user.getName();
         newPeriodPayment.setComment(comment);
+        logger.error("添加人:{},添加时间:{}",user.getName(),new Date());
         int i = periodPaymentMapper.insert(newPeriodPayment);
         if (i > 0) {
             return ServerResponse.createBySuccessMessage("添加数据成功");
@@ -199,8 +207,9 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     }
 
     public ServerResponse driverTotalPayment(Integer driverId) {
-        Integer carId = driverMapper.selectCarIdByDriverId(driverId);
-        CoModel coModel = coModelMapper.selectByCarId(carId);
+        Driver driver = driverMapper.selectByPrimaryKey(driverId);
+        Integer carId = driver.getCarId();
+        CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
         //
         List<DriverTotalPaymentListVo> DriverTotalPaymentListVoList = Lists.newArrayList();
 

@@ -27,6 +27,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/manage/period_payment/")
 public class PeriodPaymentManageController {
+
+
     @Autowired
     private IPeriodPaymentService iPeriodPaymentService;
 
@@ -37,16 +39,17 @@ public class PeriodPaymentManageController {
                                       Integer driverId,
                                       BigDecimal payment,
                                       Integer paymentPlatform,
+                                      String platformNum,
                                       String payTime,
                                       String comment
-                                       ) {
+    ) {
 
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.addOrUpdate(user,driverId,payment,paymentPlatform,payTime);
+            return iPeriodPaymentService.addOrUpdate(user, driverId, payment, paymentPlatform,platformNum, payTime);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

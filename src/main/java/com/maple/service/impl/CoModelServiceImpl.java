@@ -6,15 +6,25 @@ import com.maple.common.ServerResponse;
 import com.maple.dao.CoModelMapper;
 import com.maple.dao.DriverMapper;
 import com.maple.dao.PeriodPlanMapper;
+import com.maple.dao.TicketMapper;
 import com.maple.pojo.CoModel;
+import com.maple.pojo.Driver;
 import com.maple.pojo.PeriodPlan;
+import com.maple.pojo.Ticket;
 import com.maple.service.ICoModelService;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CoModelDetailVo;
 import com.maple.vo.PlanDetailVo;
+import com.maple.vo.coModelSummaryVo;
+import com.sun.tools.javadoc.Start;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,6 +39,7 @@ public class CoModelServiceImpl implements ICoModelService {
     @Autowired
     private PeriodPlanMapper periodPlanMapper;
 
+
     public ServerResponse save(Integer userId, CoModel coModel) {
         List<Integer> carIdList = driverMapper.selectCarIdListByUserId(userId);
         if (carIdList.contains(coModel.getCarId())) {
@@ -39,6 +50,7 @@ public class CoModelServiceImpl implements ICoModelService {
         }
         return ServerResponse.createByErrorMessage("新增合作模式失败");
     }
+
 
     public ServerResponse<CoModelDetailVo> detail(Integer userId, Integer carId) {
         if (userId != null) {
@@ -66,6 +78,99 @@ public class CoModelServiceImpl implements ICoModelService {
         return ServerResponse.createByErrorMessage("更新失败");
     }
 
+    public ServerResponse summary(Integer coModelId) {
+        CoModel coModel = coModelMapper.selectByPrimaryKey(coModelId);
+        if (coModel != null) {
+            return ServerResponse.createBySuccess(assembleCoModelSummaryVo(coModel));
+        }
+        return ServerResponse.createByErrorMessage("查询失败");
+    }
+
+    public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Date periodPlanStartDate, Integer periodNum, String comment) {
+        CoModel coModel = new CoModel();
+        PeriodPlan periodPlan = new PeriodPlan();
+        BigDecimal amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
+        comment = StringUtils.isNotEmpty(comment) ? comment : null;
+        Date periodStart= new Date(periodStartDate);
+        Date periodEnd = new Date(periodEndDate);
+        coModel.setId(coModelId);
+        coModel.setCarId(carId);
+        coModel.setPeriodStartDate(periodStart);
+        coModel.setPeriodEndDate(periodEnd);
+        coModel.setDeadline(periodEnd);//todo 后期加入前端真实数据
+        coModel.setModelType(modelType);
+        coModel.setTotalAmount(totalAmount);
+        coModel.setDownAmount(downAmount);
+        coModel.setFinalAmount(finalAmount);
+        coModel.setComment(comment);
+        coModel.setPeriodNum(periodNum);
+        if (coModelId == null) {
+            int result = coModelMapper.insertSelective(coModel);
+        } else {
+            int result = coModelMapper.updateByPrimaryKeySelective(coModel);
+        }
+
+        periodPlan.setCoModelId(coModel.getId());
+        if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == modelType) {
+            periodPlan.setAmount(amount.divide(BigDecimal.valueOf(4)));
+            periodPlan.setStartDate(periodPlanStartDate);
+            Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate());
+            periodPlan.setEndDate(periodPlanEndDate);
+
+        } else if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == modelType || Const.CoModel.RENT.getCode() == modelType) {
+            periodPlan.setAmount(amount);
+            periodPlan.setStartDate(periodPlanStartDate);
+            Date periodPlanEndDate = new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate();
+            periodPlan.setEndDate(periodPlanEndDate);
+        } else {
+            return ServerResponse.createBySuccess("操作成功", coModel.getId());
+        }
+
+        List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModelId);
+        if (CollectionUtils.isEmpty(periodPlanList)) {
+            periodPlanMapper.insert(periodPlan);
+        } else {
+            PeriodPlan periodPlan1 = periodPlanList.get(0);
+            periodPlan.setId(periodPlan1.getId());
+            periodPlanMapper.updateByPrimaryKeySelective(periodPlan);
+        }
+
+
+        if (driverId != null) {
+            Driver driver = driverMapper.selectByPrimaryKey(driverId);
+            if (driver != null) {
+                Driver driver1 = new Driver();
+                driver1.setId(driver.getId());
+                driver1.setCoModelId(coModel.getId());
+                driverMapper.updateByPrimaryKeySelective(driver1);
+            }
+        }
+        return ServerResponse.createBySuccess("操作成功", coModel.getId());
+
+    }
+
+    private coModelSummaryVo assembleCoModelSummaryVo(CoModel coModel) {
+        coModelSummaryVo coModelSummaryVo = new coModelSummaryVo();
+        List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());
+        if (CollectionUtils.isNotEmpty(periodPlanList)) {
+            PeriodPlan periodPlan = periodPlanList.get(0);
+            coModelSummaryVo.setPeriodPlanStartDate(DateTimeUtil.dateToStr(periodPlan.getStartDate()));
+        }
+        coModelSummaryVo.setCoModelId(coModel.getId());
+        coModelSummaryVo.setModelType(coModel.getModelType().toString());
+        coModelSummaryVo.setTotalAmount(coModel.getTotalAmount());
+        coModelSummaryVo.setDownAmount(coModel.getDownAmount());
+        coModelSummaryVo.setFinalAmount(coModel.getFinalAmount());
+        coModelSummaryVo.setPeriodNum(coModel.getPeriodNum());
+        String coModelStartDate = DateTimeUtil.dateToStr(coModel.getPeriodStartDate());
+        String coModelEndDate = DateTimeUtil.dateToStr(coModel.getPeriodEndDate());
+        String[] starEndDateArray = {coModelStartDate,coModelEndDate};
+        coModelSummaryVo.setPeriodDateArray(starEndDateArray);
+        coModelSummaryVo.setComment(coModel.getComment());
+
+        return coModelSummaryVo;
+
+    }
 
 
     private CoModelDetailVo assembleCoModelDetailVo(CoModel coModel) {

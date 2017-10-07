@@ -12,9 +12,7 @@ import com.maple.pojo.*;
 import com.maple.service.IDriverService;
 import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
-import com.maple.vo.AccountVo;
-import com.maple.vo.DriverListVo;
-import com.maple.vo.DriverVo;
+import com.maple.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -48,23 +46,20 @@ public class DriverServiceImpl implements IDriverService {
     @Autowired
     private PeriodPlanMapper periodPlanMapper;
 
-    public ServerResponse saveDriver(Integer userId, Driver driver) {
+    public ServerResponse addOrUpdate(Integer userId, Driver driver) {
         if (driver.getId() != null) {
             Driver resultDriver = driverMapper.selectByDriverIdAndUserId(userId, driver.getId());
             if (resultDriver == null) {
                 return ServerResponse.createByErrorMessage("不能修改非本账户下属的司机信息");
             }
-            driver.setCarId(null);
             driver.setUserId(null);
-            driver.setDriverStatus(null);
             driver.setPeriodsStatus(null);
             int result = driverMapper.updateByPrimaryKeySelective(driver);
             if (result > 0) {
-                return ServerResponse.createBySuccessMessage("更新司机信息成功");
+                return ServerResponse.createBySuccess(driver.getId());
             }
         } else {
             driver.setUserId(userId);
-            driver.setDriverStatus(Const.DriverStatus.POTENTIAL_DRIVER.getCode());
             Integer i = driverMapper.checkId(driver.getIdNumber());
             if (i != 0){
                 return ServerResponse.createByErrorMessage("已存在该司机信息,请检查");
@@ -136,6 +131,32 @@ public class DriverServiceImpl implements IDriverService {
             return ServerResponse.createByErrorMessage("未查到相关数据");
         }
         return ServerResponse.createBySuccess(accountVoList);
+    }
+
+    public ServerResponse summary(Integer userId, Integer driverId) {
+        Driver driver = driverMapper.selectByDriverIdAndUserId(userId,driverId);
+        if (driver != null) {
+            return ServerResponse.createBySuccess(assembleDriverSummaryVo(driver));
+        }
+        return ServerResponse.createByErrorMessage("获取信息失败");
+    }
+
+    private DriverSummaryVo assembleDriverSummaryVo(Driver driver) {
+        DriverSummaryVo driverSummaryVo = new DriverSummaryVo();
+        Car car = carMapper.selectByPrimaryKey(driver.getCarId());
+        if (car != null) {
+            driverSummaryVo.setPlateNum(car.getPlateNumber());
+        } else {
+            driverSummaryVo.setPlateNum("");
+        }
+        driverSummaryVo.setCarId(driver.getCarId());
+        driverSummaryVo.setCoModelId(driver.getCoModelId());
+        driverSummaryVo.setDriverId(driver.getId());
+        driverSummaryVo.setDriverName(driver.getName());
+        driverSummaryVo.setDriverStatus(driver.getDriverStatus().toString());
+        driverSummaryVo.setIdNum(driver.getIdNumber());
+        driverSummaryVo.setPhoneNum(driver.getPersonalPhone());
+        return driverSummaryVo;
     }
 
     private AccountVo assembleAccountVo(Account account) {
@@ -242,13 +263,18 @@ public class DriverServiceImpl implements IDriverService {
         if (ticket == null) {
             driverListVo.setTicket("暂未查询");
         } else {
-            driverListVo.setTicket(ticket.getScore().toString()+" -"+ticket.getMoney().toString());
+            driverListVo.setTicket(ticket.getScore().toString()+" | "+ticket.getMoney().toString());
         }
-        driverListVo.setPeriodStartDate(DateTimeUtil.dateToStr(coModel.getPeriodStartDate(),"yyyy年MM月dd日"));
+        if (coModel != null) {
+            driverListVo.setPeriodStartDate(DateTimeUtil.dateToStr(coModel.getPeriodStartDate(), "yyyy年MM月dd日"));
+            driverListVo.setCoModelType(Const.CoModel.codeOf(coModel.getModelType()).getDesc());
+        } else {
+            driverListVo.setPeriodStartDate("-");
+            driverListVo.setCoModelType("-");
+        }
         driverListVo.setPhoneNum(driver.getPersonalPhone());
         driverListVo.setDriverId(driver.getId());
         driverListVo.setDriverName(driver.getName());
-        driverListVo.setCoModelType(Const.CoModel.codeOf(coModel.getModelType()).getDesc());
         driverListVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());
         return driverListVo;
     }
@@ -256,7 +282,7 @@ public class DriverServiceImpl implements IDriverService {
     private DriverVo assembleDriverVo(Driver driver) {
         DriverVo driverVo = new DriverVo();
         Car car = carMapper.selectByPrimaryKey(driver.getCarId());
-        CoModel coModel = coModelMapper.selectByCarId(driver.getCarId());
+        CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
         BigDecimal totalReceived = periodPaymentMapper.findTotalReceivedByCarId(driver.getCarId());
         totalReceived = totalReceived == null ? BigDecimal.ZERO : totalReceived;
         Integer overdueNum = periodPaymentMapper.findOverdueByCarId(driver.getCarId());
@@ -265,7 +291,7 @@ public class DriverServiceImpl implements IDriverService {
             driverVo.setTicket("未查询");
             driverVo.setTicketUpdateTime("未查询");
         } else {
-            driverVo.setTicket(ticket.getScore().toString()+" - "+ticket.getMoney().toString());
+            driverVo.setTicket(ticket.getScore().toString()+" | "+ticket.getMoney().toString());
             driverVo.setTicketUpdateTime(DateTimeUtil.dateToStr(ticket.getUpdateTime()));
         }
         double periodPercentage = (totalReceived.doubleValue() + coModel.getDownAmount().doubleValue())/coModel.getTotalAmount().doubleValue();

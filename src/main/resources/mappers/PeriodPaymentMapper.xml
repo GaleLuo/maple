@@ -33,6 +33,7 @@
     and pp.driver_id = #{driverId}
     and pp.pay_time &gt;= #{startDate}
     and pp.pay_time &lt;= #{endDate}
+    and platform_status &gt; 0
   </where>
   </select>
   <select id="selectGeneralListByParams" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
@@ -64,6 +65,7 @@
     <if test="endDate!=null">
       and pay_time &lt;= #{endDate}
     </if>
+    and platform_status &gt; 0
   </select>
   <select id="selectListByDriverId" resultMap="BaseResultMap" parameterType="map">
     SELECT <include refid="Base_Column_List"/>
@@ -75,6 +77,7 @@
     <if test="endDate!=null">
     and pay_time &lt;= #{endDate}
     </if>
+    and platform_status &gt; 0
   </select>
   <select id="checkStatus" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
     SELECT
@@ -94,9 +97,11 @@
       <if test="paymentPlatform!=null">
         and pp.payment_platform = #{paymentPlatform}
       </if>
+      and pp.platform_status &gt; 0
     </select>
   <select id="findTotalReceivedByCarId" resultType="java.math.BigDecimal">
     SELECT ifnull(sum(payment),0) from maple_period_payment where car_id = #{carId}
+                                                                  and platform_status &gt; 0
   </select>
   <select id="findOverdueByCarId" resultType="java.lang.Integer">
     SELECT count(id) from maple_period_payment where car_id = #{carId} and platform_status = 2
