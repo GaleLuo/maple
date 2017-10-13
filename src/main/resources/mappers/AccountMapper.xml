@@ -5,6 +5,7 @@
     <constructor >
       <idArg column="id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="driver_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="platform" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="account" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="create_time" jdbcType="TIMESTAMP" javaType="java.util.Date" />
@@ -12,7 +13,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, driver_id, platform, account, create_time, update_time
+    id, driver_id,name, platform, account, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -29,10 +30,10 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.Account" >
-    insert into maple_account (id, driver_id, platform, 
+    insert into maple_account (id, driver_id,name, platform,
       account, create_time, update_time
       )
-    values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{platform,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},#{platform,jdbcType=INTEGER},
       #{account,jdbcType=VARCHAR}, now(), now()
       )
   </insert>
@@ -44,6 +45,9 @@
       </if>
       <if test="driverId != null" >
         driver_id,
+      </if>
+      <if test="name != null" >
+        name,
       </if>
       <if test="platform != null" >
         platform,
@@ -65,18 +69,19 @@
       <if test="driverId != null" >
         #{driverId,jdbcType=INTEGER},
       </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
       <if test="platform != null" >
         #{platform,jdbcType=INTEGER},
       </if>
       <if test="account != null" >
         #{account,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null" >
         now(),
-      </if>
-      <if test="updateTime != null" >
+
         now(),
-      </if>
+
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.Account" >
@@ -85,24 +90,23 @@
       <if test="driverId != null" >
         driver_id = #{driverId,jdbcType=INTEGER},
       </if>
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
       <if test="platform != null" >
         platform = #{platform,jdbcType=INTEGER},
       </if>
       <if test="account != null" >
         account = #{account,jdbcType=VARCHAR},
       </if>
-      <if test="createTime != null" >
-        create_time = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
         update_time = now(),
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.maple.pojo.Account" >
     update maple_account
     set driver_id = #{driverId,jdbcType=INTEGER},
+      name = #{name,jdbcType=VARCHAR},
       platform = #{platform,jdbcType=INTEGER},
       account = #{account,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},

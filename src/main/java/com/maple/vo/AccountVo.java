@@ -6,9 +6,18 @@ package com.maple.vo;
 public class AccountVo {
     private Integer id;
     private Integer driverId;
+    private String name;//账户姓名
     private String platform;
     private String account;
     private String createTime;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public Integer getId() {
         return id;

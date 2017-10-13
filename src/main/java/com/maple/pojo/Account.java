@@ -7,6 +7,8 @@ public class Account {
 
     private Integer driverId;
 
+    private String name;
+
     private Integer platform;
 
     private String account;
@@ -15,13 +17,22 @@ public class Account {
 
     private Date updateTime;
 
-    public Account(Integer id, Integer driverId, Integer platform, String account, Date createTime, Date updateTime) {
+    public Account(Integer id, Integer driverId, String name, Integer platform, String account, Date createTime, Date updateTime) {
         this.id = id;
         this.driverId = driverId;
+        this.name = name;
         this.platform = platform;
         this.account = account;
         this.createTime = createTime;
         this.updateTime = updateTime;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Account() {

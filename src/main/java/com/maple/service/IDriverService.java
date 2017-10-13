@@ -21,7 +21,7 @@ public interface IDriverService {
 
     ServerResponse manageDriverStatus(String driverIds, Integer status);
 
-    ServerResponse addAccount(Integer driverId, Integer platformCode, String account);
+    ServerResponse addAccount(Integer driverId,String name, Integer platformCode, String account);
 
     ServerResponse getAccountList(Integer driverId);
 

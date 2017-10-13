@@ -155,13 +155,13 @@ public class DriverManageController {
 
     @RequestMapping("add_account.do")
     @ResponseBody
-    public ServerResponse addAccount(HttpSession session, Integer driverId, Integer platformCode, String account) {
+    public ServerResponse addAccount(HttpSession session, Integer driverId, String name,Integer platformCode, String account) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return driverService.addAccount(driverId, platformCode, account);
+            return driverService.addAccount(driverId, name,platformCode, account);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

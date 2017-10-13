@@ -105,8 +105,8 @@ public class DriverServiceImpl implements IDriverService {
         return ServerResponse.createBySuccessMessage("更新状态成功");
     }
 
-    public ServerResponse addAccount(Integer driverId, Integer platformCode, String account) {
-        if (StringUtils.isNotBlank(account)||platformCode==null||driverId==null) {
+    public ServerResponse addAccount(Integer driverId, String name,Integer platformCode, String account) {
+        if (StringUtils.isEmpty(account)||StringUtils.isEmpty(name)||platformCode==null||driverId==null) {
             ServerResponse.createByErrorMessage("数据不完整");
         }
         Account newAccount = new Account();
@@ -162,6 +162,7 @@ public class DriverServiceImpl implements IDriverService {
     private AccountVo assembleAccountVo(Account account) {
         AccountVo accountVo = new AccountVo();
         accountVo.setAccount(account.getAccount());
+        accountVo.setName(account.getName());
         accountVo.setCreateTime(DateTimeUtil.dateToStr(account.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
         accountVo.setDriverId(account.getDriverId());
         accountVo.setPlatform(Const.PaymentPlatform.codeOf(account.getPlatform()).getDesc());

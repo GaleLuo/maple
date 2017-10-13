@@ -206,25 +206,25 @@ public class Test extends TestBase {
         HtmlElement password = page.getHtmlElementById("pwdObject1-input");
         HtmlElement loginBtn = page.getHtmlElementById("login_btn");
         userName.focus();
-        userName.type("510602196910260980");
+        userName.type("18584050216a");
         page.getHtmlElementById("pwdObject1-btn").click();
         page.getHtmlElementById("pa_ui_keyboard_close").click();
         password.focus();
-        password.type("guoyouju840");
+        password.type("jiandandemima1");
         loginBtn.click();
         Thread.sleep(4000);
         String result = page.asText();
         System.out.println(result);
-        if (result.contains("郭佑菊")) {
+        if (result.contains("冉伟")) {
             System.out.println("登录成功!");
             WebRequest webRequest = new WebRequest(new URL(DOWNLOAD), HttpMethod.POST);
             List<NameValuePair> reqParams = Lists.newArrayList();
             reqParams.add(new NameValuePair("pageNum", "1"));
             reqParams.add(new NameValuePair("pageSize", "99999"));
-            reqParams.add(new NameValuePair("accNo", "6230583000001164831"));
+            reqParams.add(new NameValuePair("accNo", "6230580000148117729"));
             reqParams.add(new NameValuePair("currType", "RMB"));
-            reqParams.add(new NameValuePair("startDate", "20170709"));
-            reqParams.add(new NameValuePair("endDate", "20170712"));
+            reqParams.add(new NameValuePair("startDate", "20171013"));
+            reqParams.add(new NameValuePair("endDate", "20171013"));
 
             webRequest.setRequestParameters(reqParams);
 
