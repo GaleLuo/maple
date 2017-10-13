@@ -5,7 +5,7 @@ import com.google.common.collect.Sets;
 import java.util.Set;
 
 /**
- * Created by Maple.Ran on 2017/5/23.
+ * Created by Maple.Ran on 2017/5/23
  */
 public class Const {
     public static final String CURRENT_USER = "current_user";
