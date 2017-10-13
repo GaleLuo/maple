@@ -570,7 +570,6 @@ public class Test extends TestBase {
             ticketMapper.updateByPrimaryKeySelective(newTicket);
         }
 
-
     }
 
     @org.junit.Test
