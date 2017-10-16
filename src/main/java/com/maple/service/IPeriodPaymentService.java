@@ -20,5 +20,7 @@ public interface IPeriodPaymentService {
 
     ServerResponse driverTotalPayment(Integer driverId);
 
-    ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String platformNum,Long payTime);
+    ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, String payer,Integer paymentPlatform, String platformNum,Long payTime,String comment);
+
+    ServerResponse paymentList(Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum, int pageSize);
 }

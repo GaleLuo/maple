@@ -11,7 +11,7 @@
  Target Server Version : 50716
  File Encoding         : utf-8
 
- Date: 10/16/2017 08:50:38 AM
+ Date: 10/16/2017 18:20:41 PM
 */
 
 SET NAMES utf8mb4;
@@ -331,6 +331,7 @@ CREATE TABLE `maple_period_payment` (
   `driver_id` int(11) DEFAULT NULL COMMENT '司机id',
   `car_id` int(11) DEFAULT NULL COMMENT '车辆表id',
   `payment` decimal(20,2) NOT NULL COMMENT '实际付款金额,单位是元,保留两位小数',
+  `payer` varchar(20) DEFAULT NULL COMMENT '付款人',
   `payment_platform` int(4) DEFAULT NULL COMMENT '支付平台:1-支付宝,2-微信,3-现金,4-银行转账,5-POS机',
   `platform_number` varchar(200) DEFAULT NULL COMMENT '支付流水号',
   `platform_status` int(4) DEFAULT NULL COMMENT '支付状态:1-正常,2-逾期,0-未确认 -1 -作废',
@@ -341,13 +342,13 @@ CREATE TABLE `maple_period_payment` (
   PRIMARY KEY (`id`),
   KEY `car_id_index` (`car_id`) USING BTREE,
   KEY `dirver_id_index` (`driver_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 --  Records of `maple_period_payment`
 -- ----------------------------
 BEGIN;
-INSERT INTO `maple_period_payment` VALUES ('12', '100002', '100002', '321.00', '2', '32131321313123131231321', '0', '添加人:大力', '2017-08-29 00:00:00', '2017-10-06 18:57:47', '2017-10-06 18:57:47'), ('13', '100384', '100370', '1148.00', '2', '', '0', '添加人:简', '2017-10-09 16:00:00', '2017-10-10 22:55:35', '2017-10-10 22:55:35'), ('14', '100384', '100370', '1148.00', '2', '', '0', '添加人:简', '2017-10-02 16:00:00', '2017-10-10 22:55:52', '2017-10-10 22:55:52'), ('15', '100384', '100370', '1148.00', '2', '0000', '0', '添加人:简', '2017-10-02 16:00:00', '2017-10-10 22:59:42', '2017-10-10 22:59:42');
+INSERT INTO `maple_period_payment` VALUES ('23', '100002', '100002', '123.00', null, '1', '123321', '0', '添加人:冉', '2017-09-05 08:00:00', '2017-10-15 15:54:36', '2017-10-16 15:54:36'), ('24', '100006', '100006', '321.00', null, '3', '3214', '0', '添加人:冉', '2017-09-26 08:00:00', '2017-10-16 16:56:35', '2017-10-16 16:56:35'), ('25', '100012', '100012', '4444.00', null, '2', '321312321', '0', '这是个备注   添加人:冉', '2017-09-26 08:00:00', '2017-10-16 16:57:04', '2017-10-16 16:57:04'), ('26', '100016', '100016', '33333.00', '刘积生', '4', '3213123123', '0', '添加人:冉', '2017-10-03 08:00:00', '2017-10-16 17:00:11', '2017-10-16 17:00:11');
 COMMIT;
 
 -- ----------------------------

@@ -12,7 +12,6 @@ import com.maple.service.IPeriodPaymentService;
 import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.*;
-import com.mysql.jdbc.log.Log4JLogger;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -24,7 +23,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Created by Maple.Ran on 2017/6/13.
@@ -45,7 +43,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
-    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String platformNum,Long payTime){
+    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
 
         if (driverId == null || payment == null || paymentPlatform == null || payTime==null) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
@@ -57,18 +55,86 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         newPeriodPayment.setPayment(payment);
         newPeriodPayment.setPaymentPlatform(paymentPlatform);
         newPeriodPayment.setPlatformNumber(platformNum);
+        newPeriodPayment.setPayer(payer);
         Date payDate = new Date(payTime);
 
         newPeriodPayment.setPayTime(payDate);
         newPeriodPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
-        String comment = "添加人:" + user.getName();
+        comment = comment+"   添加人:" + user.getName();
         newPeriodPayment.setComment(comment);
-        logger.error("添加人:{},添加时间:{}",user.getName(),new Date());
+        logger.warn("添加人:{},添加时间:{}",user.getName(),new Date());
         int i = periodPaymentMapper.insert(newPeriodPayment);
         if (i > 0) {
             return ServerResponse.createBySuccessMessage("添加数据成功");
         }
         return ServerResponse.createByErrorMessage("添加失败");
+    }
+
+    public ServerResponse paymentList(Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum,int pageSize) {
+        PageHelper.startPage(pageNum, pageSize);
+        //如果起止日期为空 则返回错误状态
+        if (startTime == null || endTime == null) {
+            return ServerResponse.createByErrorMessage("请求数据错误");
+        }
+        Date startDate = new DateTime(startTime).millisOfDay().withMinimumValue().toDate();
+        Date endDate = new DateTime(endTime).millisOfDay().withMaximumValue().toDate();
+
+        if (StringUtils.isNotEmpty(driverName)) {
+            driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
+        } else {
+            driverName = null;
+        }
+
+        if (StringUtils.isNotEmpty(payer)) {
+            payer = new StringBuilder().append("%").append(payer).append("%").toString();
+        } else {
+            payer = null;
+        }
+
+
+        List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByParams(startDate, endDate, driverName, coModelType, payer, platformStatus, paymentPlatform);
+        List<PaymentListVo> paymentListVoList = Lists.newArrayList();
+
+        for (PeriodPayment periodPayment : periodPaymentList) {
+            PaymentListVo paymentListVo = assemblePaymentListVo(periodPayment);
+            paymentListVoList.add(paymentListVo);
+        }
+        PageInfo pageInfo = new PageInfo(periodPaymentList);
+        pageInfo.setList(paymentListVoList);
+
+        return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    private PaymentListVo assemblePaymentListVo(PeriodPayment periodPayment) {
+        PaymentListVo paymentListVo = new PaymentListVo();
+        paymentListVo.setId(periodPayment.getId());
+        paymentListVo.setPaymentStatus(Const.PlatformStatus.codeOf(periodPayment.getPlatformStatus()).getDesc());
+        paymentListVo.setPaymentAmount(periodPayment.getPayment());
+        paymentListVo.setPaymentPlatform(Const.PaymentPlatform.codeOf(periodPayment.getPaymentPlatform()).getDesc());
+        if (periodPayment.getPayer() == null) {
+            paymentListVo.setPayer("-");
+        } else {
+            paymentListVo.setPayer(periodPayment.getPayer());
+        }
+
+        //如果不知道付款人，则显示 -
+        Driver driver = driverMapper.selectByPrimaryKey(periodPayment.getDriverId());
+        if (driver != null) {
+            paymentListVo.setDriverName(driver.getName());
+        } else {
+            paymentListVo.setDriverName("-");
+        }
+
+        paymentListVo.setComment(periodPayment.getComment());
+        paymentListVo.setAddTime(DateTimeUtil.dateToStr(periodPayment.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+        //如果不知道付款人、付款周期，则显示 -
+        if (periodPayment.getPayTime() != null) {
+            paymentListVo.setPeriodTime(DateTimeUtil.dateToStr(periodPayment.getPayTime(), "yyyy-MM-dd"));
+        } else {
+            paymentListVo.setPeriodTime("-");
+        }
+
+        return paymentListVo;
     }
 
 

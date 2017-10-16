@@ -7,6 +7,7 @@
       <arg column="driver_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="car_id" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="payment" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
+      <arg column="payer" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="payment_platform" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="platform_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="platform_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
@@ -17,7 +18,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, driver_id,car_id, payment, payment_platform, platform_number, platform_status, comment,
+    id, driver_id,car_id, payment,payer, payment_platform, platform_number, platform_status, comment,
     pay_time,create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -106,17 +107,37 @@
   <select id="findOverdueByCarId" resultType="java.lang.Integer">
     SELECT count(id) from maple_period_payment where car_id = #{carId} and platform_status = 2
   </select>
+  <select id="selectListByParams" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_period_payment
+    <where>
+      and create_time &gt;= #{startDate}
+      and create_time &lt;= #{endDate}
+      and platform_status = #{platformStatus}
+      <if test="driverName!=null">
+      and driver_id in (select id from maple_driver where name like #{driverName})
+      </if>
+      <if test="coModelType!=null">
+      and car_id in (select car_id from maple_co_model where model_type = #{coModelType})
+      </if>
+      <if test="payer != null">
+        and payer like #{payer}
+      </if>
+      <if test="paymentPlatform!=null">
+        and payment_platform = #{paymentPlatform}
+      </if>
+    </where>
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_period_payment
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.PeriodPayment" >
-    insert into maple_period_payment (id, driver_id,car_id, payment,
+    insert into maple_period_payment (id, driver_id,car_id, payment,payer,
       payment_platform, platform_number, platform_status, 
       comment,pay_time,create_time, update_time
       )
-    values (#{id,jdbcType=INTEGER},#{driverId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL},
-      #{paymentPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=INTEGER}, 
+    values (#{id,jdbcType=INTEGER},#{driverId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL},#{payer,jdbcType=VARCHAR},#{paymentPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=INTEGER},
       #{comment,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP},now(), now()
       )
   </insert>
@@ -134,6 +155,9 @@
       </if>
       <if test="payment != null" >
         payment,
+      </if>
+      <if test="payer != null" >
+        payer,
       </if>
       <if test="paymentPlatform != null" >
         payment_platform,
@@ -170,6 +194,9 @@
       <if test="payment != null" >
         #{payment,jdbcType=DECIMAL},
       </if>
+      <if test="payer != null" >
+        #{payer,jdbcType=VARCHAR},
+      </if>
       <if test="paymentPlatform != null" >
         #{paymentPlatform,jdbcType=INTEGER},
       </if>
@@ -185,12 +212,8 @@
       <if test="payTime != null" >
         #{payTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="createTime != null" >
         now(),
-      </if>
-      <if test="updateTime != null" >
         now(),
-      </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.maple.pojo.PeriodPayment" >
@@ -204,6 +227,9 @@
       </if>
       <if test="payment != null" >
         payment = #{payment,jdbcType=DECIMAL},
+      </if>
+      <if test="payer != null" >
+        payer = #{payer,jdbcType=VARCHAR},
       </if>
       <if test="paymentPlatform != null" >
         payment_platform = #{paymentPlatform,jdbcType=INTEGER},
@@ -232,6 +258,7 @@
     set driver_id = #{driverId,jdbcType=INTEGER},
       car_id = #{carId,jdbcType=INTEGER},
       payment = #{payment,jdbcType=DECIMAL},
+      payer = #{payer,jdbcType=VARCHAR},
       payment_platform = #{paymentPlatform,jdbcType=INTEGER},
       platform_number = #{platformNumber,jdbcType=VARCHAR},
       platform_status = #{platformStatus,jdbcType=INTEGER},

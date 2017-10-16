@@ -1,14 +1,10 @@
 package com.maple.controller.backend;
 
-import com.github.pagehelper.PageInfo;
 import com.maple.common.Const;
 import com.maple.common.ResponseCode;
 import com.maple.common.ServerResponse;
-import com.maple.pojo.PeriodPayment;
 import com.maple.pojo.User;
 import com.maple.service.IPeriodPaymentService;
-import com.maple.vo.PaymentDetailVo;
-import org.apache.xpath.operations.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,13 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Maple.Ran on 2017/6/20.
  */
-//todo 添加车辆详情列表：包括车辆信息，车辆还款明细，添加还款确认列表
 @Controller
 @RequestMapping("/manage/period_payment/")
 public class PeriodPaymentManageController {
@@ -38,18 +31,18 @@ public class PeriodPaymentManageController {
     public ServerResponse addOrUpdate(HttpSession session,
                                       Integer driverId,
                                       BigDecimal payment,
+                                      String payer,
                                       Integer paymentPlatform,
                                       String platformNum,
                                       Long payTime,
-                                      String comment
-    ) {
+                                      String comment) {
 
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.addOrUpdate(user, driverId, payment, paymentPlatform,platformNum, payTime);
+            return iPeriodPaymentService.addOrUpdate(user, driverId, payment, payer,paymentPlatform,platformNum, payTime,comment);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
@@ -95,7 +88,9 @@ public class PeriodPaymentManageController {
     //具体付款情况渠道
     @RequestMapping("current_payment_detail.do")
     @ResponseBody
-    public ServerResponse currentPaymentDetail(HttpSession session, Integer driverId,String date) {
+    public ServerResponse currentPaymentDetail(HttpSession session,
+                                               Integer driverId,
+                                               String date) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
@@ -109,7 +104,8 @@ public class PeriodPaymentManageController {
     //个人所有付款情况 periodDetailVoList
     @RequestMapping("driver_total_payment.do")
     @ResponseBody
-    public ServerResponse allPaymentDetail(HttpSession session, Integer driverId) {
+    public ServerResponse allPaymentDetail(HttpSession session,
+                                           Integer driverId) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);
         if (user == null) {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
@@ -121,5 +117,26 @@ public class PeriodPaymentManageController {
     }
 
 
+    @RequestMapping("payment_list.do")
+    @ResponseBody
+    public ServerResponse paymentList(HttpSession session,
+                                      Long startTime,
+                                      Long endTime,
+                                      String driverName,
+                                      Integer coModelType,
+                                      String payer,
+                                      Integer platformStatus,
+                                      Integer paymentPlatform,
+                                      int pageNum,
+                                      int pageSize) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
+            return iPeriodPaymentService.paymentList(startTime,endTime,driverName,coModelType,payer,platformStatus,paymentPlatform,pageNum,pageSize);
+        }
+        return ServerResponse.createByErrorMessage("无权限");
+    }
 
 }
