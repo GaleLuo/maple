@@ -26,4 +26,6 @@ public interface CarMapper {
     List<Car> selectCarListForTicket();
 
     List<Car> selectWhereUnchecked();
+
+    Car selectbyPlateNumber(String plateNumber);
 }

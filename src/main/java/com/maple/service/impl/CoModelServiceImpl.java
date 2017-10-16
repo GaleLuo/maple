@@ -88,8 +88,8 @@ public class CoModelServiceImpl implements ICoModelService {
 
     public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Date periodPlanStartDate, Integer periodNum, String comment) {
         CoModel coModel = new CoModel();
+        BigDecimal amount = BigDecimal.ZERO;
         PeriodPlan periodPlan = new PeriodPlan();
-        BigDecimal amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
         comment = StringUtils.isNotEmpty(comment) ? comment : null;
         Date periodStart= new Date(periodStartDate);
         Date periodEnd = new Date(periodEndDate);
@@ -112,12 +112,14 @@ public class CoModelServiceImpl implements ICoModelService {
 
         periodPlan.setCoModelId(coModel.getId());
         if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == modelType) {
+            amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
             periodPlan.setAmount(amount.divide(BigDecimal.valueOf(4)));
             periodPlan.setStartDate(periodPlanStartDate);
             Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate());
             periodPlan.setEndDate(periodPlanEndDate);
 
         } else if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == modelType || Const.CoModel.RENT.getCode() == modelType) {
+            amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
             periodPlan.setAmount(amount);
             periodPlan.setStartDate(periodPlanStartDate);
             Date periodPlanEndDate = new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate();

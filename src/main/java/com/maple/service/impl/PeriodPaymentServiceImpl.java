@@ -45,9 +45,9 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
-    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String platformNum,String payTime){
+    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, Integer paymentPlatform, String platformNum,Long payTime){
 
-        if (driverId == null || payment == null || paymentPlatform == null || StringUtils.isBlank(payTime)) {
+        if (driverId == null || payment == null || paymentPlatform == null || payTime==null) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
         }
         Driver driver = driverMapper.selectByPrimaryKey(driverId);
@@ -57,7 +57,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         newPeriodPayment.setPayment(payment);
         newPeriodPayment.setPaymentPlatform(paymentPlatform);
         newPeriodPayment.setPlatformNumber(platformNum);
-        Date payDate = DateTimeUtil.webStrToDate(payTime);
+        Date payDate = new Date(payTime);
 
         newPeriodPayment.setPayTime(payDate);
         newPeriodPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());

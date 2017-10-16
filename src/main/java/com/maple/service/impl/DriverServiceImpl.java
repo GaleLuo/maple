@@ -111,6 +111,7 @@ public class DriverServiceImpl implements IDriverService {
         }
         Account newAccount = new Account();
         newAccount.setDriverId(driverId);
+        newAccount.setName(name);
         newAccount.setPlatform(platformCode);
         newAccount.setAccount(account);
         int result = accountMapper.insert(newAccount);

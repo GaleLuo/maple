@@ -40,7 +40,7 @@ public class PeriodPaymentManageController {
                                       BigDecimal payment,
                                       Integer paymentPlatform,
                                       String platformNum,
-                                      String payTime,
+                                      Long payTime,
                                       String comment
     ) {
 

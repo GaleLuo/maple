@@ -70,12 +70,10 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Task1Test() throws IOException, InterruptedException {
-        User user = new User();
-        user.setUsername("slh001");
-        user.setPassword(MD5Util.MD5EncodeUtf8("cdslhQc"));
-        user.setName("一般用户");
-        user.setRole(Const.Role.ROLE_SALESMAN);
-        userMapper.insert(user);
+
+        String password = MD5Util.MD5EncodeUtf8("coffeeran");
+        System.out.println(password);
+
     }
 
     @org.junit.Test

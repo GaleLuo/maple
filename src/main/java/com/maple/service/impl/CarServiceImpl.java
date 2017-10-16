@@ -62,6 +62,10 @@ public class CarServiceImpl implements ICarService{
 
 
     public ServerResponse addOrUpdate(Integer userId, Integer id, Integer branch, Integer carStatus, String name, String plateNumber, String engineNumber, String vin, Date pickDate, Date transferDate, Date redeemDate, String gpsNumber, String gpsPhone) {
+        if (StringUtils.isEmpty(name)|| StringUtils.isEmpty(plateNumber)||StringUtils.isEmpty(engineNumber)||StringUtils.isEmpty(vin)){
+            return ServerResponse.createByErrorMessage("资料不齐，请填写完整");
+        }
+
         //将空字符串置为null
         name = StringUtil.isEmpty(name) ? null : name;
         plateNumber = StringUtil.isEmpty(plateNumber) ? null : plateNumber;
@@ -69,6 +73,7 @@ public class CarServiceImpl implements ICarService{
         vin = StringUtil.isEmpty(vin) ? null : vin;
         gpsNumber = StringUtil.isEmpty(gpsNumber) ? null : gpsNumber;
         gpsPhone = StringUtil.isEmpty(gpsPhone) ? null : gpsPhone;
+
 
         Car car = new Car();
         car.setId(id);
@@ -102,9 +107,15 @@ public class CarServiceImpl implements ICarService{
                 }
             }
         } else {
+
+            Car checkExist = carMapper.selectbyPlateNumber(plateNumber);
+            if (checkExist!=null&&checkExist.getPlateNumber().equals(plateNumber)) {
+                return ServerResponse.createByErrorMessage("车辆已经存在，请检查");
+            }
+
             int result = carMapper.insertSelective(car);
             if (result>0) {
-                return ServerResponse.createBySuccess();
+                return ServerResponse.createBySuccessMessage("车辆添加成功");
             }
         }
         return ServerResponse.createByErrorMessage("更新车辆数据失败");

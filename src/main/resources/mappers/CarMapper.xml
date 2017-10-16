@@ -80,7 +80,13 @@
     FROM maple_car c
     WHERE (select t.score from maple_ticket t where c.id=t.car_id)=0 and (select t.money from maple_ticket t where c.id=t.car_id)=0
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+
+    <select id="selectbyPlateNumber" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+      FROM maple_car
+      WHERE plate_number = #{plateNumber}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_car
     where id = #{id,jdbcType=INTEGER}
   </delete>
