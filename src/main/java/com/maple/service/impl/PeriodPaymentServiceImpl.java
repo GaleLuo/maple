@@ -70,6 +70,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         return ServerResponse.createByErrorMessage("添加失败");
     }
 
+    /*
+
+     */
+
     public ServerResponse paymentList(Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum,int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         //如果起止日期为空 则返回错误状态
@@ -103,6 +107,18 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         pageInfo.setList(paymentListVoList);
 
         return ServerResponse.createBySuccess(pageInfo);
+    }
+
+    public ServerResponse updatePaymentStatus(Integer[] paymentIdArray, Integer paymentStatus) {
+        System.out.println(paymentIdArray);
+        if (paymentStatus == null) {
+            return ServerResponse.createByErrorMessage("参数错误");
+        }
+        int result = periodPaymentMapper.updateByPaymentStatus(paymentIdArray, paymentStatus);
+        if (result > 0) {
+            return ServerResponse.createBySuccessMessage("更新成功");
+        }
+        return ServerResponse.createByErrorMessage("更新失败");
     }
 
     private PaymentListVo assemblePaymentListVo(PeriodPayment periodPayment) {

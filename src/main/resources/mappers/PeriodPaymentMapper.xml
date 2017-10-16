@@ -268,4 +268,13 @@
       update_time = now()
     where id = #{id,jdbcType=INTEGER}
   </update>
+    <update id="updateByPaymentStatus" parameterType="map">
+      update maple_period_payment
+      set platform_status = #{paymentStatus,jdbcType=INTEGER},
+        update_time=now()
+      where id in <foreach collection="paymentIdArray" index="index" item="paymentId" separator="," close=")"
+                           open="(">
+          #{paymentId}
+    </foreach>
+    </update>
 </mapper>

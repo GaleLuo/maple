@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
 import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by Maple.Ran on 2017/6/20.
@@ -139,4 +141,19 @@ public class PeriodPaymentManageController {
         return ServerResponse.createByErrorMessage("无权限");
     }
 
+    @RequestMapping("update_payment_status.do")
+    @ResponseBody
+    // 后端接收数组的格式如下
+    public ServerResponse updatePaymentStatus(HttpSession session,
+                                              @RequestParam(value = "paymentIdArray[]") Integer[] paymentIdArray,
+                                              Integer paymentStatus) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (Const.Permission.PRIMARY_PERMISSION.contains(user.getRole())) {
+            return iPeriodPaymentService.updatePaymentStatus(paymentIdArray, paymentStatus);
+        }
+        return ServerResponse.createByErrorMessage("无权限");
+    }
 }

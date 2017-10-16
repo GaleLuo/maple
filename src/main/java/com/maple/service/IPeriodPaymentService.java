@@ -5,6 +5,7 @@ import com.maple.pojo.User;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Maple.Ran on 2017/6/13.
@@ -23,4 +24,6 @@ public interface IPeriodPaymentService {
     ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment, String payer,Integer paymentPlatform, String platformNum,Long payTime,String comment);
 
     ServerResponse paymentList(Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum, int pageSize);
+
+    ServerResponse updatePaymentStatus(Integer[] paymentIdArray, Integer paymentStatus);
 }

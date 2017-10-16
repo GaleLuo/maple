@@ -170,7 +170,8 @@ public class Const {
     public enum PlatformStatus{
         PAID_NORMAL(1, "正常已付"),
         PAID_OVERDUE(2, "逾期已付"),
-        UNCONFIRMED(0, "未确认");
+        UNCONFIRMED(0, "未确认"),
+        ABANDONED(-1, "作废");
 
         private int code;
         private String desc;
@@ -292,7 +293,8 @@ public class Const {
     }
 
     public interface Permission {
-        Set<Integer> NORMAL_PERMISSION = Sets.newHashSet(1, 2, 3);
+        Set<Integer> NORMAL_PERMISSION = Sets.newHashSet(0,1, 2, 3);
+        Set<Integer> PRIMARY_PERMISSION = Sets.newHashSet(0, 3);
 
     }
 
