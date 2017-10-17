@@ -110,6 +110,17 @@ public class CoModelServiceImpl implements ICoModelService {
             int result = coModelMapper.updateByPrimaryKeySelective(coModel);
         }
 
+        if (driverId != null) {
+            Driver driver = driverMapper.selectByPrimaryKey(driverId);
+            if (driver != null) {
+                Driver driver1 = new Driver();
+                driver1.setId(driver.getId());
+                driver1.setCoModelId(coModel.getId());
+                driverMapper.updateByPrimaryKeySelective(driver1);
+            }
+        }
+
+
         periodPlan.setCoModelId(coModel.getId());
         if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == modelType) {
             amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
@@ -137,16 +148,6 @@ public class CoModelServiceImpl implements ICoModelService {
             periodPlanMapper.updateByPrimaryKeySelective(periodPlan);
         }
 
-
-        if (driverId != null) {
-            Driver driver = driverMapper.selectByPrimaryKey(driverId);
-            if (driver != null) {
-                Driver driver1 = new Driver();
-                driver1.setId(driver.getId());
-                driver1.setCoModelId(coModel.getId());
-                driverMapper.updateByPrimaryKeySelective(driver1);
-            }
-        }
         return ServerResponse.createBySuccess("操作成功", coModel.getId());
 
     }

@@ -575,7 +575,7 @@ public class Test extends TestBase {
         List<Car> carList = carMapper.selectCarListForTicket();
 //        List<Car> carList = carMapper.selectWhereUnchecked();
         System.out.println("共"+carList.size()+"待查车辆");
-        for (int i =0;i<carList.size();i++){
+        for (int i =34;i<carList.size();i++){
 //        Car car = carMapper.selectByPrimaryKey(100046);
             System.out.println("第"+(i+1)+"车辆正在查询");
         Car car = carList.get(i);
