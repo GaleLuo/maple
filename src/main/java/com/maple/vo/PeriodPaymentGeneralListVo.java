@@ -17,10 +17,19 @@ public class PeriodPaymentGeneralListVo {
     private BigDecimal alipayReceived;//支付宝已收金额
     private BigDecimal bankReceived;//银行转账已收金额
     private BigDecimal cashReceived;//现金已收金额
+    private BigDecimal posReceived;
     private BigDecimal difference;//差额
     private Integer driverNoReceivable;//应收司机
     private Integer driverNoReceived;//已收司机
 
+
+    public BigDecimal getPosReceived() {
+        return posReceived;
+    }
+
+    public void setPosReceived(BigDecimal posReceived) {
+        this.posReceived = posReceived;
+    }
 
     public BigDecimal getWechatReceived() {
         return wechatReceived;

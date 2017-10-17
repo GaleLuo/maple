@@ -43,15 +43,17 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
-    public ServerResponse addOrUpdate(User user, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
+    public ServerResponse addOrUpdate(User user,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
 
-        if (driverId == null || payment == null || paymentPlatform == null || payTime==null) {
+        if (payment == null || paymentPlatform == null || payTime==null) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
         }
         Driver driver = driverMapper.selectByPrimaryKey(driverId);
         PeriodPayment newPeriodPayment = new PeriodPayment();
-        newPeriodPayment.setDriverId(driverId);
-        newPeriodPayment.setCarId(driver.getCarId());
+        if (driver != null) {
+            newPeriodPayment.setCarId(driver.getCarId());
+            newPeriodPayment.setDriverId(driverId);
+        }
         newPeriodPayment.setPayment(payment);
         newPeriodPayment.setPaymentPlatform(paymentPlatform);
         newPeriodPayment.setPlatformNumber(platformNum);
@@ -60,10 +62,17 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
         newPeriodPayment.setPayTime(payDate);
         newPeriodPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
-        comment = comment+"   添加人:" + user.getName();
+        if (paymentId == null) {
+            comment = comment+"   添加人:" + user.getName();
+        }
         newPeriodPayment.setComment(comment);
-        logger.warn("添加人:{},添加时间:{}",user.getName(),new Date());
-        int i = periodPaymentMapper.insert(newPeriodPayment);
+        int i;
+        if (paymentId == null) {
+            i = periodPaymentMapper.insert(newPeriodPayment);
+        } else {
+            newPeriodPayment.setId(paymentId);
+            i = periodPaymentMapper.updateByPrimaryKeySelective(newPeriodPayment);
+        }
         if (i > 0) {
             return ServerResponse.createBySuccessMessage("添加数据成功");
         }
@@ -126,6 +135,9 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         paymentListVo.setId(periodPayment.getId());
         paymentListVo.setPaymentStatus(Const.PlatformStatus.codeOf(periodPayment.getPlatformStatus()).getDesc());
         paymentListVo.setPaymentAmount(periodPayment.getPayment());
+        paymentListVo.setDriverId(periodPayment.getDriverId());
+        paymentListVo.setPlatformNum(periodPayment.getPlatformNumber());
+        paymentListVo.setPaymentPlatformCode(periodPayment.getPaymentPlatform().toString());
         paymentListVo.setPaymentPlatform(Const.PaymentPlatform.codeOf(periodPayment.getPaymentPlatform()).getDesc());
         if (periodPayment.getPayer() == null) {
             paymentListVo.setPayer("-");
@@ -428,6 +440,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode());
         BigDecimal bankReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.bank.getCode());
         BigDecimal cashReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.cash.getCode());
+        BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode());
         Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null).size();
         Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null).size();
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
@@ -437,6 +450,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentGeneralListVo.setDifference(BigDecimalUtil.sub(amountReceivable.doubleValue(), amountReceived.doubleValue()));
         periodPaymentGeneralListVo.setWechatReceived(wechatReceived);
         periodPaymentGeneralListVo.setAlipayReceived(alipayReceived);
+        periodPaymentGeneralListVo.setPosReceived(posReceived);
         periodPaymentGeneralListVo.setBankReceived(bankReceived);
         periodPaymentGeneralListVo.setCashReceived(cashReceived);
         periodPaymentGeneralListVo.setDriverNoReceivable(driverNoReceivable);

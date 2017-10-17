@@ -48,10 +48,6 @@ public class DriverServiceImpl implements IDriverService {
 
     public ServerResponse addOrUpdate(Integer userId, Driver driver) {
         if (driver.getId() != null) {
-            Driver resultDriver = driverMapper.selectByDriverIdAndUserId(userId, driver.getId());
-            if (resultDriver == null) {
-                return ServerResponse.createByErrorMessage("不能修改非本账户下属的司机信息");
-            }
             driver.setUserId(null);
             driver.setPeriodsStatus(null);
             int result = driverMapper.updateByPrimaryKeySelective(driver);
@@ -140,6 +136,28 @@ public class DriverServiceImpl implements IDriverService {
             return ServerResponse.createBySuccess(assembleDriverSummaryVo(driver));
         }
         return ServerResponse.createByErrorMessage("获取信息失败");
+    }
+
+    public ServerResponse nameList(String driverName) {
+        if (StringUtils.isEmpty(driverName)) {
+            return ServerResponse.createBySuccess();
+        }
+        driverName = new StringBuilder("%").append(driverName).append("%").toString();
+        List<Driver> driverList = driverMapper.selectbydriverName(driverName);
+        List<driverNameListVo> driverNameListVoList = Lists.newArrayList();
+        for (Driver driver : driverList) {
+            driverNameListVo driverNameListVo = assembleDriverNameListVo(driver);
+            driverNameListVoList.add(driverNameListVo);
+        }
+        return ServerResponse.createBySuccess(driverNameListVoList);
+    }
+
+    private driverNameListVo assembleDriverNameListVo(Driver driver) {
+        driverNameListVo driverNameListVo = new driverNameListVo();
+        driverNameListVo.setDriverId(driver.getId());
+        driverNameListVo.setValue(driver.getName());
+        driverNameListVo.setIdNum(driver.getIdNumber());
+        return driverNameListVo;
     }
 
     private DriverSummaryVo assembleDriverSummaryVo(Driver driver) {

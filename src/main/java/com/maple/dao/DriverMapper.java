@@ -59,4 +59,6 @@ public interface DriverMapper {
     List<Driver> selectDriverReceivedPartly(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);
 
     List<Driver> selectByParams(@Param("plateNum") String plateNum, @Param("driverName") String driverName, @Param("phoneNum") String phoneNum, @Param("driverStatus") Integer driverStatus, @Param("coModelType") Integer coModelType, @Param("orderBy") String orderBy);
+
+    List<Driver> selectbydriverName(String driverName);
 }

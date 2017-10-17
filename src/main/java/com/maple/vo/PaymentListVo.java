@@ -7,14 +7,41 @@ import java.math.BigDecimal;
  */
 public class PaymentListVo {
     private Integer id;
+    private Integer driverId;
     private String paymentStatus;
     private BigDecimal paymentAmount;
     private String paymentPlatform;
+    private String paymentPlatformCode;
+    private String platformNum;
     private String payer;
     private String driverName;
     private String comment;
     private String addTime;//添加时间
     private String periodTime;//付款周期
+
+    public Integer getDriverId() {
+        return driverId;
+    }
+
+    public void setDriverId(Integer driverId) {
+        this.driverId = driverId;
+    }
+
+    public String getPlatformNum() {
+        return platformNum;
+    }
+
+    public void setPlatformNum(String platformNum) {
+        this.platformNum = platformNum;
+    }
+
+    public String getPaymentPlatformCode() {
+        return paymentPlatformCode;
+    }
+
+    public void setPaymentPlatformCode(String paymentPlatformCode) {
+        this.paymentPlatformCode = paymentPlatformCode;
+    }
 
     public Integer getId() {
         return id;

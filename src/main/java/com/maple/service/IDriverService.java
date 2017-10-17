@@ -26,4 +26,6 @@ public interface IDriverService {
     ServerResponse getAccountList(Integer driverId);
 
     ServerResponse summary(Integer userId, Integer driverId);
+
+    ServerResponse nameList(String driverName);
 }

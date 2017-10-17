@@ -154,7 +154,7 @@
   </select>
 
   <select id="selectDriverReceived" resultMap="BaseResultMap">
-    SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE d.id in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate} and pp.platform_status != 0 and (pp.payment!=0 or pp.payment is not null))
+    SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE d.id in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.platform_status &gt; 0 and pp.pay_time &lt; #{endDate} and pp.platform_status &gt; 0 and (pp.payment!=0 or pp.payment is not null))
     <if test="coModelType!=null">
       and d.co_model_id in (select cm.id from maple_co_model as cm where cm.model_type = #{coModelType})
     </if>
@@ -183,7 +183,7 @@
     <if test="driverName!=null">
       and d.name like #{driverName}
     </if>
-    ) and ((select sum(pp.payment) from maple_period_payment as pp where pp.car_id = d.car_id and pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate}) &lt; (select ppl.amount from maple_period_plan as ppl where ppl.co_model_id = d.co_model_id and ppl.start_date &lt;= #{startDate}
+    ) and ((select sum(pp.payment) from maple_period_payment as pp where pp.car_id = d.car_id and pp.platform_status &gt; 0 and pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate}) &lt; (select ppl.amount from maple_period_plan as ppl where ppl.co_model_id = d.co_model_id and ppl.start_date &lt;= #{startDate}
     and ppl.end_date &gt; #{startDate}))
   </select>
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
@@ -218,6 +218,10 @@
       order by cm.period_start_date desc
     </if>
 
+  </select>
+  <select id="selectbydriverName" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM maple_driver WHERE name LIKE #{driverName}
   </select>
 
   <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">

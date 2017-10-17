@@ -178,4 +178,17 @@ public class DriverManageController {
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
+
+    @RequestMapping("name_list.do")
+    @ResponseBody
+    public ServerResponse nameList(HttpSession session, String driverName) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
+            return driverService.nameList(driverName);
+        }
+        return ServerResponse.createByErrorMessage("无权限");
+    }
 }
