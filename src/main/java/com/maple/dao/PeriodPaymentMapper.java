@@ -8,6 +8,7 @@ import org.joda.time.Period;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 public interface PeriodPaymentMapper {
     int deleteByPrimaryKey(Integer id);
@@ -33,7 +34,7 @@ public interface PeriodPaymentMapper {
 
     BigDecimal findAmountReceived(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("paymentPlatform") Integer paymentPlatform);
 
-    PeriodPayment selectWeekSumByParams(@Param("driverId") Integer driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
+    PeriodPayment selectWeekSumByParams(@Param("driverId") Integer driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("status") Set status);
 
     BigDecimal findTotalReceivedByCarId(Integer carId);
 

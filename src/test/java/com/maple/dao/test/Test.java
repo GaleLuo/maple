@@ -70,10 +70,8 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Task1Test() throws IOException, InterruptedException {
-
-        String password = MD5Util.MD5EncodeUtf8("coffeeran");
-        System.out.println(password);
-
+        DateTime dateTime = new DateTime(2017, 10, 1, 0, 0, 0);
+        System.out.println(dateTime.getDayOfWeek());
     }
 
     @org.junit.Test

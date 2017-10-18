@@ -16,7 +16,8 @@ public class PeriodPaymentListVo {
     //当期应还款金额
     private BigDecimal dueAmount;
 
-    private BigDecimal payment;//当期已还款金额
+    private BigDecimal confirmedPayment;//当期已确认还款金额
+    private BigDecimal unconfirmedPayment;//当期为确认还款金额
 
 
     public String getPhoneNum() {
@@ -75,12 +76,19 @@ public class PeriodPaymentListVo {
         this.dueAmount = dueAmount;
     }
 
-    public BigDecimal getPayment() {
-        return payment;
+    public BigDecimal getConfirmedPayment() {
+        return confirmedPayment;
     }
 
-    public void setPayment(BigDecimal payment) {
-        this.payment = payment;
+    public void setConfirmedPayment(BigDecimal confirmedPayment) {
+        this.confirmedPayment = confirmedPayment;
     }
 
+    public BigDecimal getUnconfirmedPayment() {
+        return unconfirmedPayment;
+    }
+
+    public void setUnconfirmedPayment(BigDecimal unconfirmedPayment) {
+        this.unconfirmedPayment = unconfirmedPayment;
+    }
 }

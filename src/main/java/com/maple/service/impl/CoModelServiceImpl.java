@@ -12,10 +12,12 @@ import com.maple.pojo.Driver;
 import com.maple.pojo.PeriodPlan;
 import com.maple.pojo.Ticket;
 import com.maple.service.ICoModelService;
+import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.CoModelDetailVo;
 import com.maple.vo.PlanDetailVo;
 import com.maple.vo.coModelSummaryVo;
+import com.sun.java.swing.ui.ToggleActionPropertyChangeListener;
 import com.sun.tools.javadoc.Start;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,6 +89,16 @@ public class CoModelServiceImpl implements ICoModelService {
     }
 
     public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Date periodPlanStartDate, Integer periodNum, String comment) {
+
+        if (modelType == null) {
+            return ServerResponse.createByErrorMessage("请选择合作模式");
+        }
+        if (!modelType.equals(Const.CoModel.FULL_PAYMENT.getCode())&&periodPlanStartDate==null) {
+            return ServerResponse.createByErrorMessage("请选择付款起始日期");
+        } else if (modelType.equals(Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) && new DateTime(periodPlanStartDate).getDayOfWeek() != 2) {
+            return ServerResponse.createByErrorMessage("请选择星期二为付款起始日");
+        }
+
         CoModel coModel = new CoModel();
         BigDecimal amount = BigDecimal.ZERO;
         PeriodPlan periodPlan = new PeriodPlan();
@@ -104,10 +116,11 @@ public class CoModelServiceImpl implements ICoModelService {
         coModel.setFinalAmount(finalAmount);
         coModel.setComment(comment);
         coModel.setPeriodNum(periodNum);
+
         if (coModelId == null) {
-            int result = coModelMapper.insertSelective(coModel);
+            coModelMapper.insertSelective(coModel);
         } else {
-            int result = coModelMapper.updateByPrimaryKeySelective(coModel);
+            coModelMapper.updateByPrimaryKeySelective(coModel);
         }
 
         if (driverId != null) {
@@ -120,25 +133,27 @@ public class CoModelServiceImpl implements ICoModelService {
             }
         }
 
-
         periodPlan.setCoModelId(coModel.getId());
         if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == modelType) {
-            amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
+            amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
+            amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount.divide(BigDecimal.valueOf(4)));
             periodPlan.setStartDate(periodPlanStartDate);
             Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate());
             periodPlan.setEndDate(periodPlanEndDate);
 
         } else if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == modelType || Const.CoModel.RENT.getCode() == modelType) {
-            amount = (totalAmount.subtract(downAmount).subtract(finalAmount)).divide(BigDecimal.valueOf(periodNum));
+            amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
+            amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount);
             periodPlan.setStartDate(periodPlanStartDate);
             Date periodPlanEndDate = new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate();
             periodPlan.setEndDate(periodPlanEndDate);
         } else {
+            //全款则直接返回成功
             return ServerResponse.createBySuccess("操作成功", coModel.getId());
         }
-
+        //todo bug: 全款不能绑定合作模式   后期重新打开之后不能绑定和添加合作模式
         List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModelId);
         if (CollectionUtils.isEmpty(periodPlanList)) {
             periodPlanMapper.insert(periodPlan);

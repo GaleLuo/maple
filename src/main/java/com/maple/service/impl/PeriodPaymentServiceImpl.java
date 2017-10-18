@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.maple.common.Const;
 import com.maple.common.ServerResponse;
 import com.maple.dao.*;
@@ -23,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Maple.Ran on 2017/6/13.
@@ -168,6 +170,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
     public ServerResponse<PageInfo> list(String date, String driverName, Integer coModelType,Integer payStatus, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
+        Set confirmed = Sets.newHashSet(Const.PlatformStatus.PAID_NORMAL.getCode(), Const.PlatformStatus.PAID_OVERDUE.getCode());
+        Set unconfirmed = Sets.newHashSet(Const.PlatformStatus.UNCONFIRMED.getCode());
+
+
         if (StringUtils.isNotBlank(driverName)) {
             driverName = new StringBuilder().append("%").append(driverName).append("%").toString();
         } else {
@@ -197,14 +203,24 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
         for (Driver driver : driverList) {
             Integer driverId = driver.getId();
-            PeriodPayment periodPayment = periodPaymentMapper.selectWeekSumByParams(driverId, startDate, endDate);
+            PeriodPayment periodPayment = periodPaymentMapper.selectWeekSumByParams(driverId, startDate, endDate,confirmed);
             //如果结果为空,则没有付款记录
             if (periodPayment == null) {
                 periodPayment = new PeriodPayment();
                 periodPayment.setCarId(driver.getCarId());
+                periodPayment.setPayment(BigDecimal.ZERO);
                 periodPayment.setDriverId(driverId);
             }
+            //查出未确认的款项
+            PeriodPayment unconfirmedPeriodPayment = periodPaymentMapper.selectWeekSumByParams(driverId, startDate, endDate,unconfirmed);
+
             PeriodPaymentListVo periodPaymentListVo = assemblePeriodPaymentListVo(periodPayment,startDate,endDate);
+            //直接设置vo中的未确认款项数值
+            if (unconfirmedPeriodPayment != null) {
+                periodPaymentListVo.setUnconfirmedPayment(unconfirmedPeriodPayment.getPayment());
+            } else {
+                periodPaymentListVo.setUnconfirmedPayment(BigDecimal.ZERO);
+            }
             periodPaymentListVoList.add(periodPaymentListVo);
 
         }
@@ -407,8 +423,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentListVo.setPhoneNum(driver.getPersonalPhone());
         periodPaymentListVo.setPlateNum(car.getPlateNumber());
         periodPaymentListVo.setCarName(car.getName());
-        BigDecimal payment = periodPayment.getPayment() == null ? BigDecimal.ZERO : periodPayment.getPayment();
-        periodPaymentListVo.setPayment(payment);
+        periodPaymentListVo.setConfirmedPayment(periodPayment.getPayment());
         return periodPaymentListVo;
     }
 

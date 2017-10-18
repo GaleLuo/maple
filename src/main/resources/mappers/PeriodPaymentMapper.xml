@@ -34,7 +34,9 @@
     and pp.driver_id = #{driverId}
     and pp.pay_time &gt;= #{startDate}
     and pp.pay_time &lt;= #{endDate}
-    and platform_status &gt; 0
+    and platform_status in <foreach collection="status" close=")" index="index" item="item" open="(" separator=",">
+      #{item}
+    </foreach>
   </where>
   </select>
   <select id="selectGeneralListByParams" resultType="com.maple.pojo.PeriodPayment" parameterType="map">
