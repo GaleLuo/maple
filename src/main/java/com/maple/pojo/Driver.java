@@ -23,6 +23,8 @@ public class Driver {
 
     private String personalPhone;
 
+    private Integer phoneStatus;
+
     private String workPhone;
 
     private String driverLicenceFileNumber;
@@ -36,7 +38,7 @@ public class Driver {
     private Date updateTime;
 
 
-    public Driver(Integer id, Integer carId, Integer userId, Integer coModelId, String name, String idNumber, String driverCarImage, String driverLicenceFrontImage, String driverLicenceBackImage, String personalPhone, String workPhone, String driverLicenceFileNumber, Integer driverStatus, Integer periodsStatus, Date createTime, Date updateTime) {
+    public Driver(Integer id, Integer carId, Integer userId, Integer coModelId, String name, String idNumber, String driverCarImage, String driverLicenceFrontImage, String driverLicenceBackImage, String personalPhone, Integer phoneStatus, String workPhone, String driverLicenceFileNumber, Integer driverStatus, Integer periodsStatus, Date createTime, Date updateTime) {
         this.id = id;
         this.carId = carId;
         this.userId = userId;
@@ -47,6 +49,7 @@ public class Driver {
         this.driverLicenceFrontImage = driverLicenceFrontImage;
         this.driverLicenceBackImage = driverLicenceBackImage;
         this.personalPhone = personalPhone;
+        this.phoneStatus = phoneStatus;
         this.workPhone = workPhone;
         this.driverLicenceFileNumber = driverLicenceFileNumber;
         this.driverStatus = driverStatus;
@@ -55,6 +58,13 @@ public class Driver {
         this.updateTime = updateTime;
     }
 
+    public Integer getPhoneStatus() {
+        return phoneStatus;
+    }
+
+    public void setPhoneStatus(Integer phoneStatus) {
+        this.phoneStatus = phoneStatus;
+    }
 
     public Driver() {
         super();

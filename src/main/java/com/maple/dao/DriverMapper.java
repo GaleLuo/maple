@@ -61,4 +61,6 @@ public interface DriverMapper {
     List<Driver> selectByParams(@Param("plateNum") String plateNum, @Param("driverName") String driverName, @Param("phoneNum") String phoneNum, @Param("driverStatus") Integer driverStatus, @Param("coModelType") Integer coModelType, @Param("orderBy") String orderBy);
 
     List<Driver> selectbydriverName(String driverName);
+
+    List<Driver> selectDriverListByStatus(Integer status);
 }

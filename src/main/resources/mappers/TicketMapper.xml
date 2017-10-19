@@ -27,7 +27,11 @@
     from maple_ticket
     WHERE car_id=#{carId}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectCarIdListForSms" resultType="java.lang.Integer">
+      SELECT car_id FROM maple_ticket
+      WHERE score &gt; 0 or money &gt; 0
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_ticket
     where id = #{id,jdbcType=INTEGER}
   </delete>

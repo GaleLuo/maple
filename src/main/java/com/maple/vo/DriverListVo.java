@@ -7,6 +7,7 @@ public class DriverListVo {
     private Integer driverId;
     private String driverName;
     private String phoneNum;
+    private String phoneStatus;
     private String coModelType;
     private String driverStatus;
     private String periodStartDate;
@@ -14,6 +15,13 @@ public class DriverListVo {
     private String plateNum;
     private String ticket;
 
+    public String getPhoneStatus() {
+        return phoneStatus;
+    }
+
+    public void setPhoneStatus(String phoneStatus) {
+        this.phoneStatus = phoneStatus;
+    }
 
     public String getCoModelType() {
         return coModelType;

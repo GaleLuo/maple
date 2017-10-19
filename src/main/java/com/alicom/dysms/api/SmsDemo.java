@@ -9,9 +9,9 @@ import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
+import org.joda.time.LocalDate;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
 
 /**
  * Created on 17/6/7.
@@ -70,7 +70,7 @@ public class SmsDemo {
     }
 
 
-    public static QuerySendDetailsResponse querySendDetails(String bizId) throws ClientException {
+    public static QuerySendDetailsResponse querySendDetails() throws ClientException {
 
         //可自助调整超时时间
         System.setProperty("sun.net.client.defaultConnectTimeout", "10000");
@@ -84,12 +84,11 @@ public class SmsDemo {
         //组装请求对象
         QuerySendDetailsRequest request = new QuerySendDetailsRequest();
         //必填-号码
-        request.setPhoneNumber("18584050216");
+        request.setPhoneNumber("17780683073");
         //可选-流水号
-        request.setBizId(bizId);
         //必填-发送日期 支持30天内记录查询，格式yyyyMMdd
         SimpleDateFormat ft = new SimpleDateFormat("yyyyMMdd");
-        request.setSendDate(ft.format(new Date()));
+        request.setSendDate(ft.format(new LocalDate(2017,10,18).toDate()));
         //必填-页大小
         request.setPageSize(10L);
         //必填-当前页码从1开始计数
@@ -104,18 +103,19 @@ public class SmsDemo {
     public static void main(String[] args) throws ClientException, InterruptedException {
 
         //发短信
-        SendSmsResponse response = sendSms();
-        System.out.println("短信接口返回的数据----------------");
-        System.out.println("Code=" + response.getCode());
-        System.out.println("Message=" + response.getMessage());
-        System.out.println("RequestId=" + response.getRequestId());
-        System.out.println("BizId=" + response.getBizId());
-
-        Thread.sleep(8000L);
+//        SendSmsResponse response = sendSms();
+//        System.out.println("短信接口返回的数据----------------");
+//        System.out.println("Code=" + response.getCode());
+//        System.out.println("Message=" + response.getMessage());
+//        System.out.println("RequestId=" + response.getRequestId());
+//        System.out.println("BizId=" + response.getBizId());
+//
+//        Thread.sleep(8000L);
 
 //        查明细
-        if(response.getCode() != null && response.getCode().equals("OK")) {
-            QuerySendDetailsResponse querySendDetailsResponse = querySendDetails(response.getBizId());
+//        if(response.getCode() != null && response.getCode().equals("OK")) {
+//            QuerySendDetailsResponse querySendDetailsResponse = querySendDetails(response.getBizId());
+            QuerySendDetailsResponse querySendDetailsResponse = querySendDetails();
             System.out.println("短信明细查询接口返回数据----------------");
             System.out.println("Code=" + querySendDetailsResponse.getCode());
             System.out.println("Message=" + querySendDetailsResponse.getMessage());
@@ -134,7 +134,7 @@ public class SmsDemo {
             }
             System.out.println("TotalCount=" + querySendDetailsResponse.getTotalCount());
             System.out.println("RequestId=" + querySendDetailsResponse.getRequestId());
-        }
+//        }
 
     }
 }

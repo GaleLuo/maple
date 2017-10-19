@@ -13,6 +13,7 @@
       <arg column="driver_licence_front_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="driver_licence_back_image" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="personal_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="phone_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="work_phone" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="driver_licence_file_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="driver_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
@@ -28,7 +29,7 @@
   </resultMap>
   <sql id="Base_Column_List" >
     id, car_id, user_id,co_model_id,name, id_number, driver_car_image, driver_licence_front_image,
-    driver_licence_back_image, personal_phone, work_phone, driver_licence_file_number, driver_status,
+    driver_licence_back_image, personal_phone,phone_status, work_phone, driver_licence_file_number, driver_status,
     periods_status, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -188,7 +189,7 @@
   </select>
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
     SELECT d.id as id,d.car_id as carId,d.driver_status as driverStatus,d.personal_phone as personalPhone,d.name as name,
-    d.co_model_id as coModelId
+    d.co_model_id as coModelId,d.phone_status as phoneStatus
     FROM maple_driver as d LEFT JOIN maple_ticket as t on t.car_id=d.car_id LEFT JOIN maple_co_model as cm on cm.id =d.co_model_id
     LEFT JOIN maple_car c on d.car_id = c.id
     <where>
@@ -223,8 +224,13 @@
     SELECT <include refid="Base_Column_List"/>
     FROM maple_driver WHERE name LIKE #{driverName}
   </select>
+    <select id="selectDriverListByStatus" resultMap="BaseResultMap" parameterType="Integer">
+      select <include refid="Base_Column_List"/>
+      from maple_driver
+      WHERE driver_status = #{status}
+    </select>
 
-  <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
+    <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
     UPDATE status=5
     FROM maple_driver
     WHERE user_id=#{userId} and status in (0,4)
@@ -240,13 +246,13 @@
     insert into maple_driver (id, car_id, user_id,co_model_id,
       name, id_number, driver_car_image, 
       driver_licence_front_image, driver_licence_back_image,
-      personal_phone, work_phone, driver_licence_file_number,
+      personal_phone,phone_status, work_phone, driver_licence_file_number,
       driver_status, periods_status, create_time,
       update_time)
     values (#{id,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{coModelId,jdbcType=INTEGER},
       #{name,jdbcType=VARCHAR}, #{idNumber,jdbcType=VARCHAR}, #{driverCarImage,jdbcType=VARCHAR}, 
       #{driverLicenceFrontImage,jdbcType=VARCHAR}, #{driverLicenceBackImage,jdbcType=VARCHAR},
-      #{personalPhone,jdbcType=VARCHAR}, #{workPhone,jdbcType=VARCHAR}, #{driverLicenceFileNumber,jdbcType=VARCHAR},
+      #{personalPhone,jdbcType=VARCHAR}, #{phoneStatus,jdbcType=INTEGER},#{workPhone,jdbcType=VARCHAR}, #{driverLicenceFileNumber,jdbcType=VARCHAR},
       #{driverStatus,jdbcType=INTEGER}, #{periodsStatus,jdbcType=INTEGER}, now(),
             now())
   </insert>
@@ -282,6 +288,9 @@
       </if>
       <if test="personalPhone != null" >
         personal_phone,
+      </if>
+      <if test="phoneStatus != null" >
+        phone_status,
       </if>
       <if test="workPhone != null" >
         work_phone,
@@ -333,6 +342,9 @@
       <if test="personalPhone != null" >
         #{personalPhone,jdbcType=VARCHAR},
       </if>
+      <if test="phoneStatus != null" >
+        #{phoneStatus,jdbcType=VARCHAR},
+      </if>
       <if test="workPhone != null" >
         #{workPhone,jdbcType=VARCHAR},
       </if>
@@ -383,6 +395,9 @@
       <if test="personalPhone != null" >
         personal_phone = #{personalPhone,jdbcType=VARCHAR},
       </if>
+      <if test="phoneStatus != null" >
+        phone_status = #{phoneStatus,jdbcType=INTEGER},
+      </if>
       <if test="workPhone != null" >
         work_phone = #{workPhone,jdbcType=VARCHAR},
       </if>
@@ -398,9 +413,7 @@
       <if test="createTime != null" >
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
-      <if test="updateTime != null" >
         update_time = now(),
-      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -415,6 +428,7 @@
       driver_licence_front_image = #{driverLicenceFrontImage,jdbcType=VARCHAR},
       driver_licence_back_image = #{driverLicenceBackImage,jdbcType=VARCHAR},
       personal_phone = #{personalPhone,jdbcType=VARCHAR},
+      phone_status = #{phoneStatus,jdbcType=VARCHAR},
       work_phone = #{workPhone,jdbcType=VARCHAR},
       driver_licence_file_number = #{driverLicenceFileNumber,jdbcType=VARCHAR},
       driver_status = #{driverStatus,jdbcType=INTEGER},

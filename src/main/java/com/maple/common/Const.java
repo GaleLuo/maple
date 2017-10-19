@@ -375,6 +375,11 @@ public class Const {
         String LIMIT_NUM_SUCCESS="LIMIT_NUM_SUCCESS";
     }
 
+    public interface phoneStatus{
+        int normal = 1;
+        int unconnted = 0;
+    }
+
     public enum ProductStatus{
         ON_SALE(1, "在线"),
         OFF_SALE(2, "下架"),

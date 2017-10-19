@@ -4,6 +4,7 @@ import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import com.gargoylesoftware.htmlunit.util.StringUtils;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -70,42 +71,31 @@ public class WeiCheUtil {
 
 
     public static Map getTicket(String city, String plateNum, String vin, String engineNum) throws IOException {
-        HashMap ticket = Maps.newHashMap();
-
 
         WeiCheUtil weiCheUtil = new WeiCheUtil();
         String vid = null;
         Map<String, String> addResult = weiCheUtil.add(city, plateNum, vin, engineNum);
 
         String addStatus = addResult.get("status");
-        vid = addResult.get("vid");
+
 
         if (addStatus.equals("vehicle_exists")) {
-//            delete(vid);
-//            getTicket(city, plateNum, vin, engineNum);
+            addResult= weiCheUtil.list(plateNum);
         } else if (addStatus.equals("failed")) {
-            //车辆信息有错误
         } else if (addStatus.equals("get session failed")) {
+        }
 
-        }
-        Map<String, String> checkResult = weiCheUtil.check(vid);
-        String checkStatus = checkResult.get("status");
-        //如果查询结果为ok 则先删除 然后返回 查询结果
-        if (checkStatus.equals("ok")|| checkStatus.equals("empty")) {
-            Map<String, String> deleteResult = delete(vid);
-            String deleteStatus = deleteResult.get("status");
-            if (!deleteStatus.equals("ok")) {
-                throw new RuntimeException("删除失败");
-            }
-            return checkResult;
-        }
+        vid = addResult.get("vid");
+
         delete(vid);
-        return null;
+
+        return addResult;
     }
 
     public static Map<String,String> jsonToMap(String json) throws IOException {
         HashMap<String,String> result = Maps.newHashMap();
         ObjectMapper mapper = new ObjectMapper();
+        //避免某个Exception
         mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true) ;
 
         JsonNode root = null;
@@ -123,6 +113,37 @@ public class WeiCheUtil {
         result.put("ticketTimes", ticketTimes);
         result.put("ticketMoney", ticketMoney);
         result.put("ticketScore", ticketScore);
+
+        return result;
+
+    }
+
+    public static Map<String,String> arrayJsonToMap(String json,String plateNum) throws IOException {
+        HashMap<String,String> result = Maps.newHashMap();
+        ObjectMapper mapper = new ObjectMapper();
+        //避免某个Exception
+        mapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true) ;
+
+        JsonNode root = null;
+        root = mapper.readTree(json);
+        String status = root.path("status").asText();
+        JsonNode data = root.path("data");
+        int i = 0;
+        while (data.has(i)) {
+            JsonNode arrayInfo = data.get(i++);
+            String license_plate_num = arrayInfo.path("license_plate_num").asText();
+            if (license_plate_num.equals(plateNum)) {
+                String vid = arrayInfo.path("vehicle_id").asText();
+                String ticketTimes = arrayInfo.path("unhandled_violation_count").asText();
+                String ticketMoney = arrayInfo.path("unhandled_violation_fine").asText();
+                String ticketScore = arrayInfo.path("unhandled_violation_points").asText();
+                result.put("status", status);
+                result.put("vid", vid);
+                result.put("ticketTimes", ticketTimes);
+                result.put("ticketMoney", ticketMoney);
+                result.put("ticketScore", ticketScore);
+            }
+        }
 
         return result;
 
@@ -154,7 +175,6 @@ public class WeiCheUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("add-"+result);
         return jsonToMap(result);
     }
 
@@ -183,11 +203,10 @@ public class WeiCheUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("delete-"+result);
         return jsonToMap(result);
     }
 
-    private Map<String,String>  list(String vid) throws IOException {
+    private Map<String,String>  list(String plateNum) throws IOException {
         List<NameValuePair> params = Lists.newArrayList();
         String result = null;
         params.add(new NameValuePair("action", "list"));
@@ -196,8 +215,7 @@ public class WeiCheUtil {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("list-"+result);
-        return jsonToMap(result);
+        return arrayJsonToMap(result,plateNum);
     }
 
 }

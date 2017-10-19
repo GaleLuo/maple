@@ -1,5 +1,8 @@
 package com.maple.dao.test;
 
+import com.aliyuncs.dysmsapi.model.v20170525.QuerySendDetailsResponse;
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.aliyuncs.exceptions.ClientException;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
@@ -21,12 +24,14 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
@@ -76,25 +81,50 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Task2Test() throws IOException, ParseException {
-        String jsonStr = "{\"errno\":\"0\",\"error\":\"\",\"data\":{\"data\":[{\"driver_id\":\"563547272712194\",\"phone\":\"17711393872\",\"name\":\"\\u674e\\u5bb6\\u624d\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,222.84\",\"finish_finish_cnt\":\"67\",\"finish_serve_time\":\"27.37\",\"finish_online_time\":\"35.85\",\"finish_work_distance\":\"882.52\",\"finish_fee_time\":\"21.67\",\"finish_serve_distance\":\"525.64\"},{\"driver_id\":\"564252172951552\",\"phone\":\"17502818042\",\"name\":\"\\u738b\\u4e91\\u5175\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"827.48\",\"finish_finish_cnt\":\"92\",\"finish_serve_time\":\"25.77\",\"finish_online_time\":\"30.67\",\"finish_work_distance\":\"811.66\",\"finish_fee_time\":\"18.38\",\"finish_serve_distance\":\"433.59\"},{\"driver_id\":\"566328098296719\",\"phone\":\"17502843927\",\"name\":\"\\u962e\\u51ef\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,403.88\",\"finish_finish_cnt\":\"165\",\"finish_serve_time\":\"64.61\",\"finish_online_time\":\"64.63\",\"finish_work_distance\":\"1,492.90\",\"finish_fee_time\":\"51.64\",\"finish_serve_distance\":\"1,326.77\"},{\"driver_id\":\"567949977109270\",\"phone\":\"17381825856\",\"name\":\"\\u5b5f\\u7ea2\\u9633\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"368.97\",\"finish_finish_cnt\":\"19\",\"finish_serve_time\":\"5.92\",\"finish_online_time\":\"10.30\",\"finish_work_distance\":\"241.79\",\"finish_fee_time\":\"4.42\",\"finish_serve_distance\":\"158.50\"},{\"driver_id\":\"567949981922996\",\"phone\":\"13568833758\",\"name\":\"\\u90d1\\u548c\\u5e73\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,990.04\",\"finish_finish_cnt\":\"122\",\"finish_serve_time\":\"48.11\",\"finish_online_time\":\"57.80\",\"finish_work_distance\":\"1,200.38\",\"finish_fee_time\":\"36.78\",\"finish_serve_distance\":\"876.53\"},{\"driver_id\":\"567950108226408\",\"phone\":\"15982154365\",\"name\":\"\\u7530\\u4f1f\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,881.71\",\"finish_finish_cnt\":\"168\",\"finish_serve_time\":\"68.09\",\"finish_online_time\":\"84.30\",\"finish_work_distance\":\"1,707.34\",\"finish_fee_time\":\"52.50\",\"finish_serve_distance\":\"1,258.11\"},{\"driver_id\":\"567950191856229\",\"phone\":\"13880858819\",\"name\":\"\\u9093\\u7ee7\\u660e\",\"join_model_name\":\"\\u666e\\u901a\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,526.41\",\"finish_finish_cnt\":\"173\",\"finish_serve_time\":\"76.63\",\"finish_online_time\":\"86.52\",\"finish_work_distance\":\"1,686.91\",\"finish_fee_time\":\"60.65\",\"finish_serve_distance\":\"1,347.83\"},{\"driver_id\":\"563309467865088\",\"phone\":\"18781971612\",\"name\":\"\\u674e\\u6d9b\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,523.67\",\"finish_finish_cnt\":\"108\",\"finish_serve_time\":\"44.13\",\"finish_online_time\":\"53.33\",\"finish_work_distance\":\"1,184.30\",\"finish_fee_time\":\"34.86\",\"finish_serve_distance\":\"884.16\"},{\"driver_id\":\"563570862268418\",\"phone\":\"15982094997\",\"name\":\"\\u90ac\\u56fd\\u5f3a\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"436.02\",\"finish_finish_cnt\":\"37\",\"finish_serve_time\":\"15.05\",\"finish_online_time\":\"20.35\",\"finish_work_distance\":\"392.07\",\"finish_fee_time\":\"10.90\",\"finish_serve_distance\":\"255.47\"},{\"driver_id\":\"563768012378115\",\"phone\":\"17508241661\",\"name\":\"\\u738b\\u6d2a\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,559.26\",\"finish_finish_cnt\":\"122\",\"finish_serve_time\":\"59.46\",\"finish_online_time\":\"67.77\",\"finish_work_distance\":\"1,364.95\",\"finish_fee_time\":\"48.92\",\"finish_serve_distance\":\"1,086.75\"},{\"driver_id\":\"563838062632964\",\"phone\":\"17502854998\",\"name\":\"\\u8d75\\u6cc9\\u8363\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"623.33\",\"finish_finish_cnt\":\"25\",\"finish_serve_time\":\"10.99\",\"finish_online_time\":\"20.63\",\"finish_work_distance\":\"442.51\",\"finish_fee_time\":\"9.41\",\"finish_serve_distance\":\"283.08\"},{\"driver_id\":\"563905818726400\",\"phone\":\"17502888032\",\"name\":\"\\u5218\\u7965\\u6797\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"0.00\",\"finish_finish_cnt\":\"0\",\"finish_serve_time\":\"0.00\",\"finish_online_time\":\"15.03\",\"finish_work_distance\":\"67.67\",\"finish_fee_time\":\"0.00\",\"finish_serve_distance\":\"0.00\"},{\"driver_id\":\"564426981840517\",\"phone\":\"13550265868\",\"name\":\"\\u7f57\\u6da6\\u5229\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,118.18\",\"finish_finish_cnt\":\"139\",\"finish_serve_time\":\"52.40\",\"finish_online_time\":\"75.37\",\"finish_work_distance\":\"1,589.12\",\"finish_fee_time\":\"40.49\",\"finish_serve_distance\":\"1,030.59\"},{\"driver_id\":\"565246901028600\",\"phone\":\"17780021861\",\"name\":\"\\u674e\\u5f6c\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"3,115.91\",\"finish_finish_cnt\":\"180\",\"finish_serve_time\":\"56.12\",\"finish_online_time\":\"77.13\",\"finish_work_distance\":\"2,068.68\",\"finish_fee_time\":\"43.81\",\"finish_serve_distance\":\"1,370.26\"},{\"driver_id\":\"563753887932416\",\"phone\":\"18181993085\",\"name\":\"\\u9ad8\\u5cf0\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,685.86\",\"finish_finish_cnt\":\"100\",\"finish_serve_time\":\"31.04\",\"finish_online_time\":\"43.68\",\"finish_work_distance\":\"1,087.75\",\"finish_fee_time\":\"24.00\",\"finish_serve_distance\":\"780.50\"},{\"driver_id\":\"564120700387328\",\"phone\":\"18116563838\",\"name\":\"\\u90d1\\u52c7\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,712.06\",\"finish_finish_cnt\":\"121\",\"finish_serve_time\":\"40.35\",\"finish_online_time\":\"49.87\",\"finish_work_distance\":\"1,083.06\",\"finish_fee_time\":\"31.81\",\"finish_serve_distance\":\"876.90\"},{\"driver_id\":\"565274257992587\",\"phone\":\"13693462956\",\"name\":\"\\u848b\\u4ed5\\u89c1\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,706.39\",\"finish_finish_cnt\":\"102\",\"finish_serve_time\":\"45.88\",\"finish_online_time\":\"60.20\",\"finish_work_distance\":\"1,554.27\",\"finish_fee_time\":\"37.56\",\"finish_serve_distance\":\"908.43\"},{\"driver_id\":\"565770239549420\",\"phone\":\"13699434315\",\"name\":\"\\u90b1\\u5146\\u52c7\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"601.19\",\"finish_finish_cnt\":\"28\",\"finish_serve_time\":\"10.02\",\"finish_online_time\":\"18.13\",\"finish_work_distance\":\"507.01\",\"finish_fee_time\":\"7.91\",\"finish_serve_distance\":\"274.98\"},{\"driver_id\":\"565885572029510\",\"phone\":\"15208206210\",\"name\":\"\\u674e\\u514b\\u52c7\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"929.27\",\"finish_finish_cnt\":\"57\",\"finish_serve_time\":\"27.06\",\"finish_online_time\":\"33.25\",\"finish_work_distance\":\"582.39\",\"finish_fee_time\":\"21.91\",\"finish_serve_distance\":\"512.50\"},{\"driver_id\":\"566100585484894\",\"phone\":\"18140202795\",\"name\":\"\\u5218\\u5e94\\u5747\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,540.82\",\"finish_finish_cnt\":\"73\",\"finish_serve_time\":\"35.27\",\"finish_online_time\":\"50.27\",\"finish_work_distance\":\"2,155.60\",\"finish_fee_time\":\"31.82\",\"finish_serve_distance\":\"1,192.60\"},{\"driver_id\":\"566270765828824\",\"phone\":\"13340961006\",\"name\":\"\\u90ed\\u5e38\\u8f89\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,783.61\",\"finish_finish_cnt\":\"76\",\"finish_serve_time\":\"32.71\",\"finish_online_time\":\"51.07\",\"finish_work_distance\":\"1,614.40\",\"finish_fee_time\":\"28.46\",\"finish_serve_distance\":\"818.32\"},{\"driver_id\":\"566293516921474\",\"phone\":\"17340122837\",\"name\":\"\\u4faf\\u777f\\u535a\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"A+\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"966.79\",\"finish_finish_cnt\":\"38\",\"finish_serve_time\":\"16.38\",\"finish_online_time\":\"34.57\",\"finish_work_distance\":\"828.10\",\"finish_fee_time\":\"14.20\",\"finish_serve_distance\":\"466.35\"},{\"driver_id\":\"566294091140639\",\"phone\":\"13308065745\",\"name\":\"\\u9648\\u7ecd\\u6167\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"512.92\",\"finish_finish_cnt\":\"32\",\"finish_serve_time\":\"10.09\",\"finish_online_time\":\"14.82\",\"finish_work_distance\":\"624.12\",\"finish_fee_time\":\"7.72\",\"finish_serve_distance\":\"252.29\"},{\"driver_id\":\"567949985812010\",\"phone\":\"17508240579\",\"name\":\"\\u5f20\\u60f3\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"1,838.02\",\"finish_finish_cnt\":\"133\",\"finish_serve_time\":\"44.08\",\"finish_online_time\":\"57.05\",\"finish_work_distance\":\"1,460.18\",\"finish_fee_time\":\"34.51\",\"finish_serve_distance\":\"946.74\"},{\"driver_id\":\"567950010663002\",\"phone\":\"17502871834\",\"name\":\"\\u6b66\\u5b66\\u65fa\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"569.86\",\"finish_finish_cnt\":\"35\",\"finish_serve_time\":\"13.80\",\"finish_online_time\":\"17.38\",\"finish_work_distance\":\"445.52\",\"finish_fee_time\":\"11.12\",\"finish_serve_distance\":\"287.94\"},{\"driver_id\":\"567950030484408\",\"phone\":\"18010634542\",\"name\":\"\\u7f57\\u65b9\\u7ef4\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,258.12\",\"finish_finish_cnt\":\"160\",\"finish_serve_time\":\"69.66\",\"finish_online_time\":\"70.30\",\"finish_work_distance\":\"1,493.37\",\"finish_fee_time\":\"55.70\",\"finish_serve_distance\":\"1,272.28\"},{\"driver_id\":\"565689403638882\",\"phone\":\"17502817802\",\"name\":\"\\u5170\\u5fd7\\u521a\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,643.51\",\"finish_finish_cnt\":\"192\",\"finish_serve_time\":\"70.81\",\"finish_online_time\":\"77.33\",\"finish_work_distance\":\"1,700.00\",\"finish_fee_time\":\"57.26\",\"finish_serve_distance\":\"1,388.63\"},{\"driver_id\":\"565695857166930\",\"phone\":\"13881780445\",\"name\":\"\\u738b\\u5f3a\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"2,372.34\",\"finish_finish_cnt\":\"172\",\"finish_serve_time\":\"63.71\",\"finish_online_time\":\"65.85\",\"finish_work_distance\":\"1,480.51\",\"finish_fee_time\":\"49.44\",\"finish_serve_distance\":\"1,235.52\"},{\"driver_id\":\"565711956676124\",\"phone\":\"18180232446\",\"name\":\"\\u6881\\u7389\\u9e9f\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"0.00\",\"finish_finish_cnt\":\"0\",\"finish_serve_time\":\"0.00\",\"finish_online_time\":\"0.00\",\"finish_work_distance\":\"0.00\",\"finish_fee_time\":\"0.00\",\"finish_serve_distance\":\"0.00\"},{\"driver_id\":\"565715843486741\",\"phone\":\"15328088259\",\"name\":\"\\u53f6\\u4fdd\\u821f\",\"join_model_name\":\"\\u5bf9\\u516c\\u52a0\\u76df\",\"check_level_name\":\"\\u4f18\\u9009\",\"date\":\"2017-06-26\\u81f32017-07-02\",\"finish_flowfee\":\"488.88\",\"finish_finish_cnt\":\"35\",\"finish_serve_time\":\"9.46\",\"finish_online_time\":\"16.97\",\"finish_work_distance\":\"390.52\",\"finish_fee_time\":\"7.48\",\"finish_serve_distance\":\"228.63\"}],\"count\":216,\"order_column\":\"date\",\"order_type\":2,\"start_time\":\"2017-06-26\",\"end_time\":\"2017-07-02\",\"message\":\"\"}}";
-        Class classType = FinishOrder.class;
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(jsonStr);
-        JsonNode objectData = root.path("data");
-        JsonNode arrayData = objectData.path("data");
-        JsonNode count = objectData.path("count");
-        DecimalFormat decimalFormat = new DecimalFormat("0,000.00");
-        List<HashMap<String,Object>> list = mapper.readValue(arrayData, List.class);
+        Car car = carMapper.selectByPrimaryKey(100401);
+        Map ticketMap;
+            String vin = car.getVin().substring(car.getVin().length() - 6, car.getVin().length());
+            String carEngineNumber = car.getEngineNumber();
+            String engineNum = carEngineNumber.substring(carEngineNumber.length() - 6, carEngineNumber.length());
+            ticketMap = WeiCheUtil.getTicket("成都", car.getPlateNumber(), vin, engineNum);
 
+        String ticketScore = (String) ticketMap.get("ticketScore");
+        String ticketMoney = (String) ticketMap.get("ticketMoney");
+        String ticketTimes = (String) ticketMap.get("ticketTimes");
+        System.out.println("扣分: " + ticketScore+"罚金: " + ticketMoney);
+
+        Ticket newTicket = new Ticket();
+        newTicket.setCarId(car.getId());
+        newTicket.setPlateNum(car.getPlateNumber());
+        newTicket.setMoney(Integer.parseInt(ticketMoney));
+        newTicket.setScore(Integer.parseInt(ticketScore));
+        newTicket.setTicketTimes(Integer.parseInt(ticketTimes));
+        Ticket ticketResult = ticketMapper.selectByCarId(car.getId());
+
+        if (ticketResult == null) {
+            ticketMapper.insert(newTicket);
+        } else {
+            newTicket.setId(ticketResult.getId());
+            Integer newScore = newTicket.getScore() - ticketResult.getScore();
+            Integer newMoney = newTicket.getMoney() - ticketResult.getMoney();
+            if ( newScore> 0) {
+                System.out.println(ticketResult.getPlateNum()+ "-新增分数:"+newScore);
+            }
+            if ( newMoney> 0) {
+                System.out.println(ticketResult.getPlateNum()+ "-新增罚款:"+newMoney);
+            }
+            ticketMapper.updateByPrimaryKeySelective(newTicket);
+        }
     }
 
     @org.junit.Test
     public void driverTest() throws Exception {
-        Car car = carMapper.selectByPrimaryKey(100001);
-        String vin = car.getVin().substring(11, 17);
-        String engineNum = car.getEngineNumber().substring(1, 7);
-        System.out.println(vin);
-        System.out.println(engineNum);
+        List<Car> carList = carMapper.selectCarListForTicket();
+        Car car = carList.get(139);
+        System.out.println(car.getEngineNumber());
+        System.out.println(car.getPlateNumber());
+        System.out.println(car.getVin());
+
     }
 
     @org.junit.Test
@@ -569,56 +599,62 @@ public class Test extends TestBase {
     }
 
     @org.junit.Test
-    public void Test3() throws InterruptedException {
-        List<Car> carList = carMapper.selectCarListForTicket();
-//        List<Car> carList = carMapper.selectWhereUnchecked();
-        System.out.println("共"+carList.size()+"待查车辆");
-        for (int i =34;i<carList.size();i++){
-//        Car car = carMapper.selectByPrimaryKey(100046);
-            System.out.println("第"+(i+1)+"车辆正在查询");
-        Car car = carList.get(i);
-            Map ticketMap = null;
-            String vid = null;
+    public void sendSms() throws InterruptedException {
+        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
+        for (int i = 0; i<driverList.size();i++) {
+            Driver driver = driverList.get(i);
+            Car car = carMapper.selectByPrimaryKey(driver.getCarId());
+            Ticket ticket = ticketMapper.selectByCarId(driver.getCarId());
             try {
-            String vin = car.getVin().substring(11, 17);
-            String carEngineNumber = car.getEngineNumber();
-            String engineNum = carEngineNumber.substring(carEngineNumber.length() - 6, carEngineNumber.length());
-
-
-                ticketMap = WeiCheUtil.getTicket("成都", car.getPlateNumber(), vin, engineNum);
-                vid = (String) ticketMap.get("vid");
-            } catch (Exception e) {
-                continue;
+                System.out.println("第"+(i+1)+"条短信"+"开始发送:"+driver.getName());
+                SendSmsResponse sendSmsResponse = SmsUtil.sendSms(driver.getPersonalPhone(), driver.getName(), car.getPlateNumber(), ticket.getScore().toString(), ticket.getMoney().toString());
+                System.out.println("短信接口返回的数据----------------");
+                System.out.println("Code=" + sendSmsResponse.getCode());
+                System.out.println("Message=" + sendSmsResponse.getMessage());
+                System.out.println("RequestId=" + sendSmsResponse.getRequestId());
+                System.out.println("BizId=" + sendSmsResponse.getBizId());
+            } catch (ClientException e) {
+                e.printStackTrace();
             }
-            String ticketScore = (String) ticketMap.get("ticketScore");
-            String ticketMoney = (String) ticketMap.get("ticketMoney");
-            String ticketTimes = (String) ticketMap.get("ticketTimes");
-
-
-            Ticket newTicket = new Ticket();
-            newTicket.setCarId(car.getId());
-            newTicket.setPlateNum(car.getPlateNumber());
-            newTicket.setMoney(Integer.parseInt(ticketMoney));
-            newTicket.setScore(Integer.parseInt(ticketScore));
-            newTicket.setTicketTimes(Integer.parseInt(ticketTimes));
-            Ticket ticketResult = ticketMapper.selectByCarId(car.getId());
-
-            if (ticketResult == null) {
-                ticketMapper.insert(newTicket);
-            } else {
-                newTicket.setId(ticketResult.getId());
-                Integer newScore = newTicket.getScore() - ticketResult.getScore();
-                Integer newMoney = newTicket.getMoney() - ticketResult.getMoney();
-                if ( newScore> 0) {
-                    System.out.println(ticketResult.getPlateNum()+ "-新增分数:"+newScore);
-                }
-                if ( newMoney> 0) {
-                    System.out.println(ticketResult.getPlateNum()+ "-新增罚款:"+newMoney);
-                }
-                ticketMapper.updateByPrimaryKeySelective(newTicket);
-            }
-            Thread.sleep(100);
         }
+
+
+    }
+    @org.junit.Test
+    public void querySms() throws InterruptedException {
+        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
+        Driver newDriver = new Driver();
+
+        for (Driver driver : driverList) {
+            try {
+                QuerySendDetailsResponse querySendDetailsResponse = SmsUtil.querySendDetails(driver.getPersonalPhone(), new LocalDate(2017,10,19).toDate());
+                int i = 0;
+                for (QuerySendDetailsResponse.SmsSendDetailDTO smsSendDetailDTO : querySendDetailsResponse.getSmsSendDetailDTOs()) {
+
+                    Long sendStatus = smsSendDetailDTO.getSendStatus();
+                    newDriver.setId(driver.getId());
+                    if (sendStatus == 3) {//已发送
+                        newDriver.setPhoneStatus(1);//正常
+                        System.out.println("正常");
+                    } else if (sendStatus == 1) {//已发送,待收
+                        System.out.println("待定");
+                        newDriver.setPhoneStatus(2);
+                    } else if (sendStatus == 2) {//发送失败
+                        System.out.println("失效");
+                        newDriver.setPhoneStatus(0);//失效
+                    }
+                    driverMapper.updateByPrimaryKeySelective(newDriver);
+
+                }
+            } catch (ClientException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @org.junit.Test
+    public void testFormapper() {
+
     }
 }
 
