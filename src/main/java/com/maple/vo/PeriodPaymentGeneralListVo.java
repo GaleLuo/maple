@@ -15,8 +15,8 @@ public class PeriodPaymentGeneralListVo {
     private BigDecimal amountReceived;//已收金额
     private BigDecimal wechatReceived;//微信已收金额
     private BigDecimal alipayReceived;//支付宝已收金额
-    private BigDecimal bankReceived;//银行转账已收金额
-    private BigDecimal cashReceived;//现金已收金额
+    private BigDecimal pinganReceived;//平安转账已收金额
+    private BigDecimal ccbReceived;//建设已收金额
     private BigDecimal posReceived;
     private BigDecimal difference;//差额
     private Integer driverNoReceivable;//应收司机
@@ -47,20 +47,20 @@ public class PeriodPaymentGeneralListVo {
         this.alipayReceived = alipayReceived;
     }
 
-    public BigDecimal getBankReceived() {
-        return bankReceived;
+    public BigDecimal getPinganReceived() {
+        return pinganReceived;
     }
 
-    public void setBankReceived(BigDecimal bankReceived) {
-        this.bankReceived = bankReceived;
+    public void setPinganReceived(BigDecimal pinganReceived) {
+        this.pinganReceived = pinganReceived;
     }
 
-    public BigDecimal getCashReceived() {
-        return cashReceived;
+    public BigDecimal getCcbReceived() {
+        return ccbReceived;
     }
 
-    public void setCashReceived(BigDecimal cashReceived) {
-        this.cashReceived = cashReceived;
+    public void setCcbReceived(BigDecimal ccbReceived) {
+        this.ccbReceived = ccbReceived;
     }
 
     public String getDate() {
