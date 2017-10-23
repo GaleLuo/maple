@@ -323,12 +323,12 @@ public class DriverServiceImpl implements IDriverService {
         List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModel.getId());
         long totalWeekNum = (coModel.getPeriodEndDate().getTime() - coModel.getPeriodStartDate().getTime()) / (3600 * 1000 * 24 * 7);
         //如果是月供
-        if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == coModel.getModelType()) {
-            //开始月份至现在的交费周期 加一是第一个月即需要交费
-            int months = Months.monthsBetween(new DateTime(coModel.getPeriodStartDate()), new DateTime()).getMonths()+1;
+        if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == coModel.getModelType()) {
+            //开始月份至现在的交费周期
+            int months = Months.monthsBetween(new DateTime(coModel.getPeriodStartDate()), new DateTime()).getMonths();
             //月供只有一种模式，所以直接相乘
             receivableByNow = BigDecimalUtil.mul(periodPlanList.get(0).getAmount().doubleValue(), months);
-        } else if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == coModel.getModelType()){//如果是周供
+        } else if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == coModel.getModelType()){//如果是周供
             for (PeriodPlan periodPlan : periodPlanList) {
                 if (periodPlan.getEndDate().before(new Date())) {
                     //如果已经过结束日期，则全部加上
