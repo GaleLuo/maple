@@ -121,6 +121,7 @@ public class DriverManageController {
         return ServerResponse.createByErrorMessage("无权限");
     }
 
+    //新增司机中获取司机简介
     @RequestMapping("summary.do")
     @ResponseBody
     public ServerResponse summary(HttpSession session, Integer driverId) {

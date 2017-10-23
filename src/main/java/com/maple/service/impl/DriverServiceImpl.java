@@ -349,7 +349,8 @@ public class DriverServiceImpl implements IDriverService {
 
         BigDecimal overdueAmount = BigDecimalUtil.sub(receivableByNow.doubleValue(),totalReceived.doubleValue());
 
-        BigDecimal v1=BigDecimalUtil.sub(coModel.getTotalAmount().doubleValue(),coModel.getDownAmount().doubleValue());//总额减去首付得到余款
+        BigDecimal v1=BigDecimalUtil.sub(coModel.getTotalAmount().doubleValue(),coModel.getDownAmount().doubleValue());
+        //总额减去首付得到余款
 
         BigDecimal balance = BigDecimalUtil.sub(v1.doubleValue(), totalReceived.doubleValue());
 

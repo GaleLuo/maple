@@ -16,6 +16,7 @@ import com.maple.vo.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Months;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -350,16 +351,15 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
             DateTime start = new DateTime(startDate);
             DateTime end = new DateTime(endDate);
-
-            while (!end.isEqual(start)) {
-                DateTime periodEndDate = start.plusMonths(1).minusSeconds(1);//每周期结束日
-                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, start.toDate(), periodEndDate.toDate());
+            int months = Months.monthsBetween(start, end).getMonths();
+            for (int i =1;i<=months;i++) {
+                DateTime periodEndDate = start.plusMonths(i).minusSeconds(1);//每周期结束日
+                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, start.plusMonths(i).toDate(), periodEndDate.toDate());
                 String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
                 driverTotalPaymentListVo.setStatus(status);
                 driverTotalPaymentListVo.setDueAmount(periodPlan.getAmount());
 
                 DriverTotalPaymentListVoList.add(driverTotalPaymentListVo);
-                start = start.plusMonths(1);
             }
 
         }//返回司机个人缴费总览月租
