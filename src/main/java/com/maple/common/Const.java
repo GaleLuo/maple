@@ -128,8 +128,8 @@ public class Const {
     public enum PaymentPlatform {
         alipay(1, "支付宝"),
         wechat(2, "微信"),
-        cash(3, "现金"),
-        bank(4, "银行转账"),
+        ccb(3, "建设银行"),
+        pingan(4, "平安银行"),
         pos(5, "POS机"),;
 
 
@@ -249,10 +249,10 @@ public class Const {
 
 
     public interface Role{
-        int ROLE_SALESMAN =0;//业务员
+        int ROLE_SALESMAN =3;//业务员
         int ROLE_FINANCIAL =1;//财务人员
         int ROLE_MANAGER=2;//主管人员
-        int ROLE_ADMIN=3;//管理员
+        int ROLE_ADMIN=0;//管理员
     }
 
     public enum InsuranceType{
@@ -294,7 +294,7 @@ public class Const {
 
     public interface Permission {
         Set<Integer> NORMAL_PERMISSION = Sets.newHashSet(0,1, 2, 3);
-        Set<Integer> PRIMARY_PERMISSION = Sets.newHashSet(0, 3);
+        Set<Integer> PRIMARY_PERMISSION = Sets.newHashSet(0, 2);
 
     }
 

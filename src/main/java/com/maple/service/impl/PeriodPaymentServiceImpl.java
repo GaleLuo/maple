@@ -453,8 +453,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal amountReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, null);
         BigDecimal wechatReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.wechat.getCode());
         BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode());
-        BigDecimal bankReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.bank.getCode());
-        BigDecimal cashReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.cash.getCode());
+        BigDecimal pinganReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pingan.getCode());
+        BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode());
         BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode());
         Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null).size();
         Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null).size();
@@ -466,8 +466,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentGeneralListVo.setWechatReceived(wechatReceived);
         periodPaymentGeneralListVo.setAlipayReceived(alipayReceived);
         periodPaymentGeneralListVo.setPosReceived(posReceived);
-        periodPaymentGeneralListVo.setBankReceived(bankReceived);
-        periodPaymentGeneralListVo.setCashReceived(cashReceived);
+        periodPaymentGeneralListVo.setPinganReceived(pinganReceived);
+        periodPaymentGeneralListVo.setCcbReceived(ccbReceived);
         periodPaymentGeneralListVo.setDriverNoReceivable(driverNoReceivable);
         periodPaymentGeneralListVo.setDriverNoReceived(driverNoReceived);
 

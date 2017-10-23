@@ -56,7 +56,7 @@ public class BankStatementQueryTask {
             newPeriod.setDriverId(driver.getId());
             newPeriod.setCarId(driver.getCarId());
             newPeriod.setPayment(amount);
-            newPeriod.setPaymentPlatform(Const.PaymentPlatform.bank.getCode());
+            newPeriod.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
             newPeriod.setPlatformNumber(serialNo);
             newPeriod.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
             newPeriod.setPayTime(DateTimeUtil.strToDate(time));

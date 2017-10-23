@@ -204,7 +204,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setOrderNo(orderNum);
         order.setStatus(Const.OrderStatus.NO_PAY.getCode());
         order.setPostage(0);
-        order.setPaymentType(Const.PaymentPlatform.bank.getCode());
+        order.setPaymentType(Const.PaymentPlatform.pingan.getCode());
         order.setPayment(orderTotalPrice);
         order.setUserId(userId);
         order.setDriverId(driverId);
