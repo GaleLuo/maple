@@ -89,7 +89,6 @@ public class CoModelServiceImpl implements ICoModelService {
     }
 
     public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Long periodPlanStartDate, Integer periodNum, String comment) {
-
         if (modelType == null) {
             return ServerResponse.createByErrorMessage("请选择合作模式");
         }
@@ -98,6 +97,8 @@ public class CoModelServiceImpl implements ICoModelService {
         } else if (modelType.equals(Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) && new DateTime(periodPlanStartDate).getDayOfWeek() != 2) {
             return ServerResponse.createByErrorMessage("请选择星期二为付款起始日");
         }
+        //前端传入的数据始是上午8点，后端改为当天0点
+        Date periodPlanStartDateValue = new DateTime(periodPlanStartDate).millisOfDay().withMinimumValue().toDate();
 
         CoModel coModel = new CoModel();
         BigDecimal amount = BigDecimal.ZERO;
@@ -138,22 +139,21 @@ public class CoModelServiceImpl implements ICoModelService {
             amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
             amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount.divide(BigDecimal.valueOf(4)));
-            periodPlan.setStartDate(new Date(periodPlanStartDate));
-            Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate());
+            periodPlan.setStartDate(periodPlanStartDateValue);
+            Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDateValue).plusMonths(periodNum).toDate());
             periodPlan.setEndDate(periodPlanEndDate);
 
         } else if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == modelType || Const.CoModel.RENT.getCode() == modelType) {
             amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
             amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount);
-            periodPlan.setStartDate(new Date(periodPlanStartDate));
-            Date periodPlanEndDate = new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate();
+            periodPlan.setStartDate(periodPlanStartDateValue);
+            Date periodPlanEndDate = new DateTime(periodPlanStartDateValue).plusMonths(periodNum).toDate();
             periodPlan.setEndDate(periodPlanEndDate);
         } else {
             //全款则直接返回成功
             return ServerResponse.createBySuccess("操作成功", coModel.getId());
         }
-        //todo bug: 全款不能绑定合作模式   后期重新打开之后不能绑定和添加合作模式
         List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(coModelId);
         if (CollectionUtils.isEmpty(periodPlanList)) {
             periodPlanMapper.insert(periodPlan);

@@ -68,6 +68,7 @@ public class DriverManageController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
+                               Integer branch,
                                String plateNum,
                                String driverName,
                                String phoneNum,
@@ -81,7 +82,7 @@ public class DriverManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return driverService.list(null,plateNum,driverName,phoneNum,driverStatus,coModelType,orderBy, pageNum, pageSize);
+            return driverService.list(null,branch,plateNum,driverName,phoneNum,driverStatus,coModelType,orderBy, pageNum, pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

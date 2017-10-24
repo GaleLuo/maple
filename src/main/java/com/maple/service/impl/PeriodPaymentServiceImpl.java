@@ -352,9 +352,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             DateTime start = new DateTime(startDate);
             DateTime end = new DateTime(endDate);
             int months = Months.monthsBetween(start, end).getMonths();
-            for (int i =1;i<=months;i++) {
-                DateTime periodEndDate = start.plusMonths(i).minusSeconds(1);//每周期结束日
-                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, start.plusMonths(i).toDate(), periodEndDate.toDate());
+            for (int i =0;i<months;i++) {
+                DateTime periodStartDate = start.plusMonths(i);
+                DateTime periodEndDate = start.plusMonths(i+1).minusSeconds(1);//每周期结束日
+                DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, periodStartDate.toDate(), periodEndDate.toDate());
                 String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
                 driverTotalPaymentListVo.setStatus(status);
                 driverTotalPaymentListVo.setDueAmount(periodPlan.getAmount());

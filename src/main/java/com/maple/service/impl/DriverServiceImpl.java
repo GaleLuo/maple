@@ -199,7 +199,7 @@ public class DriverServiceImpl implements IDriverService {
         return ServerResponse.createBySuccess();
     }
 
-    public ServerResponse list(Integer userId,String plateNum, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize) {
+    public ServerResponse list(Integer userId,Integer branch,String plateNum, String driverName, String phoneNum, Integer driverStatus, Integer coModelType, String orderBy, int pageNum, int pageSize) {
 
         PageHelper.startPage(pageNum, pageSize);
         if (StringUtils.isNotBlank(driverName)) {
@@ -217,7 +217,7 @@ public class DriverServiceImpl implements IDriverService {
 
         List<DriverListVo> driverListVoList = Lists.newArrayList();
 
-        List<Driver> driverList = driverMapper.selectByParams(plateNum,driverName,phoneNum,driverStatus,coModelType,orderBy);
+        List<Driver> driverList = driverMapper.selectByParams(branch,plateNum,driverName,phoneNum,driverStatus,coModelType,orderBy);
         //如果结果为空则返回空的分页数据
         if (CollectionUtils.isEmpty(driverList)) {
             PageInfo pageInfo = new PageInfo(driverList);
@@ -325,7 +325,9 @@ public class DriverServiceImpl implements IDriverService {
         //如果是月供
         if (Const.CoModel.HIRE_PURCHASE_MONTH.getCode() == coModel.getModelType()) {
             //开始月份至现在的交费周期
+
             int months = Months.monthsBetween(new DateTime(coModel.getPeriodStartDate()), new DateTime()).getMonths();
+            months = months >= coModel.getPeriodNum() ? coModel.getPeriodNum() : months;
             //月供只有一种模式，所以直接相乘
             receivableByNow = BigDecimalUtil.mul(periodPlanList.get(0).getAmount().doubleValue(), months);
         } else if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == coModel.getModelType()){//如果是周供
