@@ -377,7 +377,8 @@ public class Const {
 
     public interface phoneStatus{
         int normal = 1;
-        int unconnted = 0;
+        int unconnected = 0;
+        int uncheck = 2;
     }
 
     public enum ProductStatus{

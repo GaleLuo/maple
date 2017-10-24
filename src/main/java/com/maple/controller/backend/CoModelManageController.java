@@ -53,7 +53,7 @@ public class CoModelManageController {
                                       BigDecimal totalAmount,
                                       BigDecimal downAmount,
                                       BigDecimal finalAmount,
-                                      @DateTimeFormat(pattern = "yyyy-MM-dd") Date periodPlanStartDate,
+                                      Long periodPlanStartDate,
                                       Integer periodNum,
                                       String comment) {
         User user = (User) session.getAttribute(Const.CURRENT_USER);

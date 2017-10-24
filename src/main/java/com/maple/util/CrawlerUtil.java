@@ -74,15 +74,15 @@ public class CrawlerUtil {
         HtmlElement password = page.getHtmlElementById("pwdObject1-input");
         HtmlElement loginBtn = page.getHtmlElementById("login_btn");
         userName.focus();
-        userName.type("510602196910260980");
+        userName.type("18584050216a");
         page.getHtmlElementById("pwdObject1-btn").click();
         page.getHtmlElementById("pa_ui_keyboard_close").click();
         password.focus();
-        password.type("guoyouju840");
+        password.type("jiandandemima1");
         loginBtn.click();
         Thread.sleep(4000);
         String result = page.asText();
-        return result.contains("郭佑菊");
+        return result.contains("冉伟");
     }
 
     private List<Map<String, Object>> statement(WebClient webClient, Date startDate, Date endDate) throws Exception {
@@ -98,7 +98,7 @@ public class CrawlerUtil {
         //设置请求参数
         reqParams.add(new NameValuePair("pageNum", "1"));
         reqParams.add(new NameValuePair("pageSize", "99999"));
-        reqParams.add(new NameValuePair("accNo", "6230583000001164831"));
+        reqParams.add(new NameValuePair("accNo", "6230580000148117729"));
         reqParams.add(new NameValuePair("currType", "RMB"));
         reqParams.add(new NameValuePair("startDate", start));
         reqParams.add(new NameValuePair("endDate", end));

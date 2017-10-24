@@ -229,6 +229,11 @@
       from maple_driver
       WHERE driver_status = #{status}
     </select>
+    <select id="selectDriverListByPhoneStatus" resultMap="BaseResultMap" >
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_driver
+      WHERE phone_status = #{phoneStatus}
+    </select>
 
     <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
     UPDATE status=5

@@ -63,4 +63,6 @@ public interface DriverMapper {
     List<Driver> selectbydriverName(String driverName);
 
     List<Driver> selectDriverListByStatus(Integer status);
+
+    List<Driver> selectDriverListByPhoneStatus(int phoneStatus);
 }

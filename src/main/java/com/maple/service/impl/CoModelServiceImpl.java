@@ -88,7 +88,7 @@ public class CoModelServiceImpl implements ICoModelService {
         return ServerResponse.createByErrorMessage("查询失败");
     }
 
-    public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Date periodPlanStartDate, Integer periodNum, String comment) {
+    public ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Long periodPlanStartDate, Integer periodNum, String comment) {
 
         if (modelType == null) {
             return ServerResponse.createByErrorMessage("请选择合作模式");
@@ -138,7 +138,7 @@ public class CoModelServiceImpl implements ICoModelService {
             amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
             amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount.divide(BigDecimal.valueOf(4)));
-            periodPlan.setStartDate(periodPlanStartDate);
+            periodPlan.setStartDate(new Date(periodPlanStartDate));
             Date periodPlanEndDate = DateTimeUtil.getWeekStartDate(new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate());
             periodPlan.setEndDate(periodPlanEndDate);
 
@@ -146,7 +146,7 @@ public class CoModelServiceImpl implements ICoModelService {
             amount = (totalAmount.subtract(downAmount).subtract(finalAmount));
             amount = BigDecimalUtil.div(amount.doubleValue(), periodNum);
             periodPlan.setAmount(amount);
-            periodPlan.setStartDate(periodPlanStartDate);
+            periodPlan.setStartDate(new Date(periodPlanStartDate));
             Date periodPlanEndDate = new DateTime(periodPlanStartDate).plusMonths(periodNum).toDate();
             periodPlan.setEndDate(periodPlanEndDate);
         } else {

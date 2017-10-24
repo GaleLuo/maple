@@ -19,5 +19,5 @@ public interface ICoModelService {
 
     ServerResponse summary(Integer coModelId);
 
-    ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Date periodPlanStartDate, Integer periodNum, String comment);
+    ServerResponse addOrUpdate(Integer driverId,Integer coModelId,Integer carId,Long periodStartDate,Long periodEndDate, Integer modelType, BigDecimal totalAmount, BigDecimal downAmount, BigDecimal finalAmount, Long periodPlanStartDate, Integer periodNum, String comment);
 }

@@ -24,20 +24,21 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.joda.time.*;
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.sound.midi.Soundbank;
 import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Maple.Ran on 2017/5/31.
@@ -74,9 +75,20 @@ public class Test extends TestBase {
     private UserMapper userMapper;
 
     @org.junit.Test
-    public void Task1Test() throws IOException, InterruptedException {
-        DateTime dateTime = new DateTime(2017, 10, 1, 0, 0, 0);
-        System.out.println(dateTime.getDayOfWeek());
+    public void Task1Test() throws Exception {
+        List<Map<String, Object>> maps = CrawlerUtil.bankStatement(new DateTime("2017-06-15").toDate(), new Date());
+        for (Map map : maps) {
+            String time = (String) map.get("交易时间");
+            String No = (String) map.get("交易方账号");
+            String name = (String) map.get("交易方姓名");
+            BigDecimal amount = (BigDecimal) map.get("交易金额");
+            String serialNo = (String) map.get("交易流水号");
+            System.out.println(amount+"交易方："+name);
+        }
+    }
+    @org.junit.Test
+    public void Test2() throws Exception {
+        Ticket ticket = ticketMapper.selectByCarId(100001);
     }
 
     @org.junit.Test
@@ -622,7 +634,8 @@ public class Test extends TestBase {
     }
     @org.junit.Test
     public void querySms() throws InterruptedException {
-        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
+//        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
+        List<Driver> driverList = driverMapper.selectDriverListByPhoneStatus(Const.phoneStatus.uncheck);
         Driver newDriver = new Driver();
 
         for (Driver driver : driverList) {
