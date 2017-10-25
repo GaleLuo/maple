@@ -18,11 +18,13 @@ import com.maple.pojo.*;
 import com.maple.service.impl.*;
 import com.maple.test.TestBase;
 import com.maple.util.*;
+import com.maple.vo.AccountVo;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.aspectj.weaver.ast.Var;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -73,18 +75,46 @@ public class Test extends TestBase {
     private PeriodPlanMapper periodPlanMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private AccountMapper accountMapper;
 
     @org.junit.Test
     public void Task1Test() throws Exception {
-        List<Map<String, Object>> maps = CrawlerUtil.bankStatement(new DateTime("2017-06-15").toDate(), new Date());
+        Date today = new Date();
+        List<Map<String, Object>> maps = CrawlerUtil.bankStatement(new DateTime("2017-06-25").toDate(), today);
         for (Map map : maps) {
             String time = (String) map.get("交易时间");
-            String No = (String) map.get("交易方账号");
+            String accountNo = (String) map.get("交易方账号");
             String name = (String) map.get("交易方姓名");
             BigDecimal amount = (BigDecimal) map.get("交易金额");
             String serialNo = (String) map.get("交易流水号");
-            System.out.println(amount+"交易方："+name);
+            Account account = accountMapper.selectByAccNo(accountNo);
+            PeriodPayment newPayment = new PeriodPayment();
+            if (account == null) {
+                //如果未知交款人
+
+            } else {
+                //todo
+                Driver driver = driverMapper.selectByPrimaryKey(account.getDriverId());
+                //平安银行当日数据，只能是起始和结束日期都为当日，否则没有当日数据
+                // 司机id
+                newPayment.setDriverId(account.getDriverId());
+                //车辆id
+                newPayment.setCarId(driver.getCarId());
+                //付款金额
+                newPayment.setPayment(amount);
+                //付款人
+                newPayment.setPayer(name);
+                //付款时间
+                newPayment.setCreateTime(new DateTime(time).toDate());
+                //支付状态默认为正常
+                newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
+
+            }
+
+
         }
+
     }
     @org.junit.Test
     public void Test2() throws Exception {
@@ -238,7 +268,7 @@ public class Test extends TestBase {
 
         page = webClient.getPage(url);
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
-        Thread.sleep(3000);
+        Thread.sleep(8000);
 
         HtmlElement userName = page.getHtmlElementById("userName");
         HtmlElement password = page.getHtmlElementById("pwdObject1-input");
@@ -261,8 +291,8 @@ public class Test extends TestBase {
             reqParams.add(new NameValuePair("pageSize", "99999"));
             reqParams.add(new NameValuePair("accNo", "6230580000148117729"));
             reqParams.add(new NameValuePair("currType", "RMB"));
-            reqParams.add(new NameValuePair("startDate", "20171013"));
-            reqParams.add(new NameValuePair("endDate", "20171013"));
+            reqParams.add(new NameValuePair("startDate", "20170813"));
+            reqParams.add(new NameValuePair("endDate", "20171025"));
 
             webRequest.setRequestParameters(reqParams);
 

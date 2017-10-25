@@ -25,7 +25,12 @@
     SELECT <include refid="Base_Column_List"/> from maple_account
     WHERE driver_id = #{driverId}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectByAccNo" resultMap="BaseResultMap">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_account
+      WHERE account = #{no}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_account
     where id = #{id,jdbcType=INTEGER}
   </delete>
@@ -34,7 +39,7 @@
       account, create_time, update_time
       )
     values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},#{platform,jdbcType=INTEGER},
-      #{account,jdbcType=VARCHAR}, now(), now()
+      #{account,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, now()
       )
   </insert>
   <insert id="insertSelective" parameterType="com.maple.pojo.Account" >
@@ -78,8 +83,9 @@
       <if test="account != null" >
         #{account,jdbcType=VARCHAR},
       </if>
-        now(),
-
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
         now(),
 
     </trim>

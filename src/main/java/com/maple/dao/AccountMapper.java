@@ -18,4 +18,6 @@ public interface AccountMapper {
     int updateByPrimaryKey(Account record);
 
     List<Account> selectListByDriverId(Integer driverId);
+
+    Account selectByAccNo(String no);
 }

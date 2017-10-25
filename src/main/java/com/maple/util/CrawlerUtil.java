@@ -6,9 +6,8 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.maple.jo.FinishOrder;
-import org.apache.bcel.generic.IF_ACMPEQ;
+import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -18,10 +17,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -109,6 +109,7 @@ public class CrawlerUtil {
         //等待加载
         Thread.sleep(5 * 1000);
         InputStream in = downloadPage.getWebResponse().getContentAsStream();
+
         List<Map<String, Object>> data = Lists.newArrayList();
         HSSFWorkbook workbook = new HSSFWorkbook(in);
         Sheet sheet = workbook.getSheetAt(0);
