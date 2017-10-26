@@ -130,6 +130,12 @@
       </if>
     </where>
   </select>
+  <select id="selectBySerialNo" resultType="com.maple.pojo.PeriodPayment">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM maple_period_payment
+    where platform_number = #{serialNo}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_period_payment
     where id = #{id,jdbcType=INTEGER}
@@ -176,12 +182,8 @@
       <if test="payTime != null" >
         pay_time,
       </if>
-      <if test="createTime != null" >
         create_time,
-      </if>
-      <if test="updateTime != null" >
         update_time,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -214,7 +216,7 @@
       <if test="payTime != null" >
         #{payTime,jdbcType=TIMESTAMP},
       </if>
-        now(),
+        #{createTime,jdbcType=TIMESTAMP},
         now(),
     </trim>
   </insert>

@@ -42,11 +42,13 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private PeriodPlanMapper periodPlanMapper;
     @Autowired
     private CoModelMapper coModelMapper;
+    @Autowired
+    private AccountMapper accountMapper;
 
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
-    public ServerResponse addOrUpdate(User user,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
+    public ServerResponse addOrUpdate(User user,Boolean addToAccount,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
 
         if (payment == null || paymentPlatform == null || payTime==null) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
@@ -76,8 +78,30 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             newPeriodPayment.setId(paymentId);
             i = periodPaymentMapper.updateByPrimaryKeySelective(newPeriodPayment);
         }
+        String msg = "";
+        //添加常用账户
+        if (addToAccount) {
+            Account account = accountMapper.selectByAccNo(platformNum);
+            if (account != null) {
+                msg = "，常用账户添加失败，该账户已存在";
+            } else {
+                account = new Account();
+                //平台代码
+                account.setPlatform(paymentPlatform);
+                //平台账号
+                account.setAccount(platformNum);
+                //平台用户名
+                account.setName(payer);
+                //司机id
+                account.setDriverId(driverId);
+                accountMapper.insert(account);
+                msg = "，司机常用添加成功";
+            }
+        }
+
+
         if (i > 0) {
-            return ServerResponse.createBySuccessMessage("添加数据成功");
+            return ServerResponse.createBySuccessMessage("添加数据成功"+msg);
         }
         return ServerResponse.createByErrorMessage("添加失败");
     }
@@ -266,7 +290,9 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             DateTime now = new DateTime();
             DateTime endDateTime = new DateTime(end);
             if (endDateTime.getMonthOfYear() == now.getMonthOfYear()) {
-                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(endDateTime.toDate(), now.toDate(), coModelType);
+                //当月第一天
+                Date monthStartDate = endDateTime.dayOfMonth().withMinimumValue().millisOfDay().withMinimumValue().toDate();
+                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(monthStartDate, now.toDate(), coModelType);
                 periodPaymentGeneralListVoList.add(periodPaymentGeneralListVo);
             }
 
@@ -496,7 +522,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             for (PeriodPlan periodPlan : periodPlanList) {
                 Date periodStartDate = periodPlan.getStartDate();
                 Date periodEndDate = periodPlan.getEndDate();
-                if (periodStartDate.compareTo(startDate) <= 0 || periodEndDate.compareTo(endDate) >= 0) {
+                if (startDate.compareTo(periodStartDate)>=0 && startDate.compareTo(periodEndDate)<=0) {
                     BigDecimal amount = periodPlan.getAmount();
                     //如果差额小于应收额则收差额
                     dueAmount = dueAmount.compareTo(amount) <= 0 ? dueAmount : amount;

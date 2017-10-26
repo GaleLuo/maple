@@ -30,6 +30,7 @@ public class PeriodPaymentManageController {
     @RequestMapping("add.do")
     @ResponseBody
     public ServerResponse addOrUpdate(HttpSession session,
+                                      Boolean addToAccount,
                                       Integer paymentId,
                                       Integer driverId,
                                       BigDecimal payment,
@@ -44,7 +45,7 @@ public class PeriodPaymentManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.addOrUpdate(user,paymentId, driverId, payment, payer,paymentPlatform,platformNum, payTime,comment);
+            return iPeriodPaymentService.addOrUpdate(user,addToAccount,paymentId, driverId, payment, payer,paymentPlatform,platformNum, payTime,comment);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

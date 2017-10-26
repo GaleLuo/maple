@@ -43,4 +43,6 @@ public interface PeriodPaymentMapper {
     List<PeriodPayment> selectListByParams(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("driverName") String driverName, @Param("coModelType") Integer coModelType, @Param("payer") String payer, @Param("platformStatus") Integer platformStatus, @Param("paymentPlatform") Integer paymentPlatform);
 
     int updateByPaymentStatus(@Param("paymentIdArray") Integer[] paymentIdArray, @Param("paymentStatus") Integer paymentStatus);
+
+    PeriodPayment selectBySerialNo(String serialNo);
 }

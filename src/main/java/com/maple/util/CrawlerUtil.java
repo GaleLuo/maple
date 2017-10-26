@@ -134,6 +134,7 @@ public class CrawlerUtil {
                 repaymentMap.put("交易方账号", accountCell.getStringCellValue());
                 repaymentMap.put("交易金额", new BigDecimal(amountCell.getStringCellValue()));
                 repaymentMap.put("交易流水号", serialCell.getStringCellValue());
+
                 data.add(repaymentMap);
             }
         }
