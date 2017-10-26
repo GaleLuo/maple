@@ -22,7 +22,7 @@ public interface CoModelMapper {
 
     CoModel selectByCarId(Integer carId);
 
-    BigDecimal findAmountReceivable(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType);
+    BigDecimal findAmountReceivable(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("branch") Integer branch);
 
     CoModel selectByCarIdByNow(Integer carId);
 }

@@ -157,7 +157,26 @@ public class Test extends TestBase {
     }
     @org.junit.Test
     public void Test2() throws Exception {
-        Ticket ticket = ticketMapper.selectByCarId(100001);
+        File slh = new File("/Users/Maple.Ran/Downloads/payment.xls");
+        InputStream fileInputStream = new FileInputStream(slh);
+        DateTime startDate = new DateTime("2016-6-21");
+        HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+//        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(4);
+            Cell plateNum = row.getCell(0);
+            Cell driverName = row.getCell(1);
+            System.out.println(plateNum.getStringCellValue());
+            System.out.println(driverName.getStringCellValue());
+            System.out.println(row.getLastCellNum());
+            //不知为何数量会多1
+            for (int j =2;j<row.getLastCellNum()-1;j++) {
+
+                Cell amount = row.getCell(j);
+                System.out.println(startDate.toString() + amount.getNumericCellValue());
+                startDate = startDate.plusWeeks(1);
+            }
+//        }
     }
 
     @org.junit.Test

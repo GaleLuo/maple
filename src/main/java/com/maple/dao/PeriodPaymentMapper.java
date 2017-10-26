@@ -1,9 +1,7 @@
 package com.maple.dao;
 
 import com.maple.pojo.PeriodPayment;
-import com.maple.util.BigDecimalUtil;
 import org.apache.ibatis.annotations.Param;
-import org.joda.time.Period;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -32,7 +30,7 @@ public interface PeriodPaymentMapper {
 
     PeriodPayment checkStatus(@Param("driverId") Integer driverId, @Param("serialNo") String serialNo, @Param("startDate") Date startDate, @Param("endDate") Date endDate);
 
-    BigDecimal findAmountReceived(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("paymentPlatform") Integer paymentPlatform);
+    BigDecimal findAmountReceived(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("paymentPlatform") Integer paymentPlatform, @Param("branch") Integer branch);
 
     PeriodPayment selectWeekSumByParams(@Param("driverId") Integer driverId, @Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("status") Set status);
 
@@ -40,7 +38,7 @@ public interface PeriodPaymentMapper {
 
     Integer findOverdueByCarId(Integer carId);
 
-    List<PeriodPayment> selectListByParams(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("driverName") String driverName, @Param("coModelType") Integer coModelType, @Param("payer") String payer, @Param("platformStatus") Integer platformStatus, @Param("paymentPlatform") Integer paymentPlatform);
+    List<PeriodPayment> selectListByParams(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("driverName") String driverName, @Param("coModelType") Integer coModelType, @Param("payer") String payer, @Param("platformStatus") Integer platformStatus, @Param("paymentPlatform") Integer paymentPlatform, @Param("branch") Integer branch);
 
     int updateByPaymentStatus(@Param("paymentIdArray") Integer[] paymentIdArray, @Param("paymentStatus") Integer paymentStatus);
 

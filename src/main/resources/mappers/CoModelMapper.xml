@@ -45,6 +45,9 @@
     <if test="coModelType != null">
       and cm.model_type = #{coModelType}
     </if>
+    <if test="branch!=null">
+      and cm.car_id in (select id from maple_car where branch = #{branch})
+    </if>
   </select>
 
   <select id="selectByCarIdByNow" resultType="com.maple.pojo.CoModel">

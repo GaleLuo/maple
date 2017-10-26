@@ -73,6 +73,7 @@ public class PeriodPaymentManageController {
     @RequestMapping("general_list.do")
     @ResponseBody
     public ServerResponse generalList(HttpSession session,
+                                      Integer branch,
                                       Long startDate,
                                       Long endDate,
                                       Integer coModelType,
@@ -83,7 +84,7 @@ public class PeriodPaymentManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.generalList(startDate,endDate,coModelType,pageNum,pageSize);
+            return iPeriodPaymentService.generalList(branch,startDate,endDate,coModelType,pageNum,pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
@@ -123,6 +124,7 @@ public class PeriodPaymentManageController {
     @RequestMapping("payment_list.do")
     @ResponseBody
     public ServerResponse paymentList(HttpSession session,
+                                      Integer branch,
                                       Long startTime,
                                       Long endTime,
                                       String driverName,
@@ -137,7 +139,7 @@ public class PeriodPaymentManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.paymentList(startTime,endTime,driverName,coModelType,payer,platformStatus,paymentPlatform,pageNum,pageSize);
+            return iPeriodPaymentService.paymentList(branch,startTime,endTime,driverName,coModelType,payer,platformStatus,paymentPlatform,pageNum,pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

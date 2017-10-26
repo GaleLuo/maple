@@ -100,6 +100,9 @@
       <if test="paymentPlatform!=null">
         and pp.payment_platform = #{paymentPlatform}
       </if>
+      <if test="branch !=null">
+        and pp.car_id in (select id from maple_car where branch = #{branch})
+      </if>
       and pp.platform_status &gt; 0
     </select>
   <select id="findTotalReceivedByCarId" resultType="java.math.BigDecimal">
@@ -127,6 +130,9 @@
       </if>
       <if test="paymentPlatform!=null">
         and payment_platform = #{paymentPlatform}
+      </if>
+      <if test="branch!=null">
+        and car_id in (select car_id from maple_driver where branch = #{branch})
       </if>
     </where>
   </select>

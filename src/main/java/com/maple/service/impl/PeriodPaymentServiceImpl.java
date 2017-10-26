@@ -110,7 +110,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
      */
 
-    public ServerResponse paymentList(Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum,int pageSize) {
+    public ServerResponse paymentList(Integer branch,Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum,int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         //如果起止日期为空 则返回错误状态
         if (startTime == null || endTime == null) {
@@ -132,7 +132,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         }
 
 
-        List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByParams(startDate, endDate, driverName, coModelType, payer, platformStatus, paymentPlatform);
+        List<PeriodPayment> periodPaymentList = periodPaymentMapper.selectListByParams(startDate, endDate, driverName, coModelType, payer, platformStatus, paymentPlatform,branch);
         List<PaymentListVo> paymentListVoList = Lists.newArrayList();
 
         for (PeriodPayment periodPayment : periodPaymentList) {
@@ -219,7 +219,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         List<PeriodPaymentListVo> periodPaymentListVoList = Lists.newArrayList();
         //如果没有付款详情参数则查询所有司机信息,否则只查询有付款记录的
         if (payStatus==1) {
-            driverList = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, driverName);
+            driverList = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, driverName,null);
         } else if (payStatus == 0) {
             driverList = driverMapper.selectDriverReceivedPartly(startDate,endDate,coModelType,driverName);
         } else {
@@ -255,7 +255,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         return ServerResponse.createBySuccess(pageInfo);
     }
 
-    public ServerResponse generalList(Long start,Long end,Integer coModelType, int pageNum, int pageSize) {
+    public ServerResponse generalList(Integer branch,Long start,Long end,Integer coModelType, int pageNum, int pageSize) {
         Map<String, Object> data = Maps.newHashMap();
         List<PeriodPaymentGeneralListVo> periodPaymentGeneralListVoList = Lists.newArrayList();
         if (start == null && end == null) {
@@ -270,7 +270,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         List<Date> weekStartDateList = DateTimeUtil.getWeekStartDateList(DateTimeUtil.getWeekStartDate(new Date(start)),DateTimeUtil.getWeekStartDate(new Date(end)));
             for (Date startDate : weekStartDateList) {
                 Date endDate = DateTimeUtil.getWeekEndDate(startDate);
-                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(startDate, endDate, coModelType);
+                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(startDate, endDate, coModelType,branch);
                 periodPaymentGeneralListVoList.add(periodPaymentGeneralListVo);
             }
         } else if (coModelType.equals(Const.CoModel.HIRE_PURCHASE_MONTH.getCode())) {
@@ -282,7 +282,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             while (!endMonth.isEqual(startMonth)) {//重复执行相应次数
                 endMonth = endMonth.minusMonths(1);
                 endDate = new DateTime(startDate).plusMonths(1).minusSeconds(1).toDate();//得到当月最大的时间
-                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(startDate, endDate, coModelType);
+                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(startDate, endDate, coModelType,branch);
                 periodPaymentGeneralListVoList.add(periodPaymentGeneralListVo);
                 startDate = new DateTime(startDate).plusMonths(1).toDate();
             }
@@ -292,7 +292,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             if (endDateTime.getMonthOfYear() == now.getMonthOfYear()) {
                 //当月第一天
                 Date monthStartDate = endDateTime.dayOfMonth().withMinimumValue().millisOfDay().withMinimumValue().toDate();
-                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(monthStartDate, now.toDate(), coModelType);
+                PeriodPaymentGeneralListVo periodPaymentGeneralListVo = assemblePeriodPaymentGeneralListVo(monthStartDate, now.toDate(), coModelType,branch);
                 periodPaymentGeneralListVoList.add(periodPaymentGeneralListVo);
             }
 
@@ -455,7 +455,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     }
 
 
-    private PeriodPaymentGeneralListVo assemblePeriodPaymentGeneralListVo(Date startDate,Date endDate,Integer coModelType) {
+    private PeriodPaymentGeneralListVo assemblePeriodPaymentGeneralListVo(Date startDate,Date endDate,Integer coModelType,Integer branch) {
         PeriodPaymentGeneralListVo periodPaymentGeneralListVo = new PeriodPaymentGeneralListVo();
         if (Const.CoModel.HIRE_PURCHASE_WEEK.getCode() == coModelType) {
             String year = DateTimeUtil.getYearWeek(startDate).toString().substring(0, 4);
@@ -469,7 +469,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentGeneralListVo.setEndDate(DateTimeUtil.dateToStr(endDate,"yyyy-MM-dd"));
 
 
-        BigDecimal amountReceivable = coModelMapper.findAmountReceivable(startDate, endDate,coModelType);
+        BigDecimal amountReceivable = coModelMapper.findAmountReceivable(startDate, endDate,coModelType,branch);
 //        BigDecimal amountReceivable = BigDecimal.ZERO;
 //        List<Driver> driverList = driverMapper.selectDriverReceivableGroupByCarId(startDate, endDate, coModelType, null);
 //        for (Driver driver : driverList) {
@@ -477,14 +477,15 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 //            amountReceivable = amountReceivable.add(driverDueAmount);
 //        }
 
-        BigDecimal amountReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, null);
-        BigDecimal wechatReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.wechat.getCode());
-        BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode());
-        BigDecimal pinganReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pingan.getCode());
-        BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode());
-        BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode());
-        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null).size();
-        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null).size();
+        BigDecimal amountReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, null,branch);
+        BigDecimal wechatReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.wechat.getCode(),branch);
+        BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode(),branch);
+        BigDecimal pinganReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pingan.getCode(),branch);
+        BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode(),branch);
+        BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode(),branch);
+        //todo sql需要优化
+        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
+        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
         amountReceived = amountReceived == null ? BigDecimal.ZERO : amountReceived;
         periodPaymentGeneralListVo.setAmountReceivable(amountReceivable);

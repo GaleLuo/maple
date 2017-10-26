@@ -126,7 +126,6 @@
     WHERE id_number =#{idNumber}
   </select>
   <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
-#     1.在合同期,2.超过或等于合同期,应付尾款
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
     ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline &gt;= #{endDate} and cm.final_amount &gt; 0))
     and cm.period_start_date &lt;= #{endDate}
@@ -135,6 +134,9 @@
     </if>
     <if test="driverName!=null">
       and d.name like #{driverName}
+    </if>
+    <if test="branch!=null">
+      and d.car_id in (select id from maple_car where branch = #{branch})
     </if>
     and d.driver_status = 1
   </select>
@@ -170,6 +172,9 @@
     </if>
     <if test="driverName!=null">
       and d.name like #{driverName}
+    </if>
+    <if test="branch!=null">
+      and d.car_id in (select id from maple_car where branch = #{branch})
     </if>
   </select>
   <select id="selectDriverNotReceived" resultMap="BaseResultMap">
