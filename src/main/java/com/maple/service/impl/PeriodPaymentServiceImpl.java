@@ -484,10 +484,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode(),branch);
         BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode(),branch);
         //todo sql需要优化
-//        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
-//        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
-        Integer driverNoReceivable = 0;
-        Integer driverNoReceived = 0;
+        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
+        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
         amountReceived = amountReceived == null ? BigDecimal.ZERO : amountReceived;
         periodPaymentGeneralListVo.setAmountReceivable(amountReceivable);

@@ -19,7 +19,6 @@ import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.*;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
@@ -85,9 +84,11 @@ public class Test extends TestBase {
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
 
-        List<Map<String, Object>> maps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
+        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
+        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
 
-        bankStatementQueryTask.insertPingAn(maps);
+        bankStatementQueryTask.insertPingAn(previousMaps);
+        bankStatementQueryTask.insertPingAn(todayMaps);
 
 
     }
