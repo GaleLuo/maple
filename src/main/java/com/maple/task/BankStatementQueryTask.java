@@ -36,15 +36,21 @@ public class BankStatementQueryTask {
     @Autowired
     private AccountMapper accountMapper;
 
-    //    @Scheduled(cron = "* */60 * * * ?")
-    private void insertPaymentStatement() throws Exception {
+    // @Scheduled(cron = "* */60 * * * ?")
+    private void queryPingAn() throws Exception {
         Date today = new Date();
 
-        List<Map<String, Object>> todayMaps = CrawlerUtil.bankStatement("","",today, today);
+        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
+        insertPingAn(todayMaps);
+        insertPingAn(previousMaps);
+    }
 
-        if (CollectionUtils.isNotEmpty(todayMaps)) {
-            for (int i = 0; i < todayMaps.size(); i++) {
-                Map map = todayMaps.get(i);
+
+    public void insertPingAn(List maps) {
+        if (CollectionUtils.isNotEmpty(maps)) {
+            for (int i = 0; i < maps.size(); i++) {
+                Map map = (Map) maps.get(i);
                 String time = (String) map.get("交易时间");
                 String accountNo = (String) map.get("交易方账号");
                 String name = (String) map.get("交易方姓名");
@@ -108,10 +114,6 @@ public class BankStatementQueryTask {
                 }
             }
         }
-
-
-
-
     }
 
 //    @Scheduled(cron = "0 * * * *")

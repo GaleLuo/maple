@@ -6,6 +6,7 @@ import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.google.common.collect.Lists;
+import com.maple.common.Const;
 import com.maple.jo.FinishOrder;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -41,9 +42,14 @@ public class CrawlerUtil {
     private static String DOWNLOADURL = PropertiesUtil.getProperty("period.bank.download");
     private static WebClient webClient = null;
     private DecimalFormat decimalFormat = new DecimalFormat("0,000.00");
+    private static final String PINGAN_CHENGDU_ACCOUNT = "6230580000148117729";
+    private static final String PINGAN_CHENGDU_USERNAME = "18584050216a";
+    private static final String PINGAN_CHENGDU_PASSWORD = "jiandandemima1";
+    private static final String PINGAN_KUNMING_ACCOUNT = "6230582000068274151";
+    private static final String PINGAN_KUNMING_USERNAME = "513221198207290212";
+    private static final String PINGAN_KUNMING_PASSWORD = "abc831328";
 
-
-    public static List<Map<String, Object>> bankStatement(String username,String password,Date startDate, Date endDate) throws Exception {
+    public static List<Map<String, Object>> pingAnStatement(Integer branch,Date startDate, Date endDate) throws Exception {
         webClient = new WebClient();
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setJavaScriptEnabled(true);
@@ -56,20 +62,30 @@ public class CrawlerUtil {
         HtmlPage page = webClient.getPage(url);
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
         CrawlerUtil crawlerUtil = new CrawlerUtil();
+        Boolean loginStatus = false;
         try {
-            crawlerUtil.bankLogin(username,password,page);
+            loginStatus = crawlerUtil.bankLogin(branch,page);
         } catch (Exception e) {
-            logger.error("登录银行抓取数据失败!");
-
+            System.out.println("登录银行抓取数据失败!");
             return null;
         }
 
-
-        return crawlerUtil.statement(webClient, startDate, endDate);
+        System.out.println("登录成功："+loginStatus);
+        return crawlerUtil.statement(webClient, startDate, endDate,branch);
     }
 
-    private boolean bankLogin(String un,String pwd,HtmlPage page) throws Exception {
-        Thread.sleep(7*1000);
+    private boolean bankLogin(Integer branch,HtmlPage page) throws Exception {
+        Thread.sleep(7 * 1000);
+        String un="";
+        String pwd="";
+        if (branch == Const.Branch.CD.getCode()) {
+            un = PINGAN_CHENGDU_USERNAME;
+            pwd = PINGAN_CHENGDU_PASSWORD;
+        } else if (branch == Const.Branch.KM.getCode()) {
+            un = PINGAN_KUNMING_USERNAME;
+            pwd = PINGAN_KUNMING_PASSWORD;
+        }
+
         HtmlElement userName = page.getHtmlElementById("userName");
         HtmlElement password = page.getHtmlElementById("pwdObject1-input");
         HtmlElement loginBtn = page.getHtmlElementById("login_btn");
@@ -85,7 +101,7 @@ public class CrawlerUtil {
         return result.contains("上次登录时间");
     }
 
-    private List<Map<String, Object>> statement(WebClient webClient, Date startDate, Date endDate) throws Exception {
+    private List<Map<String, Object>> statement(WebClient webClient, Date startDate, Date endDate,Integer branch) throws Exception {
 
         //转换日期
         String start = DateTimeUtil.dateToStr(startDate, "yyyyMMdd");
@@ -94,11 +110,16 @@ public class CrawlerUtil {
         //生成POST请求
         WebRequest webRequest = new WebRequest(new URL(DOWNLOADURL), HttpMethod.POST);
         List<NameValuePair> reqParams = Lists.newArrayList();
-
+        String accountNo = "";
+        if (branch == Const.Branch.CD.getCode()) {
+            accountNo = PINGAN_CHENGDU_ACCOUNT;
+        } else if (branch == Const.Branch.KM.getCode()){
+            accountNo = PINGAN_KUNMING_ACCOUNT;
+        }
         //设置请求参数
         reqParams.add(new NameValuePair("pageNum", "1"));
         reqParams.add(new NameValuePair("pageSize", "99999"));
-        reqParams.add(new NameValuePair("accNo", "6230580000148117729"));
+        reqParams.add(new NameValuePair("accNo", accountNo));
         reqParams.add(new NameValuePair("currType", "RMB"));
         reqParams.add(new NameValuePair("startDate", start));
         reqParams.add(new NameValuePair("endDate", end));
@@ -109,6 +130,7 @@ public class CrawlerUtil {
         //等待加载
         Thread.sleep(5 * 1000);
         InputStream in = downloadPage.getWebResponse().getContentAsStream();
+
 
         List<Map<String, Object>> data = Lists.newArrayList();
         HSSFWorkbook workbook = new HSSFWorkbook(in);
@@ -138,6 +160,9 @@ public class CrawlerUtil {
                 data.add(repaymentMap);
             }
         }
+        FileOutputStream fos = new FileOutputStream(new File("/Users/Maple.Ran/Downloads/news.xls"));
+        IOUtils.copy(in, fos);
+        fos.close();
         return data;
     }
 

@@ -25,7 +25,7 @@
     SELECT <include refid="Base_Column_List"/> from maple_account
     WHERE driver_id = #{driverId}
   </select>
-    <select id="selectByAccNo" resultMap="BaseResultMap">
+    <select id="selectByAccNo" resultMap="BaseResultMap" parameterType="map">
       SELECT <include refid="Base_Column_List"/>
       FROM maple_account
       WHERE account = #{no}

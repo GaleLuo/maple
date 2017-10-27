@@ -16,16 +16,15 @@ import com.maple.jo.FinishOrder;
 import com.maple.jo.TicketJo;
 import com.maple.pojo.*;
 import com.maple.service.impl.*;
+import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.*;
-import com.maple.vo.AccountVo;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.aspectj.weaver.ast.Var;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
@@ -78,83 +77,26 @@ public class Test extends TestBase {
     private UserMapper userMapper;
     @Autowired
     private AccountMapper accountMapper;
+    @Autowired
+    private BankStatementQueryTask bankStatementQueryTask;
+
 
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
 
-        List<Map<String, Object>> todayMaps = CrawlerUtil.bankStatement("","",today, today);
+        List<Map<String, Object>> maps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
 
-        if (CollectionUtils.isNotEmpty(todayMaps)) {
-        for (int i = 0; i < todayMaps.size(); i++) {
-            Map map = todayMaps.get(i);
-            String time = (String) map.get("交易时间");
-            String accountNo = (String) map.get("交易方账号");
-            String name = (String) map.get("交易方姓名");
-            BigDecimal amount = (BigDecimal) map.get("交易金额");
-            String serialNo = (String) map.get("交易流水号");
-            Account account = accountMapper.selectByAccNo(accountNo);
-            PeriodPayment newPayment = new PeriodPayment();
-            Date payTime = DateTimeUtil.strToDate(time, "yyyy-MM-dd HH:mm:ss");
-            if (account == null) {
-                //如果未知交款人
-                newPayment.setPayment(amount);
-                //付款人
-                newPayment.setPayer(name);
-                //付款平台
-                newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
-                //平台流水号
-                newPayment.setPlatformNumber(serialNo);
-                //支付状态默认为正常
-                newPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
-                //备注：添加人：系统导入
-                newPayment.setComment("添加人：系统导入");
-                //付款对应日期
-                newPayment.setPayTime(payTime);
-                //付款时间
-                newPayment.setCreateTime(payTime);
-
-            } else {
-                //todo
-                Driver driver = driverMapper.selectByPrimaryKey(account.getDriverId());
-                CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
-                if (coModel.getModelType() == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
-                    payTime = DateTimeUtil.getWeekStartDate(payTime);
-                }
-
-                //平安银行当日数据，只能是起始和结束日期都为当日，否则没有当日数据
-                // 司机id
-                newPayment.setDriverId(account.getDriverId());
-                //车辆id
-                newPayment.setCarId(driver.getCarId());
-                //付款金额
-                newPayment.setPayment(amount);
-                //付款人
-                newPayment.setPayer(name);
-                //付款平台
-                newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
-                //平台流水号
-                newPayment.setPlatformNumber(serialNo);
-                //支付状态默认为正常
-                newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
-                //备注：添加人：系统导入
-                newPayment.setComment("添加人：系统导入");
-                //付款对应日期
-                newPayment.setPayTime(payTime);
-                //付款时间
-                newPayment.setCreateTime(payTime);
-
-            }
-            PeriodPayment periodPayment = periodPaymentMapper.selectBySerialNo(serialNo);
-            if (periodPayment == null) {
-                periodPaymentMapper.insertSelective(newPayment);
-            }
-        }
-        }
-
+        bankStatementQueryTask.insertPingAn(maps);
 
 
     }
+
+    @org.junit.Test
+    public void Test3() {
+        Account account = accountMapper.selectByAccNo("6236683850000342960");
+    }
+
     @org.junit.Test
     public void Test2() throws Exception {
         File slh = new File("/Users/Maple.Ran/Downloads/payment.xls");
