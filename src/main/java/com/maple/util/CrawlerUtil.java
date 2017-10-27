@@ -43,7 +43,7 @@ public class CrawlerUtil {
     private DecimalFormat decimalFormat = new DecimalFormat("0,000.00");
 
 
-    public static List<Map<String, Object>> bankStatement(Date startDate, Date endDate) throws Exception {
+    public static List<Map<String, Object>> bankStatement(String username,String password,Date startDate, Date endDate) throws Exception {
         webClient = new WebClient();
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setJavaScriptEnabled(true);
@@ -57,7 +57,7 @@ public class CrawlerUtil {
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
         CrawlerUtil crawlerUtil = new CrawlerUtil();
         try {
-            crawlerUtil.bankLogin(page);
+            crawlerUtil.bankLogin(username,password,page);
         } catch (Exception e) {
             logger.error("登录银行抓取数据失败!");
 
@@ -68,21 +68,21 @@ public class CrawlerUtil {
         return crawlerUtil.statement(webClient, startDate, endDate);
     }
 
-    private boolean bankLogin(HtmlPage page) throws Exception {
+    private boolean bankLogin(String un,String pwd,HtmlPage page) throws Exception {
         Thread.sleep(7*1000);
         HtmlElement userName = page.getHtmlElementById("userName");
         HtmlElement password = page.getHtmlElementById("pwdObject1-input");
         HtmlElement loginBtn = page.getHtmlElementById("login_btn");
         userName.focus();
-        userName.type("18584050216a");
+        userName.type(un);
         page.getHtmlElementById("pwdObject1-btn").click();
         page.getHtmlElementById("pa_ui_keyboard_close").click();
         password.focus();
-        password.type("jiandandemima1");
+        password.type(pwd);
         loginBtn.click();
         Thread.sleep(4000);
         String result = page.asText();
-        return result.contains("冉伟");
+        return result.contains("上次登录时间");
     }
 
     private List<Map<String, Object>> statement(WebClient webClient, Date startDate, Date endDate) throws Exception {

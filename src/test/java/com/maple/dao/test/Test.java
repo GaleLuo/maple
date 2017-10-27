@@ -83,7 +83,7 @@ public class Test extends TestBase {
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
 
-        List<Map<String, Object>> todayMaps = CrawlerUtil.bankStatement(today, today);
+        List<Map<String, Object>> todayMaps = CrawlerUtil.bankStatement("","",today, today);
 
         if (CollectionUtils.isNotEmpty(todayMaps)) {
         for (int i = 0; i < todayMaps.size(); i++) {

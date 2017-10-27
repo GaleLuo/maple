@@ -193,7 +193,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     }
 
 
-    public ServerResponse<PageInfo> list(String date, String driverName, Integer coModelType,Integer payStatus, int pageNum, int pageSize) {
+    public ServerResponse<PageInfo> list(Integer branch,String date, String driverName, Integer coModelType,Integer payStatus, int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
         Set confirmed = Sets.newHashSet(Const.PlatformStatus.PAID_NORMAL.getCode(), Const.PlatformStatus.PAID_OVERDUE.getCode());
         Set unconfirmed = Sets.newHashSet(Const.PlatformStatus.UNCONFIRMED.getCode());
@@ -219,11 +219,11 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         List<PeriodPaymentListVo> periodPaymentListVoList = Lists.newArrayList();
         //如果没有付款详情参数则查询所有司机信息,否则只查询有付款记录的
         if (payStatus==1) {
-            driverList = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, driverName,null);
+            driverList = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, driverName,branch);
         } else if (payStatus == 0) {
-            driverList = driverMapper.selectDriverReceivedPartly(startDate,endDate,coModelType,driverName);
+            driverList = driverMapper.selectDriverReceivedPartly(startDate,endDate,coModelType,driverName,branch);
         } else {
-            driverList = driverMapper.selectDriverNotReceived(startDate, endDate, coModelType, driverName);
+            driverList = driverMapper.selectDriverNotReceived(startDate, endDate, coModelType, driverName,branch);
         }
 
         for (Driver driver : driverList) {
@@ -484,8 +484,10 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode(),branch);
         BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode(),branch);
         //todo sql需要优化
-        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
-        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
+//        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
+//        Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
+        Integer driverNoReceivable = 0;
+        Integer driverNoReceived = 0;
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
         amountReceived = amountReceived == null ? BigDecimal.ZERO : amountReceived;
         periodPaymentGeneralListVo.setAmountReceivable(amountReceivable);

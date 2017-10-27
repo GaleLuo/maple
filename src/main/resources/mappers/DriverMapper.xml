@@ -188,6 +188,9 @@
     <if test="driverName!=null">
       and d.name like #{driverName}
     </if>
+    <if test="branch !=null">
+      d.car_id in (select id from maple_car where branch =#{branch})
+    </if>
     and d.driver_status = 1
   </select>
   <select id="selectDriverReceivedPartly" resultType="com.maple.pojo.Driver">
@@ -201,6 +204,9 @@
       and d.name like #{driverName}
     </if>
     ) and ((select sum(pp.payment) from maple_period_payment as pp where pp.car_id = d.car_id and pp.platform_status &gt; 0 and pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate}) &lt; (select ppl.amount from maple_period_plan as ppl where ppl.co_model_id = d.co_model_id and ppl.start_date &lt;= #{startDate}
+    <if test="branch!=null">
+      and d.car_id in (select id from maple_car where branch = #{branch})
+    </if>
     and ppl.end_date &gt; #{startDate}))
   </select>
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">

@@ -53,6 +53,7 @@ public class PeriodPaymentManageController {
     @RequestMapping("list.do")
     @ResponseBody
     public ServerResponse list(HttpSession session,
+                               Integer branch,
                                @RequestParam(required = false)String date,
                                @RequestParam(required = false)String driverName,
                                @RequestParam(required = false)Integer coModelType,//合作模式代码
@@ -65,7 +66,7 @@ public class PeriodPaymentManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.list(date,driverName,coModelType,payStatus,pageNum,pageSize);
+            return iPeriodPaymentService.list(branch,date,driverName,coModelType,payStatus,pageNum,pageSize);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

@@ -13,7 +13,7 @@ import java.util.List;
 public interface IPeriodPaymentService {
 
 
-    ServerResponse list(String date,String driverName,Integer coModelType, Integer payStatus, int pageNum, int pageSize);
+    ServerResponse list(Integer branch, String date,String driverName,Integer coModelType, Integer payStatus, int pageNum, int pageSize);
 
     ServerResponse generalList(Integer branch,Long startDate,Long endDate,Integer coModelType, int pageNum, int pageSize);
 
