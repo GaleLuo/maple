@@ -17,6 +17,7 @@ public class PeriodPaymentGeneralListVo {
     private BigDecimal alipayReceived;//支付宝已收金额
     private BigDecimal pinganReceived;//平安转账已收金额
     private BigDecimal ccbReceived;//建设已收金额
+    private BigDecimal cmbReceived;//招商已收金额
     private BigDecimal posReceived;
     private BigDecimal difference;//差额
     private Integer driverNoReceivable;//应收司机
@@ -125,5 +126,13 @@ public class PeriodPaymentGeneralListVo {
 
     public void setDriverNoReceived(Integer driverNoReceived) {
         this.driverNoReceived = driverNoReceived;
+    }
+
+    public BigDecimal getCmbReceived() {
+        return cmbReceived;
+    }
+
+    public void setCmbReceived(BigDecimal cmbReceived) {
+        this.cmbReceived = cmbReceived;
     }
 }

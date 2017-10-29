@@ -1,16 +1,10 @@
 package com.maple.task;
 
-import com.maple.common.Const;
 import com.maple.dao.CoModelMapper;
 import com.maple.dao.DriverMapper;
 import com.maple.dao.PeriodPaymentMapper;
-import com.maple.pojo.Driver;
-import com.maple.pojo.PeriodPayment;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 /**
  * Created by Maple.Ran on 2017/7/13.

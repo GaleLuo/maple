@@ -128,7 +128,7 @@
   <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
     ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline &gt;= #{endDate} and cm.final_amount &gt; 0))
-    and cm.period_start_date &lt;= #{endDate}
+    and cm.period_end_date &gt;= #{endDate}
     and #{startDate} &gt;= (select max(start_date) from maple_period_plan pp where pp.co_model_id = d.co_model_id)
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
@@ -139,20 +139,18 @@
     <if test="branch!=null">
       and d.car_id in (select id from maple_car where branch = #{branch})
     </if>
-    and d.driver_status = 1
   </select>
 
   <select id="selectDriverReceivableGroupByCarId" resultType="com.maple.pojo.Driver">
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
     ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline&gt;= #{endDate} and cm.final_amount &gt; 0))
-    and cm.period_start_date &lt;= #{endDate}
+    and cm.period_end_date &gt;= #{endDate}
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
     </if>
     <if test="driverName!=null">
       and d.name like #{driverName}
     </if>
-    and d.driver_status = 1
     group by carId
   </select>
 
@@ -179,7 +177,7 @@
   </select>
   <select id="selectDriverNotReceived" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE (SELECT cm.id from maple_co_model as cm WHERE cm.period_start_date &lt;= #{startDate}
-    and cm.period_end_date &gt; #{startDate}
+    and cm.period_end_date &gt;= #{endDate}
     and cm.id=d.co_model_id
     ) is not null and d.id not in (SELECT DISTINCT(pp.driver_id) from maple_period_payment as pp WHERE pp.pay_time &gt;= #{startDate} and pp.pay_time &lt;= #{endDate} and (pp.payment !=0 or pp.payment is not null))
     <if test="coModelType!=null">
@@ -191,12 +189,11 @@
     <if test="branch !=null">
       and d.car_id in (select id from maple_car where branch =#{branch})
     </if>
-    and d.driver_status = 1
   </select>
   <select id="selectDriverReceivedPartly" resultType="com.maple.pojo.Driver">
     select d.id as id,d.car_id as carId from maple_driver as d where
     d.id in (select d.id as id FROM maple_driver as d inner join maple_co_model as cm on cm.id=d.co_model_id where cm.period_start_date &lt;= #{startDate}
-    and cm.period_end_date &gt; #{startDate} and d.driver_status = 1
+    and cm.period_end_date &gt;= #{endDate}
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
     </if>
@@ -249,18 +246,23 @@
     SELECT <include refid="Base_Column_List"/>
     FROM maple_driver WHERE name LIKE #{driverName}
   </select>
-    <select id="selectDriverListByStatus" resultMap="BaseResultMap" parameterType="Integer">
+    <select id="selectDriverListByPhoneStatusNotNormal" resultMap="BaseResultMap" >
       select <include refid="Base_Column_List"/>
       from maple_driver
-      WHERE driver_status = #{status}
+      WHERE phone_status = 2
     </select>
     <select id="selectDriverListByPhoneStatus" resultMap="BaseResultMap" >
       SELECT <include refid="Base_Column_List"/>
       FROM maple_driver
       WHERE phone_status = #{phoneStatus}
     </select>
+  <select id="selectDriverListByStatus" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from maple_driver
+    WHERE driver_status = #{status}
+  </select>
 
-    <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
+  <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
     UPDATE status=5
     FROM maple_driver
     WHERE user_id=#{userId} and status in (0,4)
@@ -478,5 +480,10 @@
     #{item}
   </foreach>
     </where>
+  </update>
+  <update id="updateNormalDriverPhoneStatusToUnconfirmed">
+    UPDATE maple_driver
+    SET phone_status = 2
+    WHERE driver_status = 1
   </update>
 </mapper>

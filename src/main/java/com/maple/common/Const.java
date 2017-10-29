@@ -130,7 +130,8 @@ public class Const {
         wechat(2, "微信"),
         ccb(3, "建设银行"),
         pingan(4, "平安银行"),
-        pos(5, "POS机"),;
+        cmb(5, "招商银行"),
+        pos(6, "POS机");
 
 
         private int code;

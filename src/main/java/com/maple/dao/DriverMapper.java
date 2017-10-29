@@ -62,7 +62,11 @@ public interface DriverMapper {
 
     List<Driver> selectbydriverName(String driverName);
 
-    List<Driver> selectDriverListByStatus(Integer status);
+    List<Driver> selectDriverListByPhoneStatusNotNormal();
 
     List<Driver> selectDriverListByPhoneStatus(int phoneStatus);
+
+    void updateNormalDriverPhoneStatusToUnconfirmed();
+
+    List<Driver> selectDriverListByStatus(int code);
 }

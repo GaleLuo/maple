@@ -26,4 +26,6 @@ public interface IPeriodPaymentService {
     ServerResponse paymentList(Integer branch,Long startTime, Long endTime, String driverName, Integer coModelType, String payer,Integer platformStatus, Integer paymentPlatform,int pageNum, int pageSize);
 
     ServerResponse updatePaymentStatus(Integer[] paymentIdArray, Integer paymentStatus);
+
+    ServerResponse getPaymentMethod();
 }

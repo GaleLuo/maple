@@ -101,7 +101,7 @@ public class BankStatementQueryTask {
                     //支付状态默认为正常
                     newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
                     //备注：添加人：系统导入
-                    newPayment.setComment("添加人：系统导入");
+                    newPayment.setComment("添加人:系统导入");
                     //付款对应日期
                     newPayment.setPayTime(payTime);
                     //付款时间

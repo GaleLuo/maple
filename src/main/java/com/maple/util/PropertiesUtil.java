@@ -13,7 +13,7 @@ import java.util.Properties;
  */
 public class PropertiesUtil {
 
-    private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
+//    private static Logger logger = LoggerFactory.getLogger(PropertiesUtil.class);
     private static Properties props;
 
     static {
@@ -22,7 +22,7 @@ public class PropertiesUtil {
         try {
             props.load(new InputStreamReader(PropertiesUtil.class.getClassLoader().getResourceAsStream(fileName), "UTF-8"));
         } catch (IOException e) {
-            logger.error("配置文件异常", e);
+            System.out.println("配置文件异常"+e);
         }
     }
 

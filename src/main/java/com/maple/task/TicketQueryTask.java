@@ -31,11 +31,7 @@ public class TicketQueryTask {
     @Scheduled(cron = "0 0 6 1/1 * ?")
     private void weicheQuery() {
         List<Car> carList = carMapper.selectCarListForTicket();
-//        List<Car> carList = carMapper.selectWhereUnchecked();
-        System.out.println("共"+carList.size()+"待查车辆");
         for (int i =0;i<carList.size();i++){
-//        Car car = carMapper.selectByPrimaryKey(100046);
-            System.out.println("第"+(i+1)+"车辆正在查询"+"车牌号:"+carList.get(i).getPlateNumber());
             Car car = carList.get(i);
             Map ticketMap;
             try {
@@ -49,7 +45,6 @@ public class TicketQueryTask {
             String ticketScore = (String) ticketMap.get("ticketScore");
             String ticketMoney = (String) ticketMap.get("ticketMoney");
             String ticketTimes = (String) ticketMap.get("ticketTimes");
-            System.out.println("扣分: " + ticketScore+"罚金: " + ticketMoney);
 
             Ticket newTicket = new Ticket();
             newTicket.setCarId(car.getId());
@@ -63,14 +58,6 @@ public class TicketQueryTask {
                 ticketMapper.insert(newTicket);
             } else {
                 newTicket.setId(ticketResult.getId());
-                Integer newScore = newTicket.getScore() - ticketResult.getScore();
-                Integer newMoney = newTicket.getMoney() - ticketResult.getMoney();
-                if ( newScore> 0) {
-                    System.out.println(ticketResult.getPlateNum()+ "-新增分数:"+newScore);
-                }
-                if ( newMoney> 0) {
-                    System.out.println(ticketResult.getPlateNum()+ "-新增罚款:"+newMoney);
-                }
                 ticketMapper.updateByPrimaryKeySelective(newTicket);
             }
         }

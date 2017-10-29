@@ -157,6 +157,19 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         return ServerResponse.createByErrorMessage("更新失败");
     }
 
+    @Override
+    public ServerResponse getPaymentMethod() {
+        List<Map> methodList = Lists.newArrayList();
+        Const.PaymentPlatform[] values = Const.PaymentPlatform.values();
+        for (Const.PaymentPlatform value : values) {
+            Map<String,String> method = Maps.newHashMap();
+            method.put("desc", value.getDesc());
+            method.put("code", Integer.toString(value.getCode()));
+            methodList.add(method);
+        }
+        return ServerResponse.createBySuccess(methodList);
+    }
+
     private PaymentListVo assemblePaymentListVo(PeriodPayment periodPayment) {
         PaymentListVo paymentListVo = new PaymentListVo();
         paymentListVo.setId(periodPayment.getId());
@@ -482,8 +495,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal alipayReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.alipay.getCode(),branch);
         BigDecimal pinganReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pingan.getCode(),branch);
         BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode(),branch);
+        BigDecimal cmbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.cmb.getCode(),branch);
         BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode(),branch);
-        //todo sql需要优化
         Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
         Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
@@ -496,6 +509,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentGeneralListVo.setPosReceived(posReceived);
         periodPaymentGeneralListVo.setPinganReceived(pinganReceived);
         periodPaymentGeneralListVo.setCcbReceived(ccbReceived);
+        periodPaymentGeneralListVo.setCmbReceived(cmbReceived);
         periodPaymentGeneralListVo.setDriverNoReceivable(driverNoReceivable);
         periodPaymentGeneralListVo.setDriverNoReceived(driverNoReceived);
 

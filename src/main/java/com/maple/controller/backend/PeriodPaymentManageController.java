@@ -5,6 +5,7 @@ import com.maple.common.ResponseCode;
 import com.maple.common.ServerResponse;
 import com.maple.pojo.User;
 import com.maple.service.IPeriodPaymentService;
+import com.sun.xml.internal.ws.resources.HttpserverMessages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -157,6 +158,19 @@ public class PeriodPaymentManageController {
         }
         if (Const.Permission.PRIMARY_PERMISSION.contains(user.getRole())) {
             return iPeriodPaymentService.updatePaymentStatus(paymentIdArray, paymentStatus);
+        }
+        return ServerResponse.createByErrorMessage("无权限");
+    }
+
+    @RequestMapping("payment_method.do")
+    @ResponseBody
+    public ServerResponse paymentMethod(HttpSession session) {
+        User user = (User) session.getAttribute(Const.CURRENT_USER);
+        if (user == null) {
+            return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
+        }
+        if (Const.Permission.PRIMARY_PERMISSION.contains(user.getRole())) {
+            return iPeriodPaymentService.getPaymentMethod();
         }
         return ServerResponse.createByErrorMessage("无权限");
     }

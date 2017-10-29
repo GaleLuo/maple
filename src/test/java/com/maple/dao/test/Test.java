@@ -21,14 +21,13 @@ import com.maple.test.TestBase;
 import com.maple.util.*;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.*;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -79,7 +78,9 @@ public class Test extends TestBase {
     @Autowired
     private BankStatementQueryTask bankStatementQueryTask;
 
-
+    private static final int CCB = 15;
+    private static final int CMB = 50;
+    private static final int PINGAN = 21;
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
@@ -95,31 +96,81 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test3() {
-        Account account = accountMapper.selectByAccNo("6236683850000342960");
+        DateTime dateTime = new DateTime("2017-10-29").withDayOfWeek(1).millisOfDay().withMinimumValue().withHourOfDay(8);
+        System.out.println(dateTime);
     }
 
     @org.junit.Test
     public void Test2() throws Exception {
         File slh = new File("/Users/Maple.Ran/Downloads/payment.xls");
         InputStream fileInputStream = new FileInputStream(slh);
-        DateTime startDate = new DateTime("2016-6-21");
         HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
         Sheet sheet = workbook.getSheetAt(0);
-//        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(4);
+        PeriodPayment newPayment = new PeriodPayment();
+        for (int i = 4; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
             Cell plateNum = row.getCell(0);
             Cell driverName = row.getCell(1);
-            System.out.println(plateNum.getStringCellValue());
-            System.out.println(driverName.getStringCellValue());
-            System.out.println(row.getLastCellNum());
-            //不知为何数量会多1
-            for (int j =2;j<row.getLastCellNum()-1;j++) {
+            //根据车牌查找车辆
+            Car car = carMapper.selectbyPlateNumber(plateNum.getStringCellValue());
+            //根据车id查找司机list
+            List<Driver> driverList = driverMapper.selectDriverListByCarId(car.getId());
+            Integer driverId = null;
+            //双班司机以表格中司机名字为交款人
+            for (Driver driver : driverList) {
+                if (driver.getName().equals(driverName.getStringCellValue())) {
+                    driverId = driver.getId();
+                }
+            }
+            //设置车辆id
+            newPayment.setCarId(car.getId());
+            //设置司机id
+            newPayment.setDriverId(driverId);
+            //付款人
+            newPayment.setPayer(driverName.getStringCellValue());
+            //付款状态为正常
+            newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
+            //备注为EXCEL
+            newPayment.setComment("添加人:EXCEL");
 
+            //第一个司机交费时间
+            DateTime startDate = new DateTime("2016-6-21");
+
+            for (int j =2;j<row.getLastCellNum();j++) {
                 Cell amount = row.getCell(j);
-                System.out.println(startDate.toString() + amount.getNumericCellValue());
+                Comment comment = amount.getCellComment();
+                CellStyle cellStyle = amount.getCellStyle();
+                short fgc = cellStyle.getFillForegroundColor();
+                String commentString = comment==null?"":comment.getString().toString();
+                switch (fgc) {
+                    case CCB:
+                        newPayment.setPaymentPlatform(Const.PaymentPlatform.ccb.getCode());
+                        break;
+                    case PINGAN:
+                        newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
+                        break;
+                    case CMB:
+                        newPayment.setPaymentPlatform(Const.PaymentPlatform.cmb.getCode());
+                        break;
+                }
+
+
+                if (commentString.contains("支")) {
+                    newPayment.setPaymentPlatform(Const.PaymentPlatform.alipay.getCode());
+                } else if (commentString.contains("微")) {
+                    newPayment.setPaymentPlatform(Const.PaymentPlatform.wechat.getCode());
+                }
+                newPayment.setPayTime(startDate.toDate());
+                newPayment.setCreateTime(startDate.toDate());
+                newPayment.setPayment(BigDecimal.valueOf(amount.getNumericCellValue()));
+
+                if (amount.getNumericCellValue() != 0) {
+                    periodPaymentMapper.insertSelective(newPayment);
+                }
+
                 startDate = startDate.plusWeeks(1);
             }
-//        }
+        }
     }
 
     @org.junit.Test
@@ -651,6 +702,7 @@ public class Test extends TestBase {
             try {
                 System.out.println("第"+(i+1)+"条短信"+"开始发送:"+driver.getName());
                 SendSmsResponse sendSmsResponse = SmsUtil.sendSms(driver.getPersonalPhone(), driver.getName(), car.getPlateNumber(), ticket.getScore().toString(), ticket.getMoney().toString());
+//                SendSmsResponse sendSmsResponse = SmsUtil.sendSms("17780683073", "冉冉", "川A10929", "22", "3333");
                 System.out.println("短信接口返回的数据----------------");
                 System.out.println("Code=" + sendSmsResponse.getCode());
                 System.out.println("Message=" + sendSmsResponse.getMessage());
@@ -660,13 +712,10 @@ public class Test extends TestBase {
                 e.printStackTrace();
             }
         }
-
-
     }
     @org.junit.Test
     public void querySms() throws InterruptedException {
-//        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
-        List<Driver> driverList = driverMapper.selectDriverListByPhoneStatus(Const.phoneStatus.uncheck);
+        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
         Driver newDriver = new Driver();
 
         for (Driver driver : driverList) {
