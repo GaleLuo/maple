@@ -70,12 +70,6 @@ public class UserServiceImpl implements IUserService {
                     return ServerResponse.createByErrorMessage("用户已存在");
                 }
             }
-            if (Const.EMAIL.equals(str)) {
-                int rowResult = userMapper.checkEmail(str);
-                if (rowResult > 0) {
-                    return ServerResponse.createByErrorMessage("邮箱已存在");
-                }
-            }
         } else {
             return ServerResponse.createByErrorMessage("参数错误");
         }
@@ -115,8 +109,8 @@ public class UserServiceImpl implements IUserService {
 
         User updateUser = new User();
         updateUser.setId(user.getId());
-        updateUser.setEmail(user.getEmail());
         updateUser.setPhone(user.getPhone());
+        updateUser.setBranch(user.getBranch());
         updateUser.setQuestion(user.getQuestion());
         updateUser.setAnswer(user.getAnswer());
 

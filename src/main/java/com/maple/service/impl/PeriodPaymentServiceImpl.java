@@ -17,15 +17,13 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.Months;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Maple.Ran on 2017/6/13.
@@ -45,7 +43,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     @Autowired
     private AccountMapper accountMapper;
 
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
     public ServerResponse addOrUpdate(User user,Boolean addToAccount,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
@@ -80,7 +78,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         }
         String msg = "";
         //添加常用账户
-        if (addToAccount) {
+        if (addToAccount!=null&&addToAccount) {
             Account account = accountMapper.selectByAccNo(platformNum);
             if (account != null) {
                 msg = "，常用账户添加失败，该账户已存在";
@@ -263,6 +261,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
         }
         PageInfo pageInfo = new PageInfo(driverList);
+        //根据交费日期排序
+        Collections.sort(periodPaymentListVoList);
         pageInfo.setList(periodPaymentListVoList);
 
         return ServerResponse.createBySuccess(pageInfo);
@@ -458,6 +458,12 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
         BigDecimal driverDueAmount = getDriverDueAmount(periodPayment.getDriverId(), startDate, endDate);
         periodPaymentListVo.setDueAmount(driverDueAmount);
+        CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
+        List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(driver.getCoModelId());
+        PeriodPlan periodPlan = periodPlanList.get(0);
+        if (coModel.getModelType() == Const.CoModel.HIRE_PURCHASE_MONTH.getCode()) {
+            periodPaymentListVo.setDueDate(DateTimeUtil.dateToStr(periodPlan.getStartDate(),"dd"));
+        }
         periodPaymentListVo.setCarId(periodPayment.getCarId());
         periodPaymentListVo.setDriverName(driver.getName());
         periodPaymentListVo.setPhoneNum(driver.getPersonalPhone());

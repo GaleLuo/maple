@@ -11,7 +11,7 @@ public class User {
 
     private String name;
 
-    private String email;
+    private Integer branch;
 
     private String phone;
 
@@ -25,12 +25,12 @@ public class User {
 
     private Date updateTime;
 
-    public User(Integer id, String username, String password, String name, String email, String phone, String question, String answer, Integer role, Date createTime, Date updateTime) {
+    public User(Integer id, String username, String password, String name, Integer branch, String phone, String question, String answer, Integer role, Date createTime, Date updateTime) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.name = name;
-        this.email = email;
+        this.branch = branch;
         this.phone = phone;
         this.question = question;
         this.answer = answer;
@@ -75,12 +75,12 @@ public class User {
         this.password = password == null ? null : password.trim();
     }
 
-    public String getEmail() {
-        return email;
+    public Integer getBranch() {
+        return branch;
     }
 
-    public void setEmail(String email) {
-        this.email = email == null ? null : email.trim();
+    public void setBranch(Integer branch) {
+        this.branch = branch;
     }
 
     public String getPhone() {

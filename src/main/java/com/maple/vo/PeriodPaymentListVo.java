@@ -1,11 +1,13 @@
 package com.maple.vo;
 
+import org.joda.time.DateTime;
+
 import java.math.BigDecimal;
 
 /**
  * Created by Maple.Ran on 2017/6/20.
  */
-public class PeriodPaymentListVo {
+public class PeriodPaymentListVo implements Comparable<PeriodPaymentListVo>{
     private int driverId;
     private int carId;
     private String driverName;
@@ -15,10 +17,19 @@ public class PeriodPaymentListVo {
 //  private PlanDetailVo planDetailVo;
     //当期应还款金额
     private BigDecimal dueAmount;
+    private String dueDate;
 
     private BigDecimal confirmedPayment;//当期已确认还款金额
     private BigDecimal unconfirmedPayment;//当期为确认还款金额
 
+
+    public String getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
 
     public String getPhoneNum() {
         return phoneNum;
@@ -90,5 +101,14 @@ public class PeriodPaymentListVo {
 
     public void setUnconfirmedPayment(BigDecimal unconfirmedPayment) {
         this.unconfirmedPayment = unconfirmedPayment;
+    }
+
+    @Override
+    public int compareTo(PeriodPaymentListVo o) {
+        if (this.dueDate == null || o.dueDate == null) {
+            return 1;
+        }
+        int i = Integer.parseInt(this.dueDate) - Integer.parseInt(o.getDueDate());
+        return i;
     }
 }

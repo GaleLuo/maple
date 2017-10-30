@@ -7,7 +7,7 @@
       <arg column="username" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="password" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="name" jdbcType="VARCHAR" javaType="java.lang.String" />
-      <arg column="email" jdbcType="VARCHAR" javaType="java.lang.String" />
+      <arg column="branch" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="phone" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="question" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="answer" jdbcType="VARCHAR" javaType="java.lang.String" />
@@ -17,7 +17,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, username, password, name,email, phone, question, answer, role, create_time, update_time
+    id, username, password, name,branch, phone, question, answer, role, create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -37,11 +37,6 @@
     WHERE username=#{username} and
     password=#{password}
   </select>
-  <select id="checkEmail" resultType="java.lang.Integer" parameterType="string">
-    SELECT count(1)
-    FROM maple_user
-    WHERE email=#{email}
-  </select>
   <select id="checkPassword" resultType="java.lang.Integer" parameterType="map">
     SELECT count(1)
     FROM maple_user
@@ -54,11 +49,11 @@
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.User" >
     insert into maple_user (id, username, password, name,
-      email, phone, question, 
+      branch, phone, question,
       answer, role, create_time, 
       update_time)
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-      #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR}, 
+      #{branch,jdbcType=INTEGER}, #{phone,jdbcType=VARCHAR}, #{question,jdbcType=VARCHAR},
       #{answer,jdbcType=VARCHAR}, #{role,jdbcType=INTEGER}, now(),
             now())
   </insert>
@@ -77,8 +72,8 @@
       <if test="name != null" >
         name,
       </if>
-      <if test="email != null" >
-        email,
+      <if test="branch != null" >
+        branch,
       </if>
       <if test="phone != null" >
         phone,
@@ -112,8 +107,8 @@
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
       </if>
-      <if test="email != null" >
-        #{email,jdbcType=VARCHAR},
+      <if test="branch != null" >
+        #{branch,jdbcType=INTEGER},
       </if>
       <if test="phone != null" >
         #{phone,jdbcType=VARCHAR},
@@ -147,8 +142,8 @@
       <if test="name != null" >
         name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="email != null" >
-        email = #{email,jdbcType=VARCHAR},
+      <if test="branch != null" >
+        branch = #{branch,jdbcType=INTEGER},
       </if>
       <if test="phone != null" >
         phone = #{phone,jdbcType=VARCHAR},
@@ -174,7 +169,7 @@
     set username = #{username,jdbcType=VARCHAR},
       password = #{password,jdbcType=VARCHAR},
       name = #{name,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR},
+      branch = #{branch,jdbcType=INTEGER},
       phone = #{phone,jdbcType=VARCHAR},
       question = #{question,jdbcType=VARCHAR},
       answer = #{answer,jdbcType=VARCHAR},

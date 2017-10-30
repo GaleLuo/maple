@@ -27,7 +27,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.joda.time.Weeks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -96,8 +95,8 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test3() {
-        DateTime dateTime = new DateTime("2017-10-29").withDayOfWeek(1).millisOfDay().withMinimumValue().withHourOfDay(8);
-        System.out.println(dateTime);
+        String kmslhQc = MD5Util.MD5EncodeUtf8("kmslhQc");
+        System.out.println(kmslhQc);
     }
 
     @org.junit.Test
