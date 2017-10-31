@@ -31,6 +31,7 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageReader;
 import javax.swing.*;
+import javax.swing.text.html.HTML;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
@@ -86,11 +87,9 @@ public class Test extends TestBase {
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
 
-        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
-        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.CD.getCode(),new DateTime("2017-10-24").toDate(), today);
 
         bankStatementQueryTask.insertPingAn(previousMaps);
-        bankStatementQueryTask.insertPingAn(todayMaps);
 
 
     }
@@ -108,6 +107,8 @@ public class Test extends TestBase {
         HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
         Sheet sheet = workbook.getSheetAt(0);
         PeriodPayment newPayment = new PeriodPayment();
+        Double Total = 0d;
+
         for (int i = 4; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
             Cell plateNum = row.getCell(0);
@@ -136,7 +137,6 @@ public class Test extends TestBase {
 
             //第一个司机交费时间
             DateTime startDate = new DateTime("2016-6-21");
-
             for (int j =2;j<row.getLastCellNum();j++) {
                 Cell amount = row.getCell(j);
                 Comment comment = amount.getCellComment();
@@ -166,12 +166,16 @@ public class Test extends TestBase {
                 newPayment.setPayment(BigDecimal.valueOf(amount.getNumericCellValue()));
 
                 if (amount.getNumericCellValue() != 0) {
-                    periodPaymentMapper.insertSelective(newPayment);
+                    if (startDate.isEqual(new DateTime("2017-9-5"))) {
+                        Total = Total + amount.getNumericCellValue();
+                    }
+//                    periodPaymentMapper.insertSelective(newPayment);
                 }
 
                 startDate = startDate.plusWeeks(1);
             }
         }
+        System.out.println(Total);
     }
 
     @org.junit.Test
@@ -308,15 +312,15 @@ public class Test extends TestBase {
         final String BANK = "http://www.ccb.com/cn/jump/personal_loginbank.html";
         final String LOGIN = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1&CUSTYPE=0&TXCODE=CLOGIN&DESKTOP=0&EXIT_PAGE=login.jsp&WANGZHANGLOGIN=&FORMEPAY=2";
         final String DOWNLOAD = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1";
-        WebClient webClient = new WebClient();
+
+        WebClient webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setJavaScriptEnabled(true);
-        webClient.getOptions().setCssEnabled(true);
+        webClient.getOptions().setCssEnabled(false);
         webClient.getOptions().setRedirectEnabled(true);
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         URL url = new URL(LOGIN);
-
 
         HtmlPage page=null;
 
@@ -326,7 +330,7 @@ public class Test extends TestBase {
 
         HtmlElement userName = page.getHtmlElementById("USERID");
         HtmlElement password = page.getHtmlElementById("LOGPASS");
-        HtmlElement loginBtn = page.getHtmlElementById("loginButton");
+        HtmlSubmitInput loginBtn = page.getHtmlElementById("loginButton");
         HtmlElement fjm = page.getHtmlElementById("PT_CONFIRM_PWD");
         HtmlImage fujiama = page.getHtmlElementById("fujiama");
         ImageReader imageReader = fujiama.getImageReader();
@@ -350,8 +354,16 @@ public class Test extends TestBase {
         password.type("901901jj");
         fjm.focus();
         fjm.type(fjmStr);
-        HtmlPage result = loginBtn.click();
-        Thread.sleep(1000);
+        ScriptResult result = page.executeJavaScript("document.forms[0].submit()");
+        HtmlPage newPage = (HtmlPage) result.getNewPage();
+        webClient.waitForBackgroundJavaScript(8000);
+        HtmlForm htmlForm = newPage.getForms().get(1);
+        String skey = htmlForm.getInputByName("SKEY").getValueAttribute();
+
+
+        System.out.println(skey);
+        System.out.println(newPage.asText());
+        System.exit(0);
 
 
 //        if (result.contains("冉伟")) {

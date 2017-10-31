@@ -95,7 +95,7 @@
     <select id="findAmountReceived" resultType="java.math.BigDecimal">
       SELECT ifnull(sum(pp.payment),0) from maple_period_payment as pp  WHERE pay_time &gt;= #{startDate} and  pay_time &lt;= #{endDate}
       <if test="coModelType!=null">
-        and (select d.co_model_id from maple_driver as d where d.id=pp.driver_id) in (select cm.id from maple_co_model as cm WHERE cm.model_type =#{coModelType})
+        and pp.car_id in (select car_id from maple_co_model where model_type = #{coModelType})
       </if>
       <if test="paymentPlatform!=null">
         and pp.payment_platform = #{paymentPlatform}
