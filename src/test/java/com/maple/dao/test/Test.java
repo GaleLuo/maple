@@ -18,7 +18,6 @@ import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.*;
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.codehaus.jackson.JsonNode;
@@ -31,9 +30,11 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageReader;
 import javax.swing.*;
-import javax.swing.text.html.HTML;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
@@ -311,7 +312,6 @@ public class Test extends TestBase {
     public void WebTest() throws Exception {
         final String BANK = "http://www.ccb.com/cn/jump/personal_loginbank.html";
         final String LOGIN = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1&CUSTYPE=0&TXCODE=CLOGIN&DESKTOP=0&EXIT_PAGE=login.jsp&WANGZHANGLOGIN=&FORMEPAY=2";
-        final String DOWNLOAD = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1";
 
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setUseInsecureSSL(true);
@@ -325,18 +325,18 @@ public class Test extends TestBase {
         HtmlPage page=null;
 
         page = webClient.getPage(url);
-        page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
+//        page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
         webClient.waitForBackgroundJavaScript(1000);
 
         HtmlElement userName = page.getHtmlElementById("USERID");
         HtmlElement password = page.getHtmlElementById("LOGPASS");
-        HtmlSubmitInput loginBtn = page.getHtmlElementById("loginButton");
+        HtmlForm jhform = page.getFormByName("jhform");
+        HtmlInput loginButton = jhform.getInputByValue("登 录");
+
         HtmlElement fjm = page.getHtmlElementById("PT_CONFIRM_PWD");
         HtmlImage fujiama = page.getHtmlElementById("fujiama");
         ImageReader imageReader = fujiama.getImageReader();
         BufferedImage read = imageReader.read(0);
-
-
         JFrame f2 = new JFrame();
         JLabel l = new JLabel();
         l.setIcon(new ImageIcon(read));
@@ -347,98 +347,35 @@ public class Test extends TestBase {
 
         String fjmStr = JOptionPane.showInputDialog("请输入验证码：");
         f2.setVisible(false);
+        fjm.focus();
+        fjm.type(fjmStr);
 
         userName.focus();
         userName.type("13548130157j");
         password.focus();
         password.type("901901jj");
-        fjm.focus();
-        fjm.type(fjmStr);
-        ScriptResult result = page.executeJavaScript("document.forms[0].submit()");
+        ScriptResult result = page.executeJavaScript("document.getElementById(\"loginButton\").click()");
         HtmlPage newPage = (HtmlPage) result.getNewPage();
-        webClient.waitForBackgroundJavaScript(8000);
-        HtmlForm htmlForm = newPage.getForms().get(1);
-        String skey = htmlForm.getInputByName("SKEY").getValueAttribute();
+//        ScriptResult result = page.executeJavaScript("document.forms[0].submit()");
+//        HtmlPage newPage = (HtmlPage) result.getNewPage();
+        webClient.waitForBackgroundJavaScript(10000);
+//        HtmlForm htmlForm = newPage.getForms().get(0);
+//        String skey = htmlForm.getInputByName("SKEY").getValueAttribute();
+//        String mingxi = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1&TXCODE=310203&SKEY="+skey+"&USERID=510603199102166195&BRANCHID=510000000&ACC_NO=6217003810054854834&STR_USERID=510603199102166195&FLAG_CARD=0&BANK_NAME=510000000&ACC_SIGN=6217003810054854834&SEND_USERID=undefined";
 
+//        WebRequest webRequest = new WebRequest(new URL(mingxi), HttpMethod.POST);
 
-        System.out.println(skey);
-        System.out.println(newPage.asText());
+//        HtmlPage mingxiPage = webClient.getPage(webRequest);
+        Thread.sleep(3 * 1000);
+//        System.out.println(mingxiPage.asText());
+        System.out.println(newPage.asXml());
         System.exit(0);
+//
 
-
-//        if (result.contains("冉伟")) {
-//            System.out.println("登录成功!");
-            WebRequest webRequest = new WebRequest(new URL(DOWNLOAD), HttpMethod.POST);
-            List<NameValuePair> reqParams = Lists.newArrayList();
-            reqParams.add(new NameValuePair("ACC_NO", "6217003810054854834"));
-            reqParams.add(new NameValuePair("ACCSIGN", "\n" +
-                    "\n" +
-                    "\n" +
-                    "0101010|0101|人民币|0|0"));
-            reqParams.add(new NameValuePair("START_DATE", "20171029"));
-            reqParams.add(new NameValuePair("END_DATE", "20171030"));
-            reqParams.add(new NameValuePair("yzflag", "0"));
-            reqParams.add(new NameValuePair("yztxcode", "310200"));
-            reqParams.add(new NameValuePair("flagnext", "1"));
-            reqParams.add(new NameValuePair("QUEFlag", "1"));
-            reqParams.add(new NameValuePair("TXCODE", "310206"));
-            reqParams.add(new NameValuePair("SKEY", "WbxiHe"));
-            reqParams.add(new NameValuePair("USERID", "510603199102166195"));
-            reqParams.add(new NameValuePair("STR_USERID", "510603199102166195"));
-            reqParams.add(new NameValuePair("BRANCHID", "510000000"));
-            reqParams.add(new NameValuePair("PAGE", "1"));
-            reqParams.add(new NameValuePair("CURRENT_PAGE", "1"));
-            reqParams.add(new NameValuePair("PDT_CODE", "0101"));
-            reqParams.add(new NameValuePair("BANK_NAME", "四川省"));
-            reqParams.add(new NameValuePair("A_STR", "1010118341509378355051633+4306+1+10+"));
-            reqParams.add(new NameValuePair("IS_UPDATE", "1"));
-            reqParams.add(new NameValuePair("UPDATE_DETAIL", "1"));
-            reqParams.add(new NameValuePair("v_acc", "6217003810054854834"));
-            reqParams.add(new NameValuePair("v_sign", "\n" +
-                    "\n" +
-                    "\n" +
-                    "0101010|0101"));
-            reqParams.add(new NameValuePair("DEPOSIT_BKNO", "0"));
-            reqParams.add(new NameValuePair("SEQUENCE_NO", "12"));
-            reqParams.add(new NameValuePair("LUGANGTONG", "0"));
-            reqParams.add(new NameValuePair("CURRENCE_NAME", "人民币"));
-            reqParams.add(new NameValuePair("v_acc2", "6217003810054854834"));
-            reqParams.add(new NameValuePair("v_sign2", "0101010"));
-            reqParams.add(new NameValuePair("QUERY_ACC_DETAIL_FLAG", "310201"));
-            reqParams.add(new NameValuePair("v_acc_type", "0"));
-            reqParams.add(new NameValuePair("ACC_SIGN", "0101010"));
-            reqParams.add(new NameValuePair("ACC_SIGN_TEM", "0101010"));
-            reqParams.add(new NameValuePair("COMPLETENESS", "0"));
-            reqParams.add(new NameValuePair("FILESEARCHSTR", "1010118341509378355051633"));
-            reqParams.add(new NameValuePair("zcAllTmp", "9,977,334.87"));
-            reqParams.add(new NameValuePair("scAllTmp", "10,043,241.51"));
-            reqParams.add(new NameValuePair("clientFileName", "20160512_20171030.xls"));
-            reqParams.add(new NameValuePair("l_acc_no", "6217003810054854834"));
-            reqParams.add(new NameValuePair("l_acc_no_u", "6217003810*****4834"));
-            reqParams.add(new NameValuePair("l_branch", "四川省"));
-            reqParams.add(new NameValuePair("l_branchcode", "510000000"));
-            reqParams.add(new NameValuePair("l_acc_sign", "6217003810054854834"));
-            reqParams.add(new NameValuePair("l_acc_type", "12"));
-            reqParams.add(new NameValuePair("l_acc_desc", "人民币"));
-            reqParams.add(new NameValuePair("l_acc_e", "0"));
-            reqParams.add(new NameValuePair("l_userid", "510603199102166195"));
-            reqParams.add(new NameValuePair("l_username", "冉伟"));
-
-//            reqParams.add(new NameValuePair("currType", "RMB"));
-//            reqParams.add(new NameValuePair("startDate", "20170813"));
-//            reqParams.add(new NameValuePair("endDate", "20171025"));
-//
-            webRequest.setRequestParameters(reqParams);
-//
-            Page downloadPage = webClient.getPage(webRequest);
-//
-//
-            Thread.sleep(3 * 1000);
-//
-            InputStream in = downloadPage.getWebResponse().getContentAsStream();
-            FileOutputStream fos = new FileOutputStream(new File("/Users/Maple.Ran/Downloads/jh.xls"));
-            IOUtils.copy(in, fos);
-            fos.close();
+//            InputStream in = mingxiPage.getWebResponse().getContentAsStream();
+//            FileOutputStream fos = new FileOutputStream(new File("/Users/Maple.Ran/Downloads/jh.xls"));
+//            IOUtils.copy(in, fos);
+//            fos.close();
 //
 //        } else {
 //            System.out.println("登录失败!");
