@@ -4,7 +4,9 @@ import com.aliyuncs.dysmsapi.model.v20170525.QuerySendDetailsResponse;
 import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
 import com.aliyuncs.exceptions.ClientException;
 import com.gargoylesoftware.htmlunit.*;
-import com.gargoylesoftware.htmlunit.html.*;
+import com.gargoylesoftware.htmlunit.html.HtmlElement;
+import com.gargoylesoftware.htmlunit.html.HtmlImage;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.google.common.collect.Lists;
@@ -30,7 +32,6 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageReader;
 import javax.swing.*;
-import javax.swing.text.html.HTML;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -146,8 +147,8 @@ public class Test extends TestBase {
                         newPayment.setPaymentPlatform(Const.PaymentPlatform.ccb.getCode());
                         break;
                     case PINGAN:
-                        newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
-                        break;
+                        //平安银行跳过
+                        continue;
                     case CMB:
                         newPayment.setPaymentPlatform(Const.PaymentPlatform.cmb.getCode());
                         break;
@@ -164,10 +165,7 @@ public class Test extends TestBase {
                 newPayment.setPayment(BigDecimal.valueOf(amount.getNumericCellValue()));
 
                 if (amount.getNumericCellValue() != 0) {
-                    if (startDate.isEqual(new DateTime("2017-9-5"))) {
-                        Total = Total + amount.getNumericCellValue();
-                    }
-//                    periodPaymentMapper.insertSelective(newPayment);
+                    periodPaymentMapper.insertSelective(newPayment);
                 }
 
                 startDate = startDate.plusWeeks(1);

@@ -9,21 +9,16 @@ import com.google.common.collect.Lists;
 import com.maple.common.Const;
 import com.maple.dao.AccountMapper;
 import com.maple.jo.FinishOrder;
-import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.aspectj.weaver.reflect.ReflectionWorld;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -69,15 +64,13 @@ public class CrawlerUtil {
         HtmlPage page = webClient.getPage(url);
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
         CrawlerUtil crawlerUtil = new CrawlerUtil();
-        Boolean loginStatus = false;
         try {
-            loginStatus = crawlerUtil.bankLogin(branch,page);
+            crawlerUtil.bankLogin(branch,page);
         } catch (Exception e) {
             System.out.println("登录银行抓取数据失败!");
             return null;
         }
 
-        System.out.println("登录成功："+loginStatus);
         return crawlerUtil.statement(webClient, startDate, endDate,branch);
     }
 
@@ -147,7 +140,7 @@ public class CrawlerUtil {
         password.focus();
         password.type(pwd);
         loginBtn.click();
-        Thread.sleep(4000);
+        Thread.sleep(3000);
         String result = page.asText();
         return result.contains("上次登录时间");
     }
@@ -211,6 +204,7 @@ public class CrawlerUtil {
                 data.add(repaymentMap);
             }
         }
+        in.close();
         return data;
     }
 
