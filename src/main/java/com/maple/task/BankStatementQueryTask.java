@@ -12,7 +12,6 @@ import com.maple.pojo.PeriodPayment;
 import com.maple.util.CrawlerUtil;
 import com.maple.util.DateTimeUtil;
 import org.apache.commons.collections.CollectionUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -36,14 +35,12 @@ public class BankStatementQueryTask {
     @Autowired
     private AccountMapper accountMapper;
 
-    // @Scheduled(cron = "* */60 * * * ?")
-    private void queryPingAn() throws Exception {
+    @Scheduled(cron = "0 0 0/1 * * ?")
+    //每小时执行一次
+    public void queryKunMingPingAn() throws Exception {
         Date today = new Date();
-
         List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),new DateTime("2017-06-01").toDate(), today);
         insertPingAn(todayMaps);
-        insertPingAn(previousMaps);
     }
 
 
@@ -64,6 +61,8 @@ public class BankStatementQueryTask {
                     newPayment.setPayment(amount);
                     //付款人
                     newPayment.setPayer(name);
+                    //付款账号
+                    newPayment.setAccountNumber(accountNo);
                     //付款平台
                     newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
                     //平台流水号
@@ -78,13 +77,11 @@ public class BankStatementQueryTask {
                     newPayment.setCreateTime(payTime);
 
                 } else {
-                    //todo
                     Driver driver = driverMapper.selectByPrimaryKey(account.getDriverId());
                     CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
                     if (coModel.getModelType() == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
                         payTime = DateTimeUtil.getWeekStartDate(payTime);
                     }
-
                     //平安银行当日数据，只能是起始和结束日期都为当日，否则没有当日数据
                     // 司机id
                     newPayment.setDriverId(account.getDriverId());
@@ -94,6 +91,8 @@ public class BankStatementQueryTask {
                     newPayment.setPayment(amount);
                     //付款人
                     newPayment.setPayer(name);
+                    //付款账号
+                    newPayment.setAccountNumber(accountNo);
                     //付款平台
                     newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
                     //平台流水号
@@ -116,11 +115,6 @@ public class BankStatementQueryTask {
         }
     }
 
-//    @Scheduled(cron = "0 * * * *")
-    private void ticketQuery() {
-        System.out.println(new Date());
-
-    }
 }
 
 

@@ -30,6 +30,7 @@ import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageReader;
 import javax.swing.*;
+import javax.swing.text.html.HTML;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -87,12 +88,8 @@ public class Test extends TestBase {
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
-
-        List<Map<String, Object>> previousMaps = CrawlerUtil.pingAnStatement(Const.Branch.CD.getCode(),new DateTime("2017-10-24").toDate(), today);
-
-        bankStatementQueryTask.insertPingAn(previousMaps);
-
-
+        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+        bankStatementQueryTask.insertPingAn(todayMaps);
     }
 
     @org.junit.Test
@@ -316,8 +313,9 @@ public class Test extends TestBase {
         WebClient webClient = new WebClient(BrowserVersion.CHROME);
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setJavaScriptEnabled(true);
-        webClient.getOptions().setCssEnabled(false);
+        webClient.getOptions().setCssEnabled(true);
         webClient.getOptions().setRedirectEnabled(true);
+        webClient.getCookieManager().setCookiesEnabled(true);
         webClient.getOptions().setThrowExceptionOnScriptError(false);
         webClient.setAjaxController(new NicelyResynchronizingAjaxController());
         URL url = new URL(LOGIN);
@@ -330,8 +328,7 @@ public class Test extends TestBase {
 
         HtmlElement userName = page.getHtmlElementById("USERID");
         HtmlElement password = page.getHtmlElementById("LOGPASS");
-        HtmlForm jhform = page.getFormByName("jhform");
-        HtmlInput loginButton = jhform.getInputByValue("登 录");
+        HtmlElement loginButton = page.getHtmlElementById("loginButton");
 
         HtmlElement fjm = page.getHtmlElementById("PT_CONFIRM_PWD");
         HtmlImage fujiama = page.getHtmlElementById("fujiama");
@@ -353,12 +350,15 @@ public class Test extends TestBase {
         userName.focus();
         userName.type("13548130157j");
         password.focus();
-        password.type("901901jj");
-        ScriptResult result = page.executeJavaScript("document.getElementById(\"loginButton\").click()");
-        HtmlPage newPage = (HtmlPage) result.getNewPage();
+        password.type("901901kk");
+        loginButton.focus();
+
+        ScriptResult scriptResult = page.executeJavaScript("document.forms[0].submit();");
+        HtmlPage newPage = (HtmlPage) scriptResult.getNewPage();
+
 //        ScriptResult result = page.executeJavaScript("document.forms[0].submit()");
 //        HtmlPage newPage = (HtmlPage) result.getNewPage();
-        webClient.waitForBackgroundJavaScript(10000);
+        webClient.waitForBackgroundJavaScript(8000);
 //        HtmlForm htmlForm = newPage.getForms().get(0);
 //        String skey = htmlForm.getInputByName("SKEY").getValueAttribute();
 //        String mingxi = "https://ibsbjstar.ccb.com.cn/CCBIS/B2CMainPlat_10?SERVLET_NAME=B2CMainPlat_10&CCB_IBSVersion=V6&PT_STYLE=1&TXCODE=310203&SKEY="+skey+"&USERID=510603199102166195&BRANCHID=510000000&ACC_NO=6217003810054854834&STR_USERID=510603199102166195&FLAG_CARD=0&BANK_NAME=510000000&ACC_SIGN=6217003810054854834&SEND_USERID=undefined";

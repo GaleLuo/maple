@@ -39,7 +39,7 @@
       account, create_time, update_time
       )
     values (#{id,jdbcType=INTEGER}, #{driverId,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR},#{platform,jdbcType=INTEGER},
-      #{account,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, now()
+      #{account,jdbcType=VARCHAR}, now(), now()
       )
   </insert>
   <insert id="insertSelective" parameterType="com.maple.pojo.Account" >

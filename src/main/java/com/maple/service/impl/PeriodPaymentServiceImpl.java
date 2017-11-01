@@ -46,7 +46,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
     private final Logger logger = LoggerFactory.getLogger(PeriodPaymentServiceImpl.class);
 
 
-    public ServerResponse addOrUpdate(User user,Boolean addToAccount,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform, String platformNum,Long payTime,String comment){
+    public ServerResponse addOrUpdate(User user,Boolean addToAccount,Integer paymentId, Integer driverId, BigDecimal payment,String payer, Integer paymentPlatform,String accountNum, String platformNum,Long payTime,String comment){
 
         if (payment == null || paymentPlatform == null || payTime==null) {
             return ServerResponse.createByErrorMessage("请表单填写完整");
@@ -87,7 +87,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 //平台代码
                 account.setPlatform(paymentPlatform);
                 //平台账号
-                account.setAccount(platformNum);
+                account.setAccount(accountNum);
                 //平台用户名
                 account.setName(payer);
                 //司机id
@@ -193,6 +193,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
 
         paymentListVo.setComment(periodPayment.getComment());
         paymentListVo.setAddTime(DateTimeUtil.dateToStr(periodPayment.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+        paymentListVo.setAccountNum(periodPayment.getAccountNumber());
         //如果不知道付款人、付款周期，则显示 -
         if (periodPayment.getPayTime() != null) {
             paymentListVo.setPeriodTime(DateTimeUtil.dateToStr(periodPayment.getPayTime(), "yyyy-MM-dd"));

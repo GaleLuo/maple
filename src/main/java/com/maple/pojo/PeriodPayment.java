@@ -16,6 +16,8 @@ public class PeriodPayment{
 
     private Integer paymentPlatform;
 
+    private String accountNumber;
+
     private String platformNumber;
 
     private Integer platformStatus;
@@ -28,19 +30,28 @@ public class PeriodPayment{
 
     private Date updateTime;
 
-    public PeriodPayment(Integer id, Integer driverId, Integer carId, BigDecimal payment, String payer, Integer paymentPlatform, String platformNumber, Integer platformStatus, String comment, Date payTime, Date createTime, Date updateTime) {
+    public PeriodPayment(Integer id, Integer driverId, Integer carId, BigDecimal payment, String payer, Integer paymentPlatform, String accountNumber, String platformNumber, Integer platformStatus, String comment, Date payTime, Date createTime, Date updateTime) {
         this.id = id;
         this.driverId = driverId;
         this.carId = carId;
         this.payment = payment;
         this.payer = payer;
         this.paymentPlatform = paymentPlatform;
+        this.accountNumber = accountNumber;
         this.platformNumber = platformNumber;
         this.platformStatus = platformStatus;
         this.comment = comment;
         this.payTime = payTime;
         this.createTime = createTime;
         this.updateTime = updateTime;
+    }
+
+    public String getAccountNumber() {
+        return accountNumber;
+    }
+
+    public void setAccountNumber(String accountNumber) {
+        this.accountNumber = accountNumber;
     }
 
     public String getPayer() {

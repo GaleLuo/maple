@@ -7,16 +7,20 @@ import com.gargoylesoftware.htmlunit.util.Cookie;
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.google.common.collect.Lists;
 import com.maple.common.Const;
+import com.maple.dao.AccountMapper;
 import com.maple.jo.FinishOrder;
 import org.apache.commons.io.IOUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.aspectj.weaver.reflect.ReflectionWorld;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -35,6 +39,9 @@ import java.util.Map;
  * Created by Maple.Ran on 2017/6/19.
  */
 public class CrawlerUtil {
+    @Autowired
+    private static AccountMapper accountMapper;
+
 
     private static final Logger logger = LoggerFactory.getLogger(CrawlerUtil.class);
 
@@ -72,6 +79,50 @@ public class CrawlerUtil {
 
         System.out.println("登录成功："+loginStatus);
         return crawlerUtil.statement(webClient, startDate, endDate,branch);
+    }
+
+    public static List<Map<String, Object>> ccbAnalyze(InputStream inputStream) throws IOException {
+        List<Map<String, Object>> data = Lists.newArrayList();
+        HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 6; i <= sheet.getLastRowNum(); i++) {
+            Map<String, Object> paymentMap = new HashMap<>();
+            Row row = sheet.getRow(i);
+            Cell dateCell = row.getCell(1);
+            Cell timeCell = row.getCell(2);
+            Cell positionCell = row.getCell(3);
+            Cell incomeCell = row.getCell(5);
+            Cell accountCell = row.getCell(7);
+            Cell nameCell = row.getCell(8);
+            Cell commentCell = row.getCell(10);
+
+            String dateTimeStr = dateCell.getStringCellValue() + "-" + timeCell.getStringCellValue();
+            String position = positionCell.getStringCellValue();
+            BigDecimal income = BigDecimal.valueOf(incomeCell.getNumericCellValue());
+            String account = accountCell.getStringCellValue();
+            String name = nameCell.getStringCellValue();
+            String comment = commentCell.getStringCellValue();
+
+            Date dateTime = DateTimeUtil.strToDate(dateTimeStr, "yyyyMMdd-HH:mm:ss");
+            //如果收入金额为0 则跳过
+            if (income.equals(BigDecimal.ZERO)) {
+                continue;
+            }
+            paymentMap.put("交易时间", dateTime);
+            paymentMap.put("交易地点", position);
+            paymentMap.put("交易金额", income);
+            paymentMap.put("交易账号", account);
+            paymentMap.put("交易方姓名", name);
+            paymentMap.put("摘要", comment);
+
+
+            data.add(paymentMap);
+
+
+
+        }
+        return data;
+
     }
 
     private boolean bankLogin(Integer branch,HtmlPage page) throws Exception {
@@ -160,11 +211,10 @@ public class CrawlerUtil {
                 data.add(repaymentMap);
             }
         }
-        FileOutputStream fos = new FileOutputStream(new File("/Users/Maple.Ran/Downloads/news.xls"));
-        IOUtils.copy(in, fos);
-        fos.close();
         return data;
     }
+
+
 
 
     private String getGuyuInputStream(String type, String startTime, String endTime, int pageNum) throws IOException {

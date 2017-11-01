@@ -37,6 +37,7 @@ public class PeriodPaymentManageController {
                                       BigDecimal payment,
                                       String payer,
                                       Integer paymentPlatform,
+                                      String accountNum,
                                       String platformNum,
                                       Long payTime,
                                       String comment) {
@@ -46,7 +47,7 @@ public class PeriodPaymentManageController {
             return ServerResponse.createByErrorCodeMessage(ResponseCode.NEED_LOGIN.getCode(), ResponseCode.NEED_LOGIN.getDesc());
         }
         if (Const.Permission.NORMAL_PERMISSION.contains(user.getRole())) {
-            return iPeriodPaymentService.addOrUpdate(user,addToAccount,paymentId, driverId, payment, payer,paymentPlatform,platformNum, payTime,comment);
+            return iPeriodPaymentService.addOrUpdate(user,addToAccount,paymentId, driverId, payment, payer,paymentPlatform,accountNum,platformNum, payTime,comment);
         }
         return ServerResponse.createByErrorMessage("无权限");
     }
@@ -162,6 +163,8 @@ public class PeriodPaymentManageController {
         return ServerResponse.createByErrorMessage("无权限");
     }
 
+
+    //返回付款渠道列表
     @RequestMapping("payment_method.do")
     @ResponseBody
     public ServerResponse paymentMethod(HttpSession session) {

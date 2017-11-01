@@ -12,12 +12,21 @@ public class PaymentListVo {
     private BigDecimal paymentAmount;
     private String paymentPlatform;
     private String paymentPlatformCode;
+    private String accountNum;
     private String platformNum;
     private String payer;
     private String driverName;
     private String comment;
     private String addTime;//添加时间
     private String periodTime;//付款周期
+
+    public String getAccountNum() {
+        return accountNum;
+    }
+
+    public void setAccountNum(String accountNum) {
+        this.accountNum = accountNum;
+    }
 
     public Integer getDriverId() {
         return driverId;

@@ -9,6 +9,7 @@
       <arg column="payment" jdbcType="DECIMAL" javaType="java.math.BigDecimal" />
       <arg column="payer" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="payment_platform" jdbcType="INTEGER" javaType="java.lang.Integer" />
+      <arg column="account_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="platform_number" jdbcType="VARCHAR" javaType="java.lang.String" />
       <arg column="platform_status" jdbcType="INTEGER" javaType="java.lang.Integer" />
       <arg column="comment" jdbcType="VARCHAR" javaType="java.lang.String" />
@@ -18,7 +19,7 @@
     </constructor>
   </resultMap>
   <sql id="Base_Column_List" >
-    id, driver_id,car_id, payment,payer, payment_platform, platform_number, platform_status, comment,
+    id, driver_id,car_id, payment,payer, payment_platform, account_number, platform_number, platform_status, comment,
     pay_time,create_time, update_time
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
@@ -141,6 +142,7 @@
     <include refid="Base_Column_List"/>
     FROM maple_period_payment
     where platform_number = #{serialNo}
+
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_period_payment
@@ -148,10 +150,10 @@
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.PeriodPayment" >
     insert into maple_period_payment (id, driver_id,car_id, payment,payer,
-      payment_platform, platform_number, platform_status, 
+      payment_platform, platform_number,account_number, platform_status,
       comment,pay_time,create_time, update_time
       )
-    values (#{id,jdbcType=INTEGER},#{driverId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL},#{payer,jdbcType=VARCHAR},#{paymentPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=INTEGER},
+    values (#{id,jdbcType=INTEGER},#{driverId,jdbcType=INTEGER}, #{carId,jdbcType=INTEGER}, #{payment,jdbcType=DECIMAL},#{payer,jdbcType=VARCHAR},#{paymentPlatform,jdbcType=INTEGER}, #{platformNumber,jdbcType=VARCHAR},#{accountNumber,jdbcType=VARCHAR}, #{platformStatus,jdbcType=INTEGER},
       #{comment,jdbcType=VARCHAR}, #{payTime,jdbcType=TIMESTAMP},now(), now()
       )
   </insert>
@@ -175,6 +177,9 @@
       </if>
       <if test="paymentPlatform != null" >
         payment_platform,
+      </if>
+      <if test="accountNumber != null" >
+        account_number,
       </if>
       <if test="platformNumber != null" >
         platform_number,
@@ -209,6 +214,9 @@
       </if>
       <if test="paymentPlatform != null" >
         #{paymentPlatform,jdbcType=INTEGER},
+      </if>
+      <if test="accountNumber != null" >
+        #{accountNumber,jdbcType=VARCHAR},
       </if>
       <if test="platformNumber != null" >
         #{platformNumber,jdbcType=VARCHAR},
@@ -247,6 +255,9 @@
       <if test="platformNumber != null" >
         platform_number = #{platformNumber,jdbcType=VARCHAR},
       </if>
+      <if test="accountNumber != null" >
+        account_number = #{accountNumber,jdbcType=VARCHAR},
+      </if>
       <if test="platformStatus != null" >
         platform_status = #{platformStatus,jdbcType=INTEGER},
       </if>
@@ -270,6 +281,7 @@
       payment = #{payment,jdbcType=DECIMAL},
       payer = #{payer,jdbcType=VARCHAR},
       payment_platform = #{paymentPlatform,jdbcType=INTEGER},
+      account_number = #{accountNumber,jdbcType=VARCHAR},
       platform_number = #{platformNumber,jdbcType=VARCHAR},
       platform_status = #{platformStatus,jdbcType=INTEGER},
       comment = #{comment,jdbcType=VARCHAR},
