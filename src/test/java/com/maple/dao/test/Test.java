@@ -32,10 +32,7 @@ import javax.imageio.ImageReader;
 import javax.swing.*;
 import javax.swing.text.html.HTML;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
@@ -93,9 +90,20 @@ public class Test extends TestBase {
     }
 
     @org.junit.Test
-    public void Test3() {
-        String kmslhQc = MD5Util.MD5EncodeUtf8("kmslhQc");
-        System.out.println(kmslhQc);
+    public void Test3() throws IOException {
+        FileInputStream fileInputStream = new FileInputStream(new File("/Users/Maple.Ran/Downloads/jh.xls"));
+        List<Map<String, Object>> maps = CrawlerUtil.ccbAnalyze(fileInputStream);
+        for (Map<String, Object> map : maps) {
+            String dateTime = DateTimeUtil.dateToStr((Date) map.get("交易时间"), "yyyy-MM-dd HH:mm:ss");
+            String position = (String) map.get("交易地点");
+            BigDecimal amount = (BigDecimal) map.get("交易金额");
+            String account = (String) map.get("交易账号");
+            String name = (String) map.get("交易方姓名");
+            String comment = (String) map.get("摘要");
+
+            System.out.println("交易时间:"+dateTime+"--交易地点:"+position+"--交易金额:"+amount+"--交易账号:"+account+"--交易方姓名:"+name+"--摘要:"+comment);
+
+        }
     }
 
     @org.junit.Test

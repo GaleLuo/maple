@@ -85,7 +85,7 @@ public class CrawlerUtil {
         List<Map<String, Object>> data = Lists.newArrayList();
         HSSFWorkbook workbook = new HSSFWorkbook(inputStream);
         Sheet sheet = workbook.getSheetAt(0);
-        for (int i = 6; i <= sheet.getLastRowNum(); i++) {
+        for (int i = 6; i < sheet.getLastRowNum(); i++) {
             Map<String, Object> paymentMap = new HashMap<>();
             Row row = sheet.getRow(i);
             Cell dateCell = row.getCell(1);
@@ -105,7 +105,8 @@ public class CrawlerUtil {
 
             Date dateTime = DateTimeUtil.strToDate(dateTimeStr, "yyyyMMdd-HH:mm:ss");
             //如果收入金额为0 则跳过
-            if (income.equals(BigDecimal.ZERO)) {
+            //判断bigdecimal 需要转换为double
+            if (income.doubleValue() == 0) {
                 continue;
             }
             paymentMap.put("交易时间", dateTime);
