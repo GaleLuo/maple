@@ -12,14 +12,17 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.maple.common.Const;
+import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.jo.FinishOrder;
 import com.maple.jo.TicketJo;
 import com.maple.pojo.*;
+import com.maple.service.IBankService;
 import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.*;
+import com.maple.vo.PingAnBalanceListVo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.codehaus.jackson.JsonNode;
@@ -82,6 +85,8 @@ public class Test extends TestBase {
     private AccountMapper accountMapper;
     @Autowired
     private BankStatementQueryTask bankStatementQueryTask;
+    @Autowired
+    private IBankService iBankService;
 
     private static final int CCB = 15;
     private static final int CMB = 50;
@@ -89,14 +94,21 @@ public class Test extends TestBase {
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
-        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-        bankStatementQueryTask.insertPingAn(todayMaps);
+        ServerResponse response = iBankService.pingAnStatement(Const.Branch.KM.getCode(), today, today);
+        bankStatementQueryTask.insertPingAn((List) response.getData());
     }
 
     @org.junit.Test
-    public void Test3() {
-        String kmslhQc = MD5Util.MD5EncodeUtf8("kmslhQc");
-        System.out.println(kmslhQc);
+    public void Test3() throws IOException, InterruptedException, ParseException {
+        ServerResponse response = iBankService.pingAnQueryOtherBankBalance(0);
+        List<PingAnBalanceListVo> data = (List<PingAnBalanceListVo>) response.getData();
+        for (PingAnBalanceListVo pingAnBalanceListVo : data) {
+            System.out.println(pingAnBalanceListVo.getAcctName()+"-"+pingAnBalanceListVo.getAcctNo()+"-"+pingAnBalanceListVo.getAcctOpenBranchName()+"-"+pingAnBalanceListVo.getBalance()+"-"+pingAnBalanceListVo.getUpdateTime()+"成功归集金额:"+pingAnBalanceListVo.getAmount());
+        }
+    }
+
+    @org.junit.Test
+    public void Test4() throws IOException {
     }
 
     @org.junit.Test
@@ -225,7 +237,7 @@ public class Test extends TestBase {
     @org.junit.Test
     public void Test() throws Exception {
 
-        List<Object> guyuData = CrawlerUtil.getGuyuData(FinishOrder.class, "2017-05-21", "2017-05-21");
+        List<Object> guyuData = iBankService.getGuyuData(FinishOrder.class, "2017-05-21", "2017-05-21");
         for (Object object : guyuData) {
             FinishOrder finishOrder = (FinishOrder) object;
             finishOrderMapper.insertSelective(finishOrder);

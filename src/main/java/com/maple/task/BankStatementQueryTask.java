@@ -1,6 +1,7 @@
 package com.maple.task;
 
 import com.maple.common.Const;
+import com.maple.common.ServerResponse;
 import com.maple.dao.AccountMapper;
 import com.maple.dao.CoModelMapper;
 import com.maple.dao.DriverMapper;
@@ -9,7 +10,8 @@ import com.maple.pojo.Account;
 import com.maple.pojo.CoModel;
 import com.maple.pojo.Driver;
 import com.maple.pojo.PeriodPayment;
-import com.maple.util.CrawlerUtil;
+import com.maple.service.IBankService;
+import com.maple.service.impl.BankServiceImpl;
 import com.maple.util.DateTimeUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,13 +36,15 @@ public class BankStatementQueryTask {
     private CoModelMapper coModelMapper;
     @Autowired
     private AccountMapper accountMapper;
+    @Autowired
+    private IBankService iBankService;
 
     @Scheduled(cron = "0 0 0/1 * * ?")
     //每小时执行一次
     public void queryKunMingPingAn() throws Exception {
         Date today = new Date();
-        List<Map<String, Object>> todayMaps = CrawlerUtil.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-        insertPingAn(todayMaps);
+        ServerResponse response = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+        insertPingAn((List) response.getData());
     }
 
 
