@@ -136,6 +136,7 @@ public class BankServiceImpl implements IBankService{
         return ServerResponse.createBySuccess(data);
     }
 
+    //todo 添加本周已扣刷新. 前端添加批量自动更新
     public ServerResponse refreshPinganBalance(Integer branch,String agreementNo) {
 
         PingAnBalanceListVo pingAnBalanceListVo = new PingAnBalanceListVo();
