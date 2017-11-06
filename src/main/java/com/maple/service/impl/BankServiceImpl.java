@@ -70,8 +70,7 @@ public class BankServiceImpl implements IBankService{
         try {
             bankLogin(branch);
         } catch (Exception e) {
-            System.out.println("登录银行抓取数据失败!");
-            return null;
+            return ServerResponse.createByErrorMessage("抓取数据失败,请刷新页面");
         }finally {
             //释放内存
             webClient.getCurrentWindow().getJobManager().removeAllJobs();
@@ -87,8 +86,7 @@ public class BankServiceImpl implements IBankService{
         try {
             bankLogin(branch);
         } catch (Exception e) {
-            System.out.println("登录银行抓取数据失败!");
-            return null;
+            return ServerResponse.createByErrorMessage("抓取数据失败,请刷新页面");
         }
         List<PingAnBalanceListVo> pingAnBalanceListVos;
         Map resultMap = null;
@@ -103,13 +101,13 @@ public class BankServiceImpl implements IBankService{
 
             //计算出总页数
             Double totalPage = Math.ceil(accCount.doubleValue() / 20d);
+            //
             for (int i =2; i<=totalPage; i++) {
                 Map map = queryOtherBankBalance(i);
                 pingAnBalanceListVos.addAll(assemblePingAnBalanceListVo(map));
             }
             //本周(星期二为起始日)资金归集结果键值对
-            Map map = null;
-                map = queryCashConcentrationResult();
+            Map map = queryCashConcentrationResult(null);
             int failAccountNum = 0;
             for (PingAnBalanceListVo pingAnBalanceListVo : pingAnBalanceListVos) {
                 String acctNo = pingAnBalanceListVo.getAcctNo();
@@ -136,7 +134,7 @@ public class BankServiceImpl implements IBankService{
         return ServerResponse.createBySuccess(data);
     }
 
-    //todo 添加本周已扣刷新. 前端添加批量自动更新
+    //todo 添加本周已扣刷新
     public ServerResponse refreshPinganBalance(Integer branch,String agreementNo) {
 
         PingAnBalanceListVo pingAnBalanceListVo = new PingAnBalanceListVo();
@@ -157,7 +155,11 @@ public class BankServiceImpl implements IBankService{
             String oldChannelSeqNo = (String) applyResult.get("oldChannelSeqNo");
             //如果需要登录,则重新登陆
             if (errCode.equals("400")) {
-                bankLogin(branch);
+                try {
+                    bankLogin(branch);
+                } catch (Exception e) {
+                    return ServerResponse.createByErrorMessage("抓取数据失败,请刷新页面");
+                }
                 refreshPinganBalance(branch, agreementNo);
             }
 
@@ -177,15 +179,24 @@ public class BankServiceImpl implements IBankService{
             System.out.println(page.getWebResponse().getContentAsString());
             Map result = JsonUtil.pingAnBalance(inputStream);
             Map balanceDtoMap = (Map) result.get("balanceDtoMap");
+            String acctNo = null;
             for (Object o : balanceDtoMap.keySet()) {
-                String acctName = (String) o;
-                Map acctDetail = (Map) balanceDtoMap.get(acctName);
+                acctNo = (String) o;
+                Map acctDetail = (Map) balanceDtoMap.get(acctNo);
                 String updateTime = (String) acctDetail.get("updateTime");
                 List subAccountList = (List) acctDetail.get("subAccountList");
                 Map balanceMap = (Map) subAccountList.get(0);
                 String balance = (String) balanceMap.get("balance");
-                pingAnBalanceListVo.setBalance(balance);
+                pingAnBalanceListVo.setBalance(new BigDecimal(decimalFormat.parseObject(balance).toString()));
                 pingAnBalanceListVo.setUpdateTime(updateTime);
+            }
+
+            Map map = queryCashConcentrationResult(acctNo);
+            BigDecimal amount = (BigDecimal) map.get(acctNo);
+            if (amount != null) {
+                pingAnBalanceListVo.setAmount(amount);
+            } else {
+                pingAnBalanceListVo.setAmount(BigDecimal.ZERO);
             }
         } catch (Exception e) {
             return ServerResponse.createByErrorMessage("程序运行错误,更新失败");
@@ -205,13 +216,14 @@ public class BankServiceImpl implements IBankService{
         System.gc();
     }
 
-    private Map queryCashConcentrationResult() throws IOException, InterruptedException, ParseException {
+    private Map queryCashConcentrationResult(String payAcc) throws IOException, InterruptedException, ParseException {
         WebRequest webRequest = new WebRequest(new URL(CASH_CONCENTRATION));
         List<NameValuePair> reqParams = Lists.newArrayList();
         Date startDate = DateTimeUtil.getWeekStartDate(new Date());
         Date endDate = new Date();
         reqParams.add(new NameValuePair("end_date", DateTimeUtil.dateToStr(endDate, "yyyyMMdd")));
         reqParams.add(new NameValuePair("rec_acc", "all"));
+        reqParams.add(new NameValuePair("pay_acc", payAcc));
         reqParams.add(new NameValuePair("queryMode", "00"));
         reqParams.add(new NameValuePair("start_date", DateTimeUtil.dateToStr(startDate, "yyyyMMdd")));
         webRequest.setRequestParameters(reqParams);
@@ -247,7 +259,7 @@ public class BankServiceImpl implements IBankService{
         return map;
     }
 
-    private List<PingAnBalanceListVo> assemblePingAnBalanceListVo(Map map) {
+    private List<PingAnBalanceListVo> assemblePingAnBalanceListVo(Map map) throws ParseException {
         List<PingAnBalanceListVo> list = Lists.newArrayList();
         List agreementList = (List) map.get("agreementList");
         Map balanceDtoMap = (Map) map.get("balanceDtoMap");
@@ -270,7 +282,7 @@ public class BankServiceImpl implements IBankService{
                 String balance = (String) detailMap.get("balance");
 
                 pingAnBalanceListVo.setUpdateTime(updateTime);
-                pingAnBalanceListVo.setBalance(balance);
+                pingAnBalanceListVo.setBalance(new BigDecimal(decimalFormat.parseObject(balance).toString()));
             }
 
             pingAnBalanceListVo.setAcctName(acctName);
@@ -357,7 +369,7 @@ public class BankServiceImpl implements IBankService{
 
         HtmlPage page = webClient.getPage(url);
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
-        Thread.sleep(3 * 1000);
+        Thread.sleep(4 * 1000);
         String un="";
         String pwd="";
         if (branch == Const.Branch.CD.getCode()) {

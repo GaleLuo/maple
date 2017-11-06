@@ -11,7 +11,7 @@ public class PingAnBalanceListVo implements Comparable<PingAnBalanceListVo> {
     private String acctNo;//账号
     private String acctOpenBranchName;//开户行
     private String agreementNo;//合约号
-    private String balance;//余额
+    private BigDecimal balance;//余额
     private String updateTime;//更新时间
     private BigDecimal amount;//最近一周扣款成功金额
 
@@ -49,13 +49,6 @@ public class PingAnBalanceListVo implements Comparable<PingAnBalanceListVo> {
         this.agreementNo = agreementNo;
     }
 
-    public String getBalance() {
-        return balance;
-    }
-
-    public void setBalance(String balance) {
-        this.balance = balance;
-    }
 
     public String getUpdateTime() {
         return updateTime;
@@ -63,6 +56,14 @@ public class PingAnBalanceListVo implements Comparable<PingAnBalanceListVo> {
 
     public void setUpdateTime(String updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
+    public BigDecimal getBalance() {
+        return balance;
     }
 
     public BigDecimal getAmount() {
