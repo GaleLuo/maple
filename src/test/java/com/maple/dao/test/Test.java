@@ -15,19 +15,17 @@ import com.maple.common.Const;
 import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.jo.FinishOrder;
-import com.maple.jo.TicketJo;
 import com.maple.pojo.*;
 import com.maple.service.IBankService;
 import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
-import com.maple.util.*;
+import com.maple.util.DateTimeUtil;
+import com.maple.util.SmsUtil;
+import com.maple.util.WeiCheUtil;
 import com.maple.vo.PingAnBalanceListVo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,10 +34,7 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
@@ -94,7 +89,7 @@ public class Test extends TestBase {
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
         Date today = new Date();
-        ServerResponse response = iBankService.pingAnStatement(Const.Branch.KM.getCode(), today, today);
+        ServerResponse response = iBankService.pingAnStatement(Const.Branch.CD.getCode(), new DateTime("2017-06-11").toDate(), today);
         bankStatementQueryTask.insertPingAn((List) response.getData());
     }
 
@@ -109,6 +104,10 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test4() throws IOException {
+        String a = "林小平支付宝转账";
+        int zfbzz = a.indexOf("支付宝转账");
+        String substring = a.substring(0, zfbzz);
+        System.out.println(substring);
     }
 
     @org.junit.Test
@@ -661,64 +660,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void test2 () throws IOException {
-//        File json = new File("/Users/Maple.Ran/Downloads/ticket.json");
-//        ObjectMapper mapper = new ObjectMapper();
-//        JsonNode root = mapper.readTree(json);
-//        JsonNode resultcodeNode = root.get("resultcode");
-//        Integer resultCode = mapper.readValue(resultcodeNode, Integer.class);
-//        JsonNode result = root.get("result");
 //
-//        JsonNode lists = result.get("lists");
-//        List<TicketJo> ticketJoList = mapper.readValue(lists, new TypeReference<List<TicketJo>>() {
-//        });
-
-
-        List<Car> carList = carMapper.selectCarListForTicket();
-        Car car = carList.get(0);
-
-        String ticket = TicketQueryUtil.getTicket("SC_CD", car.getPlateNumber(), car.getEngineNumber(), car.getVin());
-        System.out.println(ticket);
-        ObjectMapper mapper = new ObjectMapper();
-        JsonNode root = mapper.readTree(ticket);
-        JsonNode resultcodeNode = root.get("resultcode");
-        Integer resultCode = mapper.readValue(resultcodeNode, Integer.class);
-        JsonNode result = root.get("result");
-        /*
-        错误信息:
-        {
-            "resultcode":"209",
-            "reason":"内部异常：其他信息错误",
-            "result":[
-
-            ],
-            "error_code":203609
-        }
-         */
-        JsonNode lists = result.get("lists");
-        List<TicketJo> ticketJoList = mapper.readValue(lists, new TypeReference<List<TicketJo>>() {
-        });
-        Integer fen = 0;
-        Integer money = 0;
-        for (TicketJo ticketJo1 : ticketJoList) {
-            fen += ticketJo1.getFen();
-            money += ticketJo1.getMoney();
-        }
-        Ticket newTicket = new Ticket();
-        newTicket.setCarId(car.getId());
-        newTicket.setPlateNum(car.getPlateNumber());
-        newTicket.setMoney(money);
-        newTicket.setScore(fen);
-        newTicket.setTicketTimes(ticketJoList.size());
-
-        Ticket ticketResult = ticketMapper.selectByCarId(car.getId());
-
-        if (ticketResult == null) {
-            ticketMapper.insert(newTicket);
-        } else {
-            newTicket.setId(ticketResult.getId());
-            ticketMapper.updateByPrimaryKeySelective(newTicket);
-        }
-
     }
 
     @org.junit.Test
@@ -775,8 +717,29 @@ public class Test extends TestBase {
     }
 
     @org.junit.Test
-    public void testFormapper() {
+    public void accountInsert() throws IOException {
+        File slh = new File("/Users/Maple.Ran/Downloads/accountInfo.xls");
+        InputStream fileInputStream = new FileInputStream(slh);
 
+        HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
+        Sheet sheet = workbook.getSheetAt(0);
+        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+            Row row = sheet.getRow(i);
+            String acctName = row.getCell(1).getStringCellValue();
+            String acctNo = row.getCell(2).getStringCellValue();
+            List<Driver> driverList = driverMapper.selectbydriverName(acctName);
+            if (driverList.size() == 0 || driverList.size() > 1) {
+                System.out.println("无此人或重名:" + acctName + "-" + acctNo);
+                continue;
+            }
+            Driver driver = driverList.get(0);
+            Account account = new Account();
+            account.setAccount(acctNo);
+            account.setDriverId(driver.getId());
+            account.setPlatform(Const.PaymentPlatform.pingan.getCode());
+            account.setName(acctName);
+            accountMapper.insert(account);
+        }
     }
 }
 

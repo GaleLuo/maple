@@ -43,8 +43,10 @@ public class BankStatementQueryTask {
     //每小时执行一次
     public void queryKunMingPingAn() throws Exception {
         Date today = new Date();
-        ServerResponse response = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-        insertPingAn((List) response.getData());
+        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),today, today);
+        insertPingAn((List) km.getData());
+        insertPingAn((List) cd.getData());
     }
 
 
@@ -57,24 +59,31 @@ public class BankStatementQueryTask {
                 String name = (String) map.get("交易方姓名");
                 BigDecimal amount = (BigDecimal) map.get("交易金额");
                 String serialNo = (String) map.get("交易流水号");
+                String comment = (String) map.get("备注");
                 Account account = accountMapper.selectByAccNo(accountNo);
                 PeriodPayment newPayment = new PeriodPayment();
                 Date payTime = DateTimeUtil.strToDate(time, "yyyy-MM-dd HH:mm:ss");
                 if (account == null) {
                     //如果未知交款人
                     newPayment.setPayment(amount);
-                    //付款人
-                    newPayment.setPayer(name);
                     //付款账号
                     newPayment.setAccountNumber(accountNo);
                     //付款平台
                     newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
                     //平台流水号
                     newPayment.setPlatformNumber(serialNo);
-                    //支付状态默认为正常
+                    //支付状态默认为未确认
                     newPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
                     //备注：添加人：系统导入
-                    newPayment.setComment("添加人：系统导入");
+                    newPayment.setComment( "添加人：系统导入");
+                    if (name.contains("支付宝")) {
+                        //付款人变为格式comment+支付宝
+                        //支付宝姓名
+                        String zfbName = comment.substring(0, comment.indexOf("支付宝转账"));
+                        name = zfbName + "-支付宝转入";
+                    }
+                    //付款人
+                    newPayment.setPayer(name);
                     //付款对应日期
                     newPayment.setPayTime(payTime);
                     //付款时间

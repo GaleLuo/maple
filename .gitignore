@@ -32,3 +32,5 @@ target/
 
 .DS_Store
 Thumbs.db
+/src/main/java/com/maple/service/impl/OCRService.java
+/src/main/java/com/maple/controller/portal/OCRController.java

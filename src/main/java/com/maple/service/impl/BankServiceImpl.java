@@ -442,6 +442,7 @@ public class BankServiceImpl implements IBankService{
 //            cell4.setCellType(Cell.CELL_TYPE_STRING);
             Cell amountCell = row.getCell(4);
 //            cell5.setCellType(Cell.CELL_TYPE_STRING);
+            Cell commentCell = row.getCell(7);
             Cell serialCell = row.getCell(8);
 //            cell9.setCellType(Cell.CELL_TYPE_STRING);
             if (typeCell.getStringCellValue().equals("转入")) {
@@ -449,8 +450,8 @@ public class BankServiceImpl implements IBankService{
                 repaymentMap.put("交易方姓名", nameCell.getStringCellValue());
                 repaymentMap.put("交易方账号", accountCell.getStringCellValue());
                 repaymentMap.put("交易金额", new BigDecimal(amountCell.getStringCellValue()));
+                repaymentMap.put("备注", commentCell.getStringCellValue());
                 repaymentMap.put("交易流水号", serialCell.getStringCellValue());
-
                 data.add(repaymentMap);
             }
         }
