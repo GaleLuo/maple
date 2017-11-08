@@ -176,7 +176,6 @@ public class BankServiceImpl implements IBankService{
             Thread.sleep(1000);
 
             inputStream = page.getWebResponse().getContentAsStream();
-            System.out.println(page.getWebResponse().getContentAsString());
             Map result = JsonUtil.pingAnBalance(inputStream);
             Map balanceDtoMap = (Map) result.get("balanceDtoMap");
             String acctNo = null;
