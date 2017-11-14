@@ -456,9 +456,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         periodPaymentListVo.setDriverId(periodPayment.getDriverId());
         Car car = carMapper.selectByPrimaryKey(periodPayment.getCarId());
         Driver driver = driverMapper.selectByPrimaryKey(periodPayment.getDriverId());
-
-        BigDecimal driverDueAmount = getDriverDueAmount(periodPayment.getDriverId(), startDate, endDate);
-        periodPaymentListVo.setDueAmount(driverDueAmount);
+        PeriodPlan periodPlan1 = periodPlanMapper.selectByDateAndCoModel(startDate, driver.getCoModelId());
+        periodPaymentListVo.setDueAmount(periodPlan1.getAmount());
         CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
         List<PeriodPlan> periodPlanList = periodPlanMapper.selectByCoModelId(driver.getCoModelId());
         PeriodPlan periodPlan = periodPlanList.get(0);

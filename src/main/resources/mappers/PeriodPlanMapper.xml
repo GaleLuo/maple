@@ -25,7 +25,15 @@
     SELECT <include refid="Base_Column_List"/>
     FROM maple_period_plan WHERE co_model_id = #{coModelId}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="selectByDateAndCoModel" resultType="com.maple.pojo.PeriodPlan">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_period_plan
+      WHERE co_model_id = #{coModelId}
+      and start_date &lt;=#{startDate}
+      and end_date &gt;= #{startDate}
+
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_period_plan
     where id = #{id,jdbcType=INTEGER}
   </delete>

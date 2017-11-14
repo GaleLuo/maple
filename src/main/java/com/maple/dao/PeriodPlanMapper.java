@@ -1,7 +1,9 @@
 package com.maple.dao;
 
 import com.maple.pojo.PeriodPlan;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.Date;
 import java.util.List;
 
 public interface PeriodPlanMapper {
@@ -18,4 +20,6 @@ public interface PeriodPlanMapper {
     int updateByPrimaryKey(PeriodPlan record);
 
     List<PeriodPlan> selectByCoModelId(Integer coModelId);
+
+    PeriodPlan selectByDateAndCoModel(@Param("startDate") Date startDate, @Param("coModelId") Integer coModelId);
 }
