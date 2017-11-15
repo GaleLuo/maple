@@ -128,7 +128,7 @@
   <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
     cm.period_end_date &gt;= #{endDate}
-    and #{startDate} &gt;= (select min(start_date) from maple_period_plan pp where pp.co_model_id = d.co_model_id)
+    and #{startDate} &gt;= (select DATE_ADD(min(start_date),interval -day(min(start_date))+1 day)  from maple_period_plan pp where pp.co_model_id = d.co_model_id)
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
     </if>

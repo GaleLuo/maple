@@ -78,7 +78,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         }
         String msg = "";
         //添加常用账户
-        if (addToAccount!=null&&addToAccount) {
+        if (addToAccount!=null&&addToAccount&&!payer.contains("支付宝")) {
             Account account = accountMapper.selectByAccNo(platformNum);
             if (account != null) {
                 msg = "，常用账户添加失败，该账户已存在";

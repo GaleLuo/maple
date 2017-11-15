@@ -29,8 +29,8 @@
       SELECT <include refid="Base_Column_List"/>
       FROM maple_period_plan
       WHERE co_model_id = #{coModelId}
-      and start_date &lt;=#{startDate}
-      and end_date &gt;= #{startDate}
+      and DATE_ADD(start_date,interval -day(start_date)+1 day) &lt;=#{startDate}
+      and DATE_ADD(end_date,interval -day(end_date)+1 day) &gt;= #{startDate}
 
     </select>
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
