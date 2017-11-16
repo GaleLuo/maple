@@ -24,13 +24,12 @@ import com.maple.util.DateTimeUtil;
 import com.maple.util.SmsUtil;
 import com.maple.util.WeiCheUtil;
 import com.maple.vo.PingAnBalanceListVo;
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -266,6 +265,8 @@ public class Test extends TestBase {
         Thread.sleep(1000);
         driver.get("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.htm");
 
+//        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+//        FileUtils.copyFile(screenShot,new File("/User/"));
 
     }
 
