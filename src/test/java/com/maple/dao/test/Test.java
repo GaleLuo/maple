@@ -28,6 +28,10 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -38,10 +42,7 @@ import java.io.*;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Maple.Ran on 2017/5/31.
@@ -225,12 +226,6 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void driverTest() throws Exception {
-        List<Car> carList = carMapper.selectCarListForTicket();
-        Car car = carList.get(139);
-        System.out.println(car.getEngineNumber());
-        System.out.println(car.getPlateNumber());
-        System.out.println(car.getVin());
-
     }
 
     @org.junit.Test
@@ -246,32 +241,43 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void test() throws Exception {
+        System.setProperty("webdriver.chrome.driver", "/Users/Maple.Ran/Downloads/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        driver.get("https://auth.alipay.com/login/index.htm");
 
-        String GUYU = "https://wave.xiaojukeji.com/v2/dc/finishorder/driver?org_id=2367&start_time=2017-05-20&end_time=2017-05-20&order_type=2&size=100&page=3";
-        String DOAMIN = "wave.xiaojukeji.com";
-        WebClient webClient = new WebClient();
-        webClient.getOptions().setUseInsecureSSL(true);
-        webClient.getOptions().setJavaScriptEnabled(false);
-        webClient.getOptions().setCssEnabled(false);
-        webClient.getOptions().setRedirectEnabled(true);
-        webClient.getOptions().setThrowExceptionOnScriptError(false);
-        webClient.setAjaxController(new NicelyResynchronizingAjaxController());
-        URL url = new URL(GUYU);
-        HtmlPage page=null;
+        driver.findElement(By.xpath("//*[@id=\"J-loginMethod-tabs\"]/li[2]")).click();
+        Thread.sleep(500);
 
-        webClient.getCookieManager().addCookie(new Cookie(DOAMIN, "wave_session", "197bbe766439ab6e7ad103513e6e71d553b69fff"));
+        driver.findElement(By.id("J-input-user")).clear();
 
-        try {
-            page = webClient.getPage(url);
-            System.out.println(page.asText());
-            Date expires = webClient.getCookieManager().getCookie("wave_session").getExpires();
-            System.out.println(DateTimeUtil.dateToStr(expires));
+        WebElement username = driver.findElement(By.id("J-input-user"));
+        slowInput(username,"shilihe001@163.com");
+        Thread.sleep(600);
+//        获取密码输入框
+        driver.findElement(By.id("password_rsainput")).clear();
+        WebElement password = driver.findElement(By.id("password_rsainput"));
+        slowInput(password,"901901jj");
 
-        } catch (FailingHttpStatusCodeException e) {
-            System.out.println("Session已过期,需要重新登录");
+
+        WebElement button = driver.findElement(By.id("J-login-btn"));
+        Thread.sleep(1000);
+        button.click();
+
+        Thread.sleep(1000);
+        driver.get("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.htm");
+
+
+    }
+
+    private void slowInput(WebElement element, String string) {
+        for (int i =0; i<string.length();i++) {
+            element.sendKeys(string.substring(i,i+1));
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-
-
     }
 
     @org.junit.Test
