@@ -21,16 +21,17 @@ import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.DateTimeUtil;
-import com.maple.util.HTTPUtil;
 import com.maple.util.SmsUtil;
 import com.maple.util.WeiCheUtil;
 import com.maple.vo.PingAnBalanceListVo;
-import org.apache.commons.io.FileUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
-import org.openqa.selenium.*;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,11 +39,17 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageReader;
 import javax.swing.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Maple.Ran on 2017/5/31.
@@ -89,9 +96,6 @@ public class Test extends TestBase {
     private static final int PINGAN = 21;
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
-        Date today = new Date();
-        ServerResponse response = iBankService.pingAnStatement(Const.Branch.CD.getCode(), new DateTime("2017-06-11").toDate(), today);
-        bankStatementQueryTask.insertPingAn((List) response.getData());
     }
 
     @org.junit.Test
@@ -241,7 +245,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void test() throws Exception {
-        System.setProperty("webdriver.chrome.driver", "/Users/Maple.Ran/Downloads/chromedriver");
+        System.setProperty("webdriver.chrome.driver", "/Users/Maple.Ran/IdeaProjects/maple/src/main/resources/chromedriver");
         WebDriver driver = new ChromeDriver();
         driver.get("https://auth.alipay.com/login/index.htm");
 
@@ -263,11 +267,44 @@ public class Test extends TestBase {
         Thread.sleep(1000);
         button.click();
 
-        Thread.sleep(1000);
-        driver.get("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.htm");
-
-        HTTPUtil.sendPost("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.json", "");
-
+        Thread.sleep(500);
+        org.openqa.selenium.Cookie ctoken = driver.manage().getCookieNamed("ctoken");
+        ((JavascriptExecutor) driver).executeScript("function post(URL, PARAMS) {\n" +
+                "  var temp = document.createElement(\"form\");\n" +
+                "  temp.action = URL;\n" +
+                "  temp.method = \"post\";\n" +
+                "  temp.style.display = \"none\";\n" +
+                "  for (var x in PARAMS) {\n" +
+                "    var opt = document.createElement(\"textarea\");\n" +
+                "    opt.name = PARAMS[x].name;\n" +
+                "    opt.value = PARAMS[x].value;\n" +
+                "    // alert(opt.name)\n" +
+                "    temp.appendChild(opt);\n" +
+                "  }\n" +
+                "  document.body.appendChild(temp);\n" +
+                "  temp.submit();\n" +
+                "  return temp;\n" +
+                "}\n"+"post(\"https://mbillexprod.alipay.com/enterprise/fundAccountDetail.json\",\n" +
+                "[\n" +
+                "{name:\"queryEntrance\",value:\"1\"},\n" +
+                "{name:\"billUserId\",value:\"2088721226451734\"},\n" +
+                "{name:\"showType\",value:\"0\"},\n" +
+                "{name:\"type\",value:\"\"},\n" +
+                "{name:\"precisionQueryKey\",value:\"tradeNo\"},\n" +
+                "{name:\"startDateInput\",value:\"2017-10-18 00:00:00\"},\n" +
+                "{name:\"endDateInput\",value:\"2017-11-17 00:00:00\"},\n" +
+                "{name:\"pageSize\",value:\"500\"},\n" +
+                "{name:\"pageNum\",value:\"1\"},\n" +
+                "{name:\"total\",value:\"13\"},\n" +
+                "{name:\"sortTarget\",value:\"tradeTime\"},\n" +
+                "{name:\"order\",value:\"descend\"},\n" +
+                "{name:\"sortType\",value:\"0\"},\n" +
+                "{name:\"_input_charset\",value:\"gbk\"},\n" +
+                "{name:\"ctoken\",value:\"uQBpMbKrWhNyjG4q\"},\n" +
+                "])");
+        System.out.println(driver.findElement(By.xpath("/html/body/pre")).getText());
+        driver.close();
+//          截图
 //        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 //        FileUtils.copyFile(screenShot,new File("/User/"));
 
@@ -277,7 +314,7 @@ public class Test extends TestBase {
         for (int i =0; i<string.length();i++) {
             element.sendKeys(string.substring(i,i+1));
             try {
-                Thread.sleep(500);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

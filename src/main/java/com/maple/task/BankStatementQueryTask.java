@@ -14,6 +14,7 @@ import com.maple.service.IBankService;
 import com.maple.service.impl.BankServiceImpl;
 import com.maple.util.DateTimeUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -43,14 +44,15 @@ public class BankStatementQueryTask {
     //每小时执行一次
     public void queryKunMingPingAn() throws Exception {
         Date today = new Date();
-        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),today, today);
+        Date start = new DateTime().plusDays(-3).toDate();
+        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),start, today);
+        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),start, today);
         insertPingAn((List) km.getData());
         insertPingAn((List) cd.getData());
     }
 
 
-    public void insertPingAn(List maps) {
+    private void insertPingAn(List maps) {
         if (CollectionUtils.isNotEmpty(maps)) {
             for (int i = 0; i < maps.size(); i++) {
                 Map map = (Map) maps.get(i);
