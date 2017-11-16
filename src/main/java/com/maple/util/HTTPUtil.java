@@ -3,12 +3,14 @@ package com.maple.util;
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Maple.Ran on 2017/11/16.
  */
 public class HTTPUtil {
-    public static InputStream sendPost(String url, String param) {
+    public static InputStream sendPost(String url, Map params) {
         PrintWriter out = null;
         BufferedReader in = null;
         InputStream inputStream = null;
@@ -27,7 +29,13 @@ public class HTTPUtil {
             // 获取URLConnection对象对应的输出流
             out = new PrintWriter(conn.getOutputStream());
             // 发送请求参数
+            Set set = params.keySet();
+            for (Object o : set) {
+
+            }
             out.print(param);
+
+
             // flush输出流的缓冲
             out.flush();
             // 定义BufferedReader输入流来读取URL的响应

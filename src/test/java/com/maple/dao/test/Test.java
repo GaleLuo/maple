@@ -21,6 +21,7 @@ import com.maple.service.impl.*;
 import com.maple.task.BankStatementQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.DateTimeUtil;
+import com.maple.util.HTTPUtil;
 import com.maple.util.SmsUtil;
 import com.maple.util.WeiCheUtil;
 import com.maple.vo.PingAnBalanceListVo;
@@ -264,6 +265,8 @@ public class Test extends TestBase {
 
         Thread.sleep(1000);
         driver.get("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.htm");
+
+        HTTPUtil.sendPost("https://mbillexprod.alipay.com/enterprise/fundAccountDetail.json", "");
 
 //        File screenShot = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
 //        FileUtils.copyFile(screenShot,new File("/User/"));
