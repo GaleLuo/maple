@@ -1,11 +1,14 @@
 package com.maple.util;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.sun.tools.javac.code.Scope;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +50,22 @@ public class JsonUtil {
         if (!oldChannelSeqNo.isMissingNode()) {
             data.put("oldChannelSeqNo", oldChannelSeqNo.getTextValue());
         }
+        return data;
+    }
+
+    public static List alipayBalance(String str) {
+        List data = Lists.newArrayList();
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            JsonNode root = mapper.readTree(str);
+            JsonNode result = root.path("result");
+            JsonNode detail = result.path("detail");
+            data = mapper.readValue(detail, List.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return data;
     }
 }

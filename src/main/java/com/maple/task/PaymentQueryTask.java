@@ -12,7 +12,10 @@ import com.maple.pojo.Driver;
 import com.maple.pojo.PeriodPayment;
 import com.maple.service.IBankService;
 import com.maple.service.impl.BankServiceImpl;
+import com.maple.util.AliQueryUtil;
 import com.maple.util.DateTimeUtil;
+import com.maple.util.JsonUtil;
+import org.apache.bcel.classfile.Code;
 import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +31,7 @@ import java.util.Map;
  * Created by Maple.Ran on 2017/7/12.
  */
 @Component
-public class BankStatementQueryTask {
+public class PaymentQueryTask {
     @Autowired
     private PeriodPaymentMapper periodPaymentMapper;
     @Autowired
@@ -40,28 +43,69 @@ public class BankStatementQueryTask {
     @Autowired
     private IBankService iBankService;
 
-    @Scheduled(cron = "0 0 0/1 * * ?")
+//    @Scheduled(cron = "0 0 0/1 * * ?")
     //每小时执行一次
     public void queryKunMingPingAn() throws Exception {
         Date today = new Date();
-        Date start = new DateTime().plusDays(-3).toDate();
-        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),start, today);
-        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),start, today);
-        insertPingAn((List) km.getData());
-        insertPingAn((List) cd.getData());
+        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),today, today);
+        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
+
+
+        List kmMapList = (List) km.getData();
+        List cdMapList = (List) cd.getData();
+        if (CollectionUtils.isNotEmpty(kmMapList)||CollectionUtils.isNotEmpty(cdMapList)) {
+            return;
+        }
+
+        insertByList(kmMapList);
+        insertByList(cdMapList);
+
+
     }
 
 
-    private void insertPingAn(List maps) {
-        if (CollectionUtils.isNotEmpty(maps)) {
-            for (int i = 0; i < maps.size(); i++) {
-                Map map = (Map) maps.get(i);
-                String time = (String) map.get("交易时间");
-                String accountNo = (String) map.get("交易方账号");
-                String name = (String) map.get("交易方姓名");
-                BigDecimal amount = (BigDecimal) map.get("交易金额");
-                String serialNo = (String) map.get("交易流水号");
-                String comment = (String) map.get("备注");
+    public void queryAlipay() {
+            Date today = new Date();
+            Date start = new DateTime().plusDays(-3).toDate();
+            String jsonStr = AliQueryUtil.getJsonStr(start, today);
+            List list = JsonUtil.alipayBalance(jsonStr);
+            for (Object o : list) {
+                Map detail = (Map) o;
+                String time = (String) detail.get("tradeTime");
+                String serialNo = (String) detail.get("tradeNo");
+                String payer = (String) detail.get("otherAccountFullname");
+                String accountNo = (String) detail.get("otherAccountEmail");
+                String amountStr = (String) detail.get("tradeAmount");
+                BigDecimal amount = new BigDecimal(amountStr);
+                String comment = (String) detail.get("transMemo");
+                PeriodPayment periodPayment = periodPaymentMapper.selectBySerialNo(serialNo);
+                if (periodPayment == null&&amount.compareTo(BigDecimal.ZERO)>0) {
+                    PeriodPayment newPayment = assemblePeriodPayment(time, serialNo, payer, accountNo, comment, amount, Const.PaymentPlatform.alipay.getCode());
+                    periodPaymentMapper.insertSelective(newPayment);
+                }
+            }
+    }
+
+    private void insertByList(List data) {
+        for (Object o : data) {
+            Map map = (Map) o;
+            String time = (String) map.get("交易时间");
+            String accountNo = (String) map.get("交易方账号");
+            String payer = (String) map.get("交易方姓名");
+            BigDecimal amount = (BigDecimal) map.get("交易金额");
+            String serialNo = (String) map.get("交易流水号");
+            String comment = (String) map.get("备注");
+            PeriodPayment periodPayment = periodPaymentMapper.selectBySerialNo(serialNo);
+            if (periodPayment == null&&amount.compareTo(BigDecimal.ZERO)>0) {
+                PeriodPayment newPayment = assemblePeriodPayment(time, serialNo, payer, accountNo, comment, amount, Const.PaymentPlatform.pingan.getCode());
+                periodPaymentMapper.insertSelective(newPayment);
+            }
+        }
+    }
+
+
+    private PeriodPayment assemblePeriodPayment(String time,String serialNo,String payer,String accountNo,String comment,
+                                                BigDecimal amount,Integer platformCode) {
                 Account account = accountMapper.selectByAccNo(accountNo);
                 PeriodPayment newPayment = new PeriodPayment();
                 Date payTime = DateTimeUtil.strToDate(time, "yyyy-MM-dd HH:mm:ss");
@@ -71,21 +115,21 @@ public class BankStatementQueryTask {
                     //付款账号
                     newPayment.setAccountNumber(accountNo);
                     //付款平台
-                    newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
+                    newPayment.setPaymentPlatform(platformCode);
                     //平台流水号
                     newPayment.setPlatformNumber(serialNo);
                     //支付状态默认为未确认
                     newPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
                     //备注：添加人：系统导入
                     newPayment.setComment( "添加人：系统导入");
-                    if (name.contains("支付宝")) {
+                    if (payer.contains("支付宝")) {
                         //付款人变为格式comment+支付宝
                         //支付宝姓名
                         String zfbName = comment.substring(0, comment.indexOf("支付宝转账"));
-                        name = zfbName + "-支付宝转入";
+                        payer = zfbName + "-支付宝转入";
                     }
                     //付款人
-                    newPayment.setPayer(name);
+                    newPayment.setPayer(payer);
                     //付款对应日期
                     newPayment.setPayTime(payTime);
                     //付款时间
@@ -105,11 +149,11 @@ public class BankStatementQueryTask {
                     //付款金额
                     newPayment.setPayment(amount);
                     //付款人
-                    newPayment.setPayer(name);
+                    newPayment.setPayer(payer);
                     //付款账号
                     newPayment.setAccountNumber(accountNo);
                     //付款平台
-                    newPayment.setPaymentPlatform(Const.PaymentPlatform.pingan.getCode());
+                    newPayment.setPaymentPlatform(platformCode);
                     //平台流水号
                     newPayment.setPlatformNumber(serialNo);
                     //支付状态默认为正常
@@ -122,12 +166,7 @@ public class BankStatementQueryTask {
                     newPayment.setCreateTime(payTime);
 
                 }
-                PeriodPayment periodPayment = periodPaymentMapper.selectBySerialNo(serialNo);
-                if (periodPayment == null) {
-                    periodPaymentMapper.insertSelective(newPayment);
-                }
-            }
-        }
+        return newPayment;
     }
 
 }

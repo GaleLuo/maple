@@ -18,11 +18,9 @@ import com.maple.jo.FinishOrder;
 import com.maple.pojo.*;
 import com.maple.service.IBankService;
 import com.maple.service.impl.*;
-import com.maple.task.BankStatementQueryTask;
+import com.maple.task.PaymentQueryTask;
 import com.maple.test.TestBase;
-import com.maple.util.DateTimeUtil;
-import com.maple.util.SmsUtil;
-import com.maple.util.WeiCheUtil;
+import com.maple.util.*;
 import com.maple.vo.PingAnBalanceListVo;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
@@ -87,7 +85,7 @@ public class Test extends TestBase {
     @Autowired
     private AccountMapper accountMapper;
     @Autowired
-    private BankStatementQueryTask bankStatementQueryTask;
+    private PaymentQueryTask paymentQueryTask;
     @Autowired
     private IBankService iBankService;
 
@@ -96,6 +94,7 @@ public class Test extends TestBase {
     private static final int PINGAN = 21;
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
+        paymentQueryTask.queryAlipay();
     }
 
     @org.junit.Test
@@ -269,39 +268,7 @@ public class Test extends TestBase {
 
         Thread.sleep(500);
         org.openqa.selenium.Cookie ctoken = driver.manage().getCookieNamed("ctoken");
-        ((JavascriptExecutor) driver).executeScript("function post(URL, PARAMS) {\n" +
-                "  var temp = document.createElement(\"form\");\n" +
-                "  temp.action = URL;\n" +
-                "  temp.method = \"post\";\n" +
-                "  temp.style.display = \"none\";\n" +
-                "  for (var x in PARAMS) {\n" +
-                "    var opt = document.createElement(\"textarea\");\n" +
-                "    opt.name = PARAMS[x].name;\n" +
-                "    opt.value = PARAMS[x].value;\n" +
-                "    // alert(opt.name)\n" +
-                "    temp.appendChild(opt);\n" +
-                "  }\n" +
-                "  document.body.appendChild(temp);\n" +
-                "  temp.submit();\n" +
-                "  return temp;\n" +
-                "}\n"+"post(\"https://mbillexprod.alipay.com/enterprise/fundAccountDetail.json\",\n" +
-                "[\n" +
-                "{name:\"queryEntrance\",value:\"1\"},\n" +
-                "{name:\"billUserId\",value:\"2088721226451734\"},\n" +
-                "{name:\"showType\",value:\"0\"},\n" +
-                "{name:\"type\",value:\"\"},\n" +
-                "{name:\"precisionQueryKey\",value:\"tradeNo\"},\n" +
-                "{name:\"startDateInput\",value:\"2017-10-18 00:00:00\"},\n" +
-                "{name:\"endDateInput\",value:\"2017-11-17 00:00:00\"},\n" +
-                "{name:\"pageSize\",value:\"500\"},\n" +
-                "{name:\"pageNum\",value:\"1\"},\n" +
-                "{name:\"total\",value:\"13\"},\n" +
-                "{name:\"sortTarget\",value:\"tradeTime\"},\n" +
-                "{name:\"order\",value:\"descend\"},\n" +
-                "{name:\"sortType\",value:\"0\"},\n" +
-                "{name:\"_input_charset\",value:\"gbk\"},\n" +
-                "{name:\"ctoken\",value:\"uQBpMbKrWhNyjG4q\"},\n" +
-                "])");
+        ((JavascriptExecutor) driver).executeScript("function post(URL, PARAMS) {var temp = document.createElement(\"form\");temp.action = URL;temp.method = \"post\";temp.style.display = \"none\";for (var x in PARAMS) {var opt = document.createElement(\"textarea\");opt.name = PARAMS[x].name;opt.value = PARAMS[x].value;temp.appendChild(opt);}document.body.appendChild(temp);temp.submit();return temp;}post(\"https://mbillexprod.alipay.com/enterprise/fundAccountDetail.json\",[{name:\"queryEntrance\",value:\"1\"},{name:\"billUserId\",value:\"2088721226451734\"},{name:\"showType\",value:\"0\"},{name:\"type\",value:\"\"},{name:\"precisionQueryKey\",value:\"tradeNo\"},{name:\"startDateInput\",value:\"2017-10-18 00:00:00\"},{name:\"endDateInput\",value:\"2017-11-17 00:00:00\"},{name:\"pageSize\",value:\"500\"},{name:\"pageNum\",value:\"1\"},{name:\"total\",value:\"13\"},{name:\"sortTarget\",value:\"tradeTime\"},{name:\"order\",value:\"descend\"},{name:\"sortType\",value:\"0\"},{name:\"_input_charset\",value:\"gbk\"},{name:\"ctoken\",value:\""+ctoken.getValue()+"\"},])");
         System.out.println(driver.findElement(By.xpath("/html/body/pre")).getText());
         driver.close();
 //          截图
