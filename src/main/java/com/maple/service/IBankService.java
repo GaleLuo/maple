@@ -14,7 +14,6 @@ import java.util.Map;
  * Created by Maple.Ran on 2017/11/4.
  */
 public interface IBankService {
-    ServerResponse pingAnStatement(Integer branch, Date startDate, Date endDate) throws Exception;
 
     ServerResponse<Map> pingAnQueryOtherBankBalance(Integer branch);
 
@@ -23,4 +22,10 @@ public interface IBankService {
     List<Map<String, Object>> ccbAnalyze(InputStream inputStream) throws IOException;
 
     ServerResponse refreshPinganBalance(Integer branch, String agreementNo);
+
+    void closeConnection();
+
+    boolean bankLogin(Integer branch) throws Exception;
+
+    List<Map<String, Object>> statement(Date startDate, Date endDate, Integer branch) throws Exception;
 }

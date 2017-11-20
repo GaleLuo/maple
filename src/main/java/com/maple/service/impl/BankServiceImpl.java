@@ -17,7 +17,6 @@ import com.maple.util.DateTimeUtil;
 import com.maple.util.JsonUtil;
 import com.maple.util.PropertiesUtil;
 import com.maple.vo.PingAnBalanceListVo;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -32,11 +31,13 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.DecimalFormat;
 import java.text.ParseException;
-import java.util.*;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Maple.Ran on 2017/6/19.
@@ -45,7 +46,6 @@ import java.util.*;
 public class BankServiceImpl implements IBankService{
     @Autowired
     private static AccountMapper accountMapper;
-
 
     private static final Logger logger = LoggerFactory.getLogger(BankServiceImpl.class);
 
@@ -65,20 +65,9 @@ public class BankServiceImpl implements IBankService{
     private static final String PINGAN_KUNMING_PASSWORD = "abc831328";
 
 
-
     public ServerResponse pingAnStatement(Integer branch, Date startDate, Date endDate) throws Exception {
-        try {
-            bankLogin(branch);
-        } catch (Exception e) {
-            return ServerResponse.createByErrorMessage("抓取数据失败,请刷新页面");
-        }finally {
-            //释放内存
-            webClient.getCurrentWindow().getJobManager().removeAllJobs();
-            webClient.close();
-            System.gc();
-        }
-
-        return ServerResponse.createBySuccess(statement(webClient, startDate, endDate,branch));
+        bankLogin(branch);
+        return ServerResponse.createBySuccess(statement(startDate,endDate,branch));
     }
 
     public ServerResponse<Map> pingAnQueryOtherBankBalance(Integer branch) {
@@ -356,7 +345,8 @@ public class BankServiceImpl implements IBankService{
 
     }
 
-    private boolean bankLogin(Integer branch) throws Exception {
+    public boolean bankLogin(Integer branch) throws Exception {
+        logger.debug("开始尝试登录");
         webClient = new WebClient();
         webClient.getOptions().setUseInsecureSSL(true);
         webClient.getOptions().setJavaScriptEnabled(true);
@@ -394,7 +384,7 @@ public class BankServiceImpl implements IBankService{
         return result.contains("上次登录时间");
     }
 
-    private List<Map<String, Object>> statement(WebClient webClient, Date startDate, Date endDate,Integer branch) throws Exception {
+    public List<Map<String, Object>> statement(Date startDate, Date endDate,Integer branch) throws Exception {
 
         //转换日期
         String start = DateTimeUtil.dateToStr(startDate, "yyyyMMdd");
@@ -419,11 +409,10 @@ public class BankServiceImpl implements IBankService{
         webRequest.setRequestParameters(reqParams);
         //发送请求
         Page downloadPage = webClient.getPage(webRequest);
-
+        logger.debug("开始发送请求");
         //等待加载
         Thread.sleep(3 * 1000);
         InputStream in = downloadPage.getWebResponse().getContentAsStream();
-
 
         List<Map<String, Object>> data = Lists.newArrayList();
         HSSFWorkbook workbook = new HSSFWorkbook(in);

@@ -23,6 +23,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -43,23 +44,41 @@ public class PaymentQueryTask {
     @Autowired
     private IBankService iBankService;
 
-//    @Scheduled(cron = "0 0 0/1 * * ?")
-    //每小时执行一次
-    public void queryKunMingPingAn() throws Exception {
+    @Scheduled(cron = "0 10 0/1 * * ?")
+    public void queryPingAn() throws Exception {
         Date today = new Date();
-        ServerResponse cd = iBankService.pingAnStatement(Const.Branch.CD.getCode(),today, today);
-        ServerResponse km = iBankService.pingAnStatement(Const.Branch.KM.getCode(),today, today);
-
-
-        List kmMapList = (List) km.getData();
-        List cdMapList = (List) cd.getData();
-        if (CollectionUtils.isNotEmpty(kmMapList)||CollectionUtils.isNotEmpty(cdMapList)) {
-            return;
+        Date weekStartDate = DateTimeUtil.getWeekStartDate(today);
+        //成都数据
+        iBankService.bankLogin(Const.Branch.CD.getCode());
+        //请求当天数据
+        List<Map<String, Object>> cdToday = iBankService.statement(today, today, Const.Branch.CD.getCode());
+        //请求本周数据
+        List<Map<String, Object>> cdWeek = iBankService.statement(weekStartDate, today, Const.Branch.CD.getCode());
+        if (CollectionUtils.isNotEmpty(cdToday)) {
+            insertByList(cdToday);
         }
 
-        insertByList(kmMapList);
-        insertByList(cdMapList);
+        if (CollectionUtils.isNotEmpty(cdWeek)) {
+            insertByList(cdWeek);
+        }
+        //关闭连接
+        iBankService.closeConnection();
 
+        //昆明
+        iBankService.bankLogin(Const.Branch.KM.getCode());
+        //请求当天数据
+        List<Map<String, Object>> kmToday = iBankService.statement(today, today, Const.Branch.KM.getCode());
+        //请求本周数据
+        List<Map<String, Object>> kmWeek = iBankService.statement(weekStartDate, today, Const.Branch.KM.getCode());
+        if (CollectionUtils.isNotEmpty(kmToday)) {
+            insertByList(kmToday);
+        }
+
+        if (CollectionUtils.isNotEmpty(kmWeek)) {
+            insertByList(kmWeek);
+        }
+        //关闭连接
+        iBankService.closeConnection();
 
     }
 
