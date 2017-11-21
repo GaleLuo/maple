@@ -157,8 +157,9 @@ public class PaymentQueryTask {
                 } else {
                     Driver driver = driverMapper.selectByPrimaryKey(account.getDriverId());
                     CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
+                    Date weekStartDate = new Date();
                     if (coModel.getModelType() == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
-                        payTime = DateTimeUtil.getWeekStartDate(payTime);
+                        weekStartDate = DateTimeUtil.getWeekStartDate(payTime);
                     }
                     //平安银行当日数据，只能是起始和结束日期都为当日，否则没有当日数据
                     // 司机id
@@ -180,7 +181,7 @@ public class PaymentQueryTask {
                     //备注：添加人：系统导入
                     newPayment.setComment("添加人:系统导入");
                     //付款对应日期
-                    newPayment.setPayTime(payTime);
+                    newPayment.setPayTime(weekStartDate);
                     //付款时间
                     newPayment.setCreateTime(payTime);
 
