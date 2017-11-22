@@ -29,6 +29,9 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
@@ -103,15 +106,7 @@ public class Test extends TestBase {
     private static final Logger logger = LoggerFactory.getLogger(Test.class);
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
-
-        FTPClient ftpClient = new FTPSClient();
-
-
-        ftpClient.connect("cdslh.iok.la");
-        boolean login = ftpClient.login("maple_ran", "coffeeran");
-        logger.debug("登录状态:{}",login);
-
-        ftpClient.disconnect();
+        System.out.println("test");
     }
 
 
@@ -751,28 +746,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void accountInsert() throws IOException {
-        File slh = new File("/Users/Maple.Ran/Downloads/accountInfo.xls");
-        InputStream fileInputStream = new FileInputStream(slh);
 
-        HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            String acctName = row.getCell(1).getStringCellValue();
-            String acctNo = row.getCell(2).getStringCellValue();
-            List<Driver> driverList = driverMapper.selectbydriverName(acctName);
-            if (driverList.size() == 0 || driverList.size() > 1) {
-                System.out.println("无此人或重名:" + acctName + "-" + acctNo);
-                continue;
-            }
-            Driver driver = driverList.get(0);
-            Account account = new Account();
-            account.setAccount(acctNo);
-            account.setDriverId(driver.getId());
-            account.setPlatform(Const.PaymentPlatform.pingan.getCode());
-            account.setName(acctName);
-            accountMapper.insert(account);
-        }
     }
 }
 
