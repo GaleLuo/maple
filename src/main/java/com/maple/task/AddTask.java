@@ -102,7 +102,7 @@ public class AddTask {
 
     private Integer inserCoModel(String modelType, Date startDate, Date endDate, Double downAmount,
                                  Double payment, Double month, Double totalAmount) {
-
+        return null;
     }
 
     private Integer insertDriver(String driverName,String phone,String idNo) {
