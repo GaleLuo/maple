@@ -262,8 +262,13 @@
     from maple_driver
     WHERE driver_status = #{status}
   </select>
+    <select id="selectByDriverIdNumber" resultMap="BaseResultMap">
+      SELECT <include refid="Base_Column_List"/>
+      FROM maple_driver
+      WHERE id_number = #{idNo}
+    </select>
 
-  <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
+    <update id="deleteDeletableDriverByUserIdAndDriverIds" parameterType="map">
     UPDATE status=5
     FROM maple_driver
     WHERE user_id=#{userId} and status in (0,4)

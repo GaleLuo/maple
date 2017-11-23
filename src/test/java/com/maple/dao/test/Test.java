@@ -18,6 +18,7 @@ import com.maple.jo.FinishOrder;
 import com.maple.pojo.*;
 import com.maple.service.IBankService;
 import com.maple.service.impl.*;
+import com.maple.task.AddTask;
 import com.maple.task.PaymentQueryTask;
 import com.maple.test.TestBase;
 import com.maple.util.DateTimeUtil;
@@ -98,6 +99,8 @@ public class Test extends TestBase {
     private PaymentQueryTask paymentQueryTask;
     @Autowired
     private IBankService iBankService;
+    @Autowired
+    private AddTask addTask;
 
     private static final int CCB = 15;
     private static final int CMB = 50;
@@ -106,7 +109,7 @@ public class Test extends TestBase {
     private static final Logger logger = LoggerFactory.getLogger(Test.class);
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
-        System.out.println("test");
+        addTask.addDriver();
     }
 
 

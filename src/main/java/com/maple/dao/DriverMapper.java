@@ -69,4 +69,6 @@ public interface DriverMapper {
     void updateNormalDriverPhoneStatusToUnconfirmed();
 
     List<Driver> selectDriverListByStatus(int code);
+
+    Driver selectByDriverIdNumber(String idNo);
 }

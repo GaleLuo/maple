@@ -148,6 +148,17 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         if (paymentStatus == null) {
             return ServerResponse.createByErrorMessage("参数错误");
         }
+        //如果要将状态转为正常或者逾期,付款中必须有司机id
+        if (paymentStatus == Const.PlatformStatus.PAID_NORMAL.getCode() || paymentStatus == Const.PlatformStatus.PAID_OVERDUE.getCode()) {
+            for (Integer paymentId : paymentIdArray) {
+                PeriodPayment periodPayment = periodPaymentMapper.selectByPrimaryKey(paymentId);
+                if (periodPayment == null || periodPayment.getDriverId() == null) {
+                    return ServerResponse.createByErrorMessage("请选择付款司机");
+                }
+            }
+        }
+
+
         int result = periodPaymentMapper.updateByPaymentStatus(paymentIdArray, paymentStatus);
         if (result > 0) {
             return ServerResponse.createBySuccessMessage("更新成功");
@@ -374,7 +385,8 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                     startDate = date;
                     endDate = DateTimeUtil.getWeekEndDate(date);
                     DriverTotalPaymentListVo driverPeriodGeneralListVo = assembleDriverTotalPaymentListVo(carId, startDate, endDate);
-                    String status = driverPeriodGeneralListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
+                    //差价1块钱以内记为当期结清
+                    String status = driverPeriodGeneralListVo.getReceivedAmount().subtract(periodPlan.getAmount()).intValue() >= -1 ? "当期结清" : "当期未结清";
                     driverPeriodGeneralListVo.setStatus(status);
                     driverPeriodGeneralListVo.setDueAmount(periodPlan.getAmount());
                     DriverTotalPaymentListVoList.add(driverPeriodGeneralListVo);
@@ -396,7 +408,7 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
                 DateTime periodStartDate = start.plusMonths(i);
                 DateTime periodEndDate = start.plusMonths(i+1).minusSeconds(1);//每周期结束日
                 DriverTotalPaymentListVo driverTotalPaymentListVo = assembleDriverTotalPaymentListVo(carId, periodStartDate.toDate(), periodEndDate.toDate());
-                String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= 0 ? "当期结清" : "当期未结清";
+                String status = driverTotalPaymentListVo.getReceivedAmount().compareTo(periodPlan.getAmount()) >= -1 ? "当期结清" : "当期未结清";
                 driverTotalPaymentListVo.setStatus(status);
                 driverTotalPaymentListVo.setDueAmount(periodPlan.getAmount());
 
