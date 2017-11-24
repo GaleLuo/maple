@@ -125,10 +125,24 @@
      SELECT count(id) FROM maple_driver
     WHERE id_number =#{idNumber}
   </select>
-  <select id="selectDriverReceivable" resultType="com.maple.pojo.Driver">
+
+  <select id="selectDriverReceivableGroupByCarId" resultType="com.maple.pojo.Driver">
+    select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
+    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline&gt;= #{endDate} and cm.final_amount &gt; 0))
+    and cm.period_end_date &gt;= #{endDate}
+    <if test="coModelType!=null">
+      and cm.model_type = #{coModelType}
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+    group by carId
+  </select>
+
+  <select id="selectDriverReceivableMonthly" resultType="com.maple.pojo.Driver">
     select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
     cm.period_end_date &gt;= #{endDate}
-    and #{startDate} &gt;= (select DATE_ADD(min(start_date),interval -day(min(start_date))+1 day)  from maple_period_plan pp where pp.co_model_id = d.co_model_id)
+    and #{startDate} &gt;= (select DATE_ADD(min(start_date),interval-day(min(start_date))+1 day)  from maple_period_plan pp where pp.co_model_id = d.co_model_id)
     <if test="coModelType!=null">
       and cm.model_type = #{coModelType}
     </if>
@@ -136,9 +150,25 @@
       and d.name like #{driverName}
     </if>
     <if test="branch!=null">
-      and d.car_id in (select id from maple_car where branch = #{branch})
+      and #{branch} = (select branch from maple_car where d.car_id = id)
     </if>
   </select>
+
+  <select id="selectDriverReceivableWeekly" resultType="com.maple.pojo.Driver">
+    select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
+    cm.period_end_date &gt;= #{endDate}
+    and #{startDate} &gt;= (select pp.start_date  from maple_period_plan pp where pp.co_model_id = d.co_model_id and pp.start_date &lt;= #{startDate} and pp.end_date &gt; #{endDate})
+    <if test="coModelType!=null">
+      and cm.model_type = #{coModelType}
+    </if>
+    <if test="driverName!=null">
+      and d.name like #{driverName}
+    </if>
+    <if test="branch!=null">
+      and #{branch} = (select branch from maple_car where d.car_id = id)
+    </if>
+  </select>
+
   <select id="selectDriverNotReceived" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/> FROM maple_driver as d WHERE (SELECT cm.id from maple_co_model as cm WHERE      cm.period_start_date &lt;= #{startDate}
     and cm.period_end_date &gt;= #{endDate}
@@ -152,21 +182,8 @@
       and d.name like #{driverName}
     </if>
     <if test="branch !=null">
-      and d.car_id in (select id from maple_car where branch =#{branch})
+      and #{branch} = (select branch from maple_car where d.car_id = id)
     </if>
-  </select>
-
-  <select id="selectDriverReceivableGroupByCarId" resultType="com.maple.pojo.Driver">
-    select d.id as id,d.car_id as carId FROM maple_driver as d left join maple_co_model as cm on cm.id=d.co_model_id where
-    ((cm.total_amount-cm.final_amount-cm.down_amount-(select IFNULL(SUM(pp.payment),0) from maple_period_payment as pp where d.car_id = pp.car_id)) &gt; 0 or  (cm.deadline&gt;= #{endDate} and cm.final_amount &gt; 0))
-    and cm.period_end_date &gt;= #{endDate}
-    <if test="coModelType!=null">
-      and cm.model_type = #{coModelType}
-    </if>
-    <if test="driverName!=null">
-      and d.name like #{driverName}
-    </if>
-    group by carId
   </select>
 
   <select id="selectDriverReceived" resultMap="BaseResultMap">
@@ -187,7 +204,7 @@
       and d.name like #{driverName}
     </if>
     <if test="branch!=null">
-      and d.car_id in (select id from maple_car where branch = #{branch})
+      and #{branch} = (select branch from maple_car where d.car_id = id)
     </if>
   </select>
 
@@ -203,10 +220,12 @@
     </if>
     ) and ((select sum(pp.payment) from maple_period_payment as pp where pp.car_id = d.car_id and pp.platform_status &gt; 0 and pp.pay_time &gt;= #{startDate} and pp.pay_time &lt; #{endDate}) &lt; (select ppl.amount from maple_period_plan as ppl where ppl.co_model_id = d.co_model_id and ppl.start_date &lt;= #{startDate}
     <if test="branch!=null">
-      and d.car_id in (select id from maple_car where branch = #{branch})
+      and #{branch} = (select branch from maple_car where d.car_id = id)
     </if>
     and ppl.end_date &gt; #{startDate}))
   </select>
+
+
   <select id="selectByParams" resultType="com.maple.pojo.Driver" parameterType="map">
     SELECT d.id as id,d.car_id as carId,d.driver_status as driverStatus,d.personal_phone as personalPhone,d.name as name,
     d.co_model_id as coModelId,d.phone_status as phoneStatus
@@ -257,10 +276,10 @@
       FROM maple_driver
       WHERE phone_status = #{phoneStatus}
     </select>
-  <select id="selectDriverListByStatus" resultMap="BaseResultMap">
+  <select id="selectDriverListByStatusAndBranch" resultMap="BaseResultMap">
     select <include refid="Base_Column_List"/>
-    from maple_driver
-    WHERE driver_status = #{status}
+    from maple_driver d
+    WHERE d.driver_status = #{status} and #{branch} = (select branch from maple_car where id = d.car_id)
   </select>
     <select id="selectByDriverIdNumber" resultMap="BaseResultMap">
       SELECT <include refid="Base_Column_List"/>

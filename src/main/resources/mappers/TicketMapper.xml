@@ -24,8 +24,8 @@
   </select>
   <select id="selectByCarId" resultMap="BaseResultMap">
     SELECT <include refid="Base_Column_List"/>
-    from maple_ticket
-    WHERE car_id=#{carId}
+    from maple_ticket t
+    WHERE t.update_time = (select max(update_time) from maple_ticket where car_id =#{carId})
   </select>
     <select id="selectCarIdListForSms" resultType="java.lang.Integer">
       SELECT car_id FROM maple_ticket
@@ -34,6 +34,10 @@
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_ticket
     where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteBeforeHalfMonth">
+    DELETE from maple_ticket
+    WHERE datediff(update_time,now()) >15
   </delete>
   <insert id="insert" parameterType="com.maple.pojo.Ticket" >
     insert into maple_ticket (id, car_id,plate_number, ticket_times,

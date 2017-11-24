@@ -32,10 +32,15 @@ public class SMSTask {
 
     @Scheduled(cron = "0 0 8 ? * MON")
     private void smsSend() {
+        String os = System.getProperties().getProperty("os.name");
+        if (os.contains("Mac")) {
+            return;
+        }
+
         //将所有正常运营的司机电话状态设为待定
         driverMapper.updateNormalDriverPhoneStatusToUnconfirmed();
 
-        List<Driver> driverList = driverMapper.selectDriverListByStatus(Const.DriverStatus.NORMAL_DRIVER.getCode());
+        List<Driver> driverList = driverMapper.selectDriverListByStatusAndBranch(Const.DriverStatus.NORMAL_DRIVER.getCode(),Const.Branch.CD.getCode());
         for (int i = 0; i<driverList.size();i++) {
             Driver driver = driverList.get(i);
             Car car = carMapper.selectByPrimaryKey(driver.getCarId());

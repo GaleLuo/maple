@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Created by Maple.Ran on 2017/10/18.
@@ -30,9 +31,13 @@ public class TicketQueryTask {
 
     @Scheduled(cron = "0 0 6 1/1 * ?")
     private void weicheQuery() {
+        String os = System.getProperties().getProperty("os.name");
+        if (os.contains("Mac")) {
+            return;
+        }
+
         List<Car> carList = carMapper.selectCarListForTicket();
-        for (int i =0;i<carList.size();i++){
-            Car car = carList.get(i);
+        for (Car car : carList) {
             Map ticketMap;
             try {
                 String vin = car.getVin().substring(car.getVin().length() - 6, car.getVin().length());
@@ -52,15 +57,11 @@ public class TicketQueryTask {
             newTicket.setMoney(Integer.parseInt(ticketMoney));
             newTicket.setScore(Integer.parseInt(ticketScore));
             newTicket.setTicketTimes(Integer.parseInt(ticketTimes));
-            Ticket ticketResult = ticketMapper.selectByCarId(car.getId());
-
-            if (ticketResult == null) {
-                ticketMapper.insert(newTicket);
-            } else {
-                newTicket.setId(ticketResult.getId());
-                ticketMapper.updateByPrimaryKeySelective(newTicket);
-            }
+            ticketMapper.insertSelective(newTicket);
         }
+        //删除半个月以前的数据
+        ticketMapper.deleteBeforeHalfMonth();
+
         logger.info("成功完成违章查询");
     }
 }

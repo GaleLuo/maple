@@ -238,11 +238,16 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
             startDate=DateTimeUtil.getMonthStartDate(dateTime);
             endDate = DateTimeUtil.getMonthEndDate(dateTime);
         }
-        List<Driver> driverList;
+        List<Driver> driverList = Lists.newArrayList();
         List<PeriodPaymentListVo> periodPaymentListVoList = Lists.newArrayList();
         //如果没有付款详情参数则查询所有司机信息,否则只查询有付款记录的
         if (payStatus==1) {
-            driverList = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, driverName,branch);
+            //用不同mapper的进行查询
+            if (coModelType == Const.CoModel.HIRE_PURCHASE_MONTH.getCode()) {
+                driverList = driverMapper.selectDriverReceivableMonthly(startDate, endDate, coModelType, driverName,branch);
+            } else if (coModelType == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
+                driverList = driverMapper.selectDriverReceivableWeekly(startDate, endDate, coModelType, driverName,branch);
+            }
         } else if (payStatus == 0) {
             driverList = driverMapper.selectDriverReceivedPartly(startDate,endDate,coModelType,driverName,branch);
         } else {
@@ -515,7 +520,13 @@ public class PeriodPaymentServiceImpl implements IPeriodPaymentService {
         BigDecimal ccbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.ccb.getCode(),branch);
         BigDecimal cmbReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.cmb.getCode(),branch);
         BigDecimal posReceived = periodPaymentMapper.findAmountReceived(startDate, endDate, coModelType, Const.PaymentPlatform.pos.getCode(),branch);
-        Integer driverNoReceivable = driverMapper.selectDriverReceivable(startDate, endDate, coModelType, null,branch).size();
+        //用不同mapper的筛选
+        Integer driverNoReceivable = 0;
+        if (coModelType == Const.CoModel.HIRE_PURCHASE_MONTH.getCode()) {
+            driverNoReceivable = driverMapper.selectDriverReceivableMonthly(startDate, endDate, coModelType, null,branch).size();
+        } else if (coModelType == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
+            driverNoReceivable = driverMapper.selectDriverReceivableWeekly(startDate, endDate, coModelType, null,branch).size();
+        }
         Integer driverNoReceived = driverMapper.selectDriverReceived(startDate, endDate, coModelType,null,branch).size();
         amountReceivable = amountReceivable == null ? BigDecimal.ZERO : amountReceivable;
         amountReceived = amountReceived == null ? BigDecimal.ZERO : amountReceived;

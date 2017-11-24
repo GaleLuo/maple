@@ -46,6 +46,11 @@ public class PaymentQueryTask {
 
     @Scheduled(cron = "0 10 0/1 * * ?")
     public void queryPingAn() throws Exception {
+        String os = System.getProperties().getProperty("os.name");
+        if (os.contains("Mac")) {
+            return;
+        }
+
         Date today = new Date();
         Date weekStartDate = DateTimeUtil.getWeekStartDate(today);
         //成都数据

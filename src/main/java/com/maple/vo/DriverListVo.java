@@ -5,6 +5,7 @@ package com.maple.vo;
  */
 public class DriverListVo {
     private Integer driverId;
+    private Integer carId;
     private String driverName;
     private String phoneNum;
     private String phoneStatus;
@@ -14,6 +15,14 @@ public class DriverListVo {
     private String carName;
     private String plateNum;
     private String ticket;
+
+    public Integer getCarId() {
+        return carId;
+    }
+
+    public void setCarId(Integer carId) {
+        this.carId = carId;
+    }
 
     public String getPhoneStatus() {
         return phoneStatus;

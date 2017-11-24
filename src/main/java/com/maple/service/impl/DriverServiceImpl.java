@@ -296,6 +296,7 @@ public class DriverServiceImpl implements IDriverService {
         if (driver.getPhoneStatus() != null) {
             driverListVo.setPhoneStatus(driver.getPhoneStatus().toString());
         }
+        driverListVo.setCarId(driver.getCarId());
         driverListVo.setDriverId(driver.getId());
         driverListVo.setDriverName(driver.getName());
         driverListVo.setDriverStatus(Const.DriverStatus.codeOf(driver.getDriverStatus()).getDesc());

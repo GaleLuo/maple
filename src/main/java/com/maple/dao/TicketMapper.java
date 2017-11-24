@@ -21,4 +21,6 @@ public interface TicketMapper {
     Ticket selectByCarId(Integer carId);
 
     List<Integer> selectCarIdListForSms();
+
+    void deleteBeforeHalfMonth();
 }

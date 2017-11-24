@@ -48,7 +48,9 @@ public interface DriverMapper {
 
     Integer checkId(String idNumber);
 
-    List<Driver> selectDriverReceivable(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName, @Param("branch") Integer branch);
+    List<Driver> selectDriverReceivableMonthly(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName, @Param("branch") Integer branch);
+
+    List<Driver> selectDriverReceivableWeekly(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName, @Param("branch") Integer branch);
 
     List<Driver> selectDriverReceivableGroupByCarId(@Param("startDate") Date startDate, @Param("endDate") Date endDate, @Param("coModelType") Integer coModelType, @Param("driverName") String driverName);
 
@@ -68,7 +70,7 @@ public interface DriverMapper {
 
     void updateNormalDriverPhoneStatusToUnconfirmed();
 
-    List<Driver> selectDriverListByStatus(int code);
+    List<Driver> selectDriverListByStatusAndBranch(@Param("code") int code, @Param("branch") int branch);
 
     Driver selectByDriverIdNumber(String idNo);
 }
