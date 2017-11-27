@@ -1,6 +1,7 @@
 package com.maple.controller.portal;
 
 import com.google.common.collect.Maps;
+import com.maple.common.ServerResponse;
 import com.maple.service.IDataReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -42,5 +44,23 @@ public class DataReportController {
 
     }
 
+
+    @RequestMapping("car.do")
+    @ResponseBody
+    public ServerResponse carData(Integer year,Integer branch) {
+        return iDataReportService.carData(year,branch);
+    }
+
+    @RequestMapping("ticket.do")
+    @ResponseBody
+    public ServerResponse ticketDate() {
+        return iDataReportService.ticketData();
+    }
+
+    @RequestMapping("payment.do")
+    @ResponseBody
+    public ServerResponse paymentData(Date date,Integer coModelType,Integer branch) {
+        return iDataReportService.paymentData(date, coModelType,branch);
+    }
 
 }

@@ -16,8 +16,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -51,36 +49,33 @@ public class AddTask {
         Workbook sheets = null;
         try {
             sheets = new XSSFWorkbook(new FileInputStream(new File(LINUX_PATH)));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Sheet sheet = sheets.getSheetAt(0);
-        int startRow = 0;
-        for (int i =310;i<=sheet.getLastRowNum();i++) {
-            Row row = sheet.getRow(i);
-            String idNo = row.getCell(6).getStringCellValue();
-            Driver driver = driverMapper.selectByDriverIdNumber(idNo);
-            if (driver == null) {
-                startRow = i;
-                break;
+            Sheet sheet = sheets.getSheetAt(0);
+            int startRow = 0;
+            for (int i =310;i<=sheet.getLastRowNum();i++) {
+                Row row = sheet.getRow(i);
+                String idNo = row.getCell(6).getStringCellValue();
+                Driver driver = driverMapper.selectByDriverIdNumber(idNo);
+                if (driver == null) {
+                    startRow = i;
+                    break;
+                }
             }
-        }
 
-        if (startRow == 0) {
-            return;
-        }
+            if (startRow == 0) {
+                return;
+            }
 
-        System.out.println("---------------------"+"开始行:"+startRow+"-------------------");
+            System.out.println("---------------------"+"开始行:"+startRow+"-------------------");
 
-        for (int i = startRow; i<=sheet.getLastRowNum();i++) {
-            Row row = sheet.getRow(i);
-            String driverName = row.getCell(1).getStringCellValue();
-            String phone = row.getCell(2).getStringCellValue();
-            String carName = row.getCell(4).getStringCellValue();
-            String plateNo = row.getCell(5).getStringCellValue();
-            String idNo = row.getCell(6).getStringCellValue();
-            String vin = row.getCell(11).getStringCellValue();
-            String engineNo = row.getCell(12).getStringCellValue();
+            for (int i = startRow; i<=sheet.getLastRowNum();i++) {
+                Row row = sheet.getRow(i);
+                String driverName = row.getCell(1).getStringCellValue();
+                String phone = row.getCell(2).getStringCellValue();
+                String carName = row.getCell(4).getStringCellValue();
+                String plateNo = row.getCell(5).getStringCellValue();
+                String idNo = row.getCell(6).getStringCellValue();
+                String vin = row.getCell(11).getStringCellValue();
+                String engineNo = row.getCell(12).getStringCellValue();
 //            String manIns = row.getCell(15).getStringCellValue();
 //            double manInsAmount = row.getCell(16).getNumericCellValue();
 //            Date manInsExpireDate = row.getCell(17).getDateCellValue();
@@ -89,23 +84,33 @@ public class AddTask {
 //            double comInsAmount = row.getCell(20).getNumericCellValue();
 //            Date comInsExpireDate = row.getCell(21).getDateCellValue();
 //            String comInsNo= row.getCell(22).getStringCellValue();
-            Date startDate = row.getCell(27).getDateCellValue();
-            System.out.println(startDate);
-            Date endDate = row.getCell(28).getDateCellValue();
-            Double downAmount = row.getCell(32).getNumericCellValue();
-            Double payment = row.getCell(33).getNumericCellValue();
-            Double month = row.getCell(34).getNumericCellValue();
-            String modelType = row.getCell(35).getStringCellValue();
-            Double totalAmount = row.getCell(36).getNumericCellValue();
-            Date pickDate = row.getCell(42).getDateCellValue();
+                Date startDate = row.getCell(27).getDateCellValue();
+                System.out.println(startDate);
+                Date endDate = row.getCell(28).getDateCellValue();
+                Double downAmount = row.getCell(32).getNumericCellValue();
+                Double payment = row.getCell(33).getNumericCellValue();
+                Double month = row.getCell(34).getNumericCellValue();
+                String modelType = row.getCell(35).getStringCellValue();
+                Double totalAmount = row.getCell(36).getNumericCellValue();
+                Date pickDate = row.getCell(42).getDateCellValue();
 
-            Integer carId = insertCar(carName, plateNo, vin, engineNo, pickDate);
-            if (carId == null) {
-                continue;
+                Integer carId = insertCar(carName, plateNo, vin, engineNo, pickDate);
+                if (carId == null) {
+                    continue;
+                }
+                Integer coModelId = insertCoModel(modelType, startDate, endDate, downAmount, payment, month, totalAmount);
+                insertDriver(driverName, phone, idNo, carId, coModelId);
             }
-            Integer coModelId = insertCoModel(modelType, startDate, endDate, downAmount, payment, month, totalAmount);
-            insertDriver(driverName, phone, idNo, carId, coModelId);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                sheets.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
 
     }
 

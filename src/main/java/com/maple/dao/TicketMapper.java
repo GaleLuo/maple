@@ -3,6 +3,7 @@ package com.maple.dao;
 import com.maple.pojo.Ticket;
 import org.eclipse.jetty.util.DateCache;
 
+import java.util.Date;
 import java.util.List;
 
 public interface TicketMapper {
@@ -23,4 +24,6 @@ public interface TicketMapper {
     List<Integer> selectCarIdListForSms();
 
     void deleteBeforeHalfMonth();
+
+    int selectTotalIndexByDate(Date date);
 }

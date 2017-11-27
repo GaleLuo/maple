@@ -28,4 +28,8 @@ public interface CarMapper {
     List<Car> selectWhereUnchecked();
 
     Car selectbyPlateNumber(String plateNumber);
+
+    Integer countTotalByYearMonth(@Param("date") Date date, @Param("branch") Integer branch);
+
+    Integer countAddByYearMonth(@Param("thisMonth") Date thisMonth, @Param("nextMonth") Date nextMonth, @Param("branch") Integer branch);
 }

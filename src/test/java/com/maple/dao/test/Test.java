@@ -107,9 +107,11 @@ public class Test extends TestBase {
     private static final int PINGAN = 21;
 
     private static final Logger logger = LoggerFactory.getLogger(Test.class);
+
     @org.junit.Test
     public void pinganBankQuery() throws Exception {
-        addTask.addDriver();
+        Date date = new Date();
+        System.out.println(date.getDate()+"日");
     }
 
 

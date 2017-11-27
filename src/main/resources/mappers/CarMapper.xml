@@ -86,7 +86,22 @@
       FROM maple_car
       WHERE plate_number = #{plateNumber}
     </select>
-    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    <select id="countTotalByYearMonth" resultType="java.lang.Integer">
+      SELECT count(1) FROM maple_car
+      WHERE pick_date &lt; #{date}
+      <if test="branch!=null">
+        and branch = #{branch}
+      </if>
+    </select>
+  <select id="countAddByYearMonth" resultType="java.lang.Integer">
+    SELECT  count(1) FROM maple_car
+    WHERE pick_date &lt; #{nextMonth}
+    and pick_date &gt;= #{thisMonth}
+    <if test="branch!=null">
+      and branch = #{branch}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from maple_car
     where id = #{id,jdbcType=INTEGER}
   </delete>

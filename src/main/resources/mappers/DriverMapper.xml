@@ -251,6 +251,7 @@
         and c.branch = #{branch}
       </if>
     </where>
+    group by id
     <if test="orderBy=='score'">
       order by t.score desc
     </if>
