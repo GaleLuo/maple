@@ -336,11 +336,10 @@ public class BankServiceImpl implements IBankService{
             paymentMap.put("交易方姓名", name);
             paymentMap.put("摘要", comment);
 
-
             data.add(paymentMap);
 
-
         }
+        workbook.close();
         return data;
 
     }
@@ -358,7 +357,7 @@ public class BankServiceImpl implements IBankService{
 
         HtmlPage page = webClient.getPage(url);
         page.executeJavaScript("Object.defineProperty(navigator,'platform',{get:function(){return 'Win32';}});");
-        Thread.sleep(4 * 1000);
+        Thread.sleep(8 * 1000);
         String un="";
         String pwd="";
         if (branch == Const.Branch.CD.getCode()) {
@@ -443,6 +442,7 @@ public class BankServiceImpl implements IBankService{
                 data.add(repaymentMap);
             }
         }
+        workbook.close();
         in.close();
         return data;
     }

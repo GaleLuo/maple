@@ -15,6 +15,6 @@ public interface IDataReportService {
 
     ServerResponse ticketData();
 
-    ServerResponse paymentData(Date date, Integer coModelType,Integer branch);
+    ServerResponse paymentData(Long date, Integer coModelType,Integer branch);
 
 }

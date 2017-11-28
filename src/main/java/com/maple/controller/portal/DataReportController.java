@@ -4,6 +4,7 @@ import com.google.common.collect.Maps;
 import com.maple.common.ServerResponse;
 import com.maple.service.IDataReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -59,7 +60,7 @@ public class DataReportController {
 
     @RequestMapping("payment.do")
     @ResponseBody
-    public ServerResponse paymentData(Date date,Integer coModelType,Integer branch) {
+    public ServerResponse paymentData(Long date, Integer coModelType, Integer branch) {
         return iDataReportService.paymentData(date, coModelType,branch);
     }
 

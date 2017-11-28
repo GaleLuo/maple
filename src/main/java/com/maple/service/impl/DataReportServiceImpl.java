@@ -12,6 +12,7 @@ import com.maple.dao.TicketMapper;
 import com.maple.jo.FinishOrder;
 import com.maple.service.IDataReportService;
 import com.maple.service.IPeriodPaymentService;
+import com.maple.util.BigDecimalUtil;
 import com.maple.util.DateTimeUtil;
 import com.maple.vo.FinishOrderVo;
 import com.maple.vo.PeriodPaymentGeneralListVo;
@@ -107,19 +108,24 @@ public class DataReportServiceImpl implements IDataReportService {
     }
 
     @Override
-    public ServerResponse paymentData(Date date, Integer coModelType,Integer branch) {
+    public ServerResponse paymentData(Long date, Integer coModelType,Integer branch) {
+        Date dateD = new Date(date);
         Date endDate = null;
         if (coModelType == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
-            endDate = DateTimeUtil.getWeekEndDate(date);
+            endDate = DateTimeUtil.getWeekEndDate(dateD);
         } else if (coModelType == Const.CoModel.HIRE_PURCHASE_MONTH.getCode()) {
-            endDate = DateTimeUtil.getMonthEndDate(date);
+            endDate = DateTimeUtil.getMonthEndDate(dateD);
         }
-        ServerResponse serverResponse = iPeriodPaymentService.generalList(branch, date.getTime(), endDate.getTime(), coModelType, 1, 1);
-        List<PeriodPaymentGeneralListVo> data = (List) serverResponse.getData();
-        PeriodPaymentGeneralListVo periodPaymentGeneralListVo = data.get(0);
-        BigDecimal amountRatio = periodPaymentGeneralListVo.getAmountReceivable().divide(periodPaymentGeneralListVo.getAmountReceived());
-        Integer driverRatio = periodPaymentGeneralListVo.getDriverNoReceivable() / periodPaymentGeneralListVo.getDriverNoReceived();
-        return ServerResponse.createBySuccess();
+        ServerResponse serverResponse = iPeriodPaymentService.generalList(branch, date, endDate.getTime(), coModelType, 1, 1);
+        Map data = (Map) serverResponse.getData();
+        List<PeriodPaymentGeneralListVo> dataList = (List<PeriodPaymentGeneralListVo>) data.get("list");
+        PeriodPaymentGeneralListVo periodPaymentGeneralListVo = dataList.get(0);
+        BigDecimal amountRatio = BigDecimalUtil.div(periodPaymentGeneralListVo.getAmountReceived().doubleValue(),periodPaymentGeneralListVo.getAmountReceivable().doubleValue()).multiply(BigDecimal.valueOf(100));
+        BigDecimal numberRatio = BigDecimalUtil.div(periodPaymentGeneralListVo.getDriverNoReceived().doubleValue(),periodPaymentGeneralListVo.getDriverNoReceivable().doubleValue()).multiply(BigDecimal.valueOf(100));
+        HashMap<Object, Object> resData = Maps.newHashMap();
+        resData.put("amountRatio", amountRatio);
+        resData.put("numberRatio", numberRatio);
+        return ServerResponse.createBySuccess(resData);
     }
 
     private FinishOrderVo assembleFinishOrderVo(FinishOrder finishOrder) {
