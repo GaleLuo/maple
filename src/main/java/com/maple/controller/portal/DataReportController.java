@@ -4,14 +4,12 @@ import com.google.common.collect.Maps;
 import com.maple.common.ServerResponse;
 import com.maple.service.IDataReportService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -39,12 +37,9 @@ public class DataReportController {
 //            resultMap.put("msg", "请登录后操作");
 //            return resultMap;
 //        }
-        System.out.println("name:" + name);
-        System.out.println("phone:"+phone);
         return iDataReportService.finishOrderReport(null,null,"2017-05-20","2017-05-20",pageStart,pageSize);
 
     }
-
 
     @RequestMapping("car.do")
     @ResponseBody

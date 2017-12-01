@@ -1,8 +1,5 @@
 package com.maple.dao.test;
 
-import com.aliyuncs.dysmsapi.model.v20170525.QuerySendDetailsResponse;
-import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
-import com.aliyuncs.exceptions.ClientException;
 import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.HtmlElement;
 import com.gargoylesoftware.htmlunit.html.HtmlImage;
@@ -15,26 +12,20 @@ import com.maple.common.Const;
 import com.maple.common.ServerResponse;
 import com.maple.dao.*;
 import com.maple.jo.FinishOrder;
-import com.maple.pojo.*;
+import com.maple.pojo.Car;
+import com.maple.pojo.Driver;
+import com.maple.pojo.PeriodPayment;
+import com.maple.pojo.Ticket;
 import com.maple.service.IBankService;
 import com.maple.service.impl.*;
 import com.maple.task.AddTask;
 import com.maple.task.PaymentQueryTask;
 import com.maple.test.TestBase;
-import com.maple.util.DateTimeUtil;
-import com.maple.util.SmsUtil;
 import com.maple.util.WeiCheUtil;
 import com.maple.vo.PingAnBalanceListVo;
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPFile;
-import org.apache.commons.net.ftp.FTPSClient;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFRow;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
@@ -55,7 +46,6 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -107,99 +97,6 @@ public class Test extends TestBase {
     private static final int PINGAN = 21;
 
     private static final Logger logger = LoggerFactory.getLogger(Test.class);
-
-    @org.junit.Test
-    public void pinganBankQuery() throws Exception {
-        iBankService.bankLogin(Const.Branch.CD.getCode());
-
-        List<Map<String, Object>> statement = iBankService.statement(new LocalDate("2017-10-24").toDate(), new LocalDate("2017-10-30").toDate(), 0);
-        insertByList(statement);
-        iBankService.closeConnection();
-    }
-    private void insertByList(List data) {
-        for (Object o : data) {
-            Map map = (Map) o;
-            String time = (String) map.get("交易时间");
-            String accountNo = (String) map.get("交易方账号");
-            String payer = (String) map.get("交易方姓名");
-            BigDecimal amount = (BigDecimal) map.get("交易金额");
-            String serialNo = (String) map.get("交易流水号");
-            String comment = (String) map.get("备注");
-            PeriodPayment periodPayment = periodPaymentMapper.selectBySerialNo(serialNo);
-            if (periodPayment == null&&amount.compareTo(BigDecimal.ZERO)>0) {
-                PeriodPayment newPayment = assemblePeriodPayment(time, serialNo, payer, accountNo, comment, amount, Const.PaymentPlatform.pingan.getCode());
-                periodPaymentMapper.insertSelective(newPayment);
-            }
-        }
-    }
-
-    private PeriodPayment assemblePeriodPayment(String time,String serialNo,String payer,String accountNo,String comment,
-                                                BigDecimal amount,Integer platformCode) {
-        Account account = accountMapper.selectByAccNo(accountNo);
-        PeriodPayment newPayment = new PeriodPayment();
-        Date payTime = DateTimeUtil.strToDate(time, "yyyy-MM-dd HH:mm:ss");
-        if (account == null) {
-            //如果未知交款人
-            newPayment.setPayment(amount);
-            //付款账号
-            newPayment.setAccountNumber(accountNo);
-            //付款平台
-            newPayment.setPaymentPlatform(platformCode);
-            //平台流水号
-            newPayment.setPlatformNumber(serialNo);
-            //支付状态默认为未确认
-            newPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
-            //备注：添加人：系统导入
-            newPayment.setComment( "添加人：系统导入");
-            if (payer.contains("支付宝")) {
-                //付款人变为格式comment+支付宝
-                //支付宝姓名
-                String zfbName = comment.substring(0, comment.indexOf("支付宝转账"));
-                payer = zfbName + "-支付宝转入";
-            }
-            //付款人
-            newPayment.setPayer(payer);
-            //付款对应日期
-            newPayment.setPayTime(payTime);
-            //付款时间
-            newPayment.setCreateTime(payTime);
-
-        } else {
-            Driver driver = driverMapper.selectByPrimaryKey(account.getDriverId());
-            CoModel coModel = coModelMapper.selectByPrimaryKey(driver.getCoModelId());
-            Date weekStartDate = new Date();
-            if (coModel.getModelType() == Const.CoModel.HIRE_PURCHASE_WEEK.getCode()) {
-                weekStartDate = DateTimeUtil.getWeekStartDate(payTime);
-            }
-            //平安银行当日数据，只能是起始和结束日期都为当日，否则没有当日数据
-            // 司机id
-            newPayment.setDriverId(account.getDriverId());
-            //车辆id
-            newPayment.setCarId(driver.getCarId());
-            //付款金额
-            newPayment.setPayment(amount);
-            //付款人
-            newPayment.setPayer(payer);
-            //付款账号
-            newPayment.setAccountNumber(accountNo);
-            //付款平台
-            newPayment.setPaymentPlatform(platformCode);
-            //平台流水号
-            newPayment.setPlatformNumber(serialNo);
-            //支付状态默认为正常
-            newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
-            //备注：添加人：系统导入
-            newPayment.setComment("添加人:系统导入");
-            //付款对应日期
-            newPayment.setPayTime(weekStartDate);
-            //付款时间
-            newPayment.setCreateTime(payTime);
-
-        }
-        return newPayment;
-    }
-
-
 
     @org.junit.Test
     public void Test3() throws IOException, InterruptedException, ParseException {
@@ -518,7 +415,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void test2 () throws IOException {
-//
+        System.out.println(Math.pow(2,127)-1);
     }
 
 

@@ -30,7 +30,7 @@ public class SMSTask {
     @Autowired
     private TicketMapper ticketMapper;
 
-    @Scheduled(cron = "0 0 8 ? * MON")
+//    @Scheduled(cron = "0 0 8 ? * MON")
     private void smsSend() {
         String os = System.getProperties().getProperty("os.name");
         if (os.contains("Mac")) {
@@ -53,7 +53,7 @@ public class SMSTask {
         }
     }
 
-    @Scheduled(cron = "0 0 * * * ? ")
+//    @Scheduled(cron = "0 0 * * * ? ")
     private void querySms() {
         //设置为每个星期一早上8点
         DateTime dateTime = new DateTime().withDayOfWeek(1).millisOfDay().withMinimumValue().withHourOfDay(8);

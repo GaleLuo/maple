@@ -102,6 +102,10 @@ public class DriverServiceImpl implements IDriverService {
     }
 
     public ServerResponse addAccount(Integer driverId, String name,Integer platformCode, String account) {
+        Account accountResult = accountMapper.selectByAccNo(account);
+        if (accountResult != null) {
+            return ServerResponse.createByErrorMessage("账户已存在");
+        }
         if (StringUtils.isEmpty(account)||StringUtils.isEmpty(name)||platformCode==null||driverId==null) {
             ServerResponse.createByErrorMessage("数据不完整");
         }

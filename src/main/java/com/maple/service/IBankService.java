@@ -1,7 +1,6 @@
 package com.maple.service;
 
 import com.maple.common.ServerResponse;
-import com.maple.vo.PingAnBalanceListVo;
 
 import java.io.IOException;
 import java.io.InputStream;
