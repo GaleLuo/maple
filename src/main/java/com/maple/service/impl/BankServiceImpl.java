@@ -202,6 +202,7 @@ public class BankServiceImpl implements IBankService{
         webClient.getCurrentWindow().getJobManager().removeAllJobs();
         webClient.close();
         System.gc();
+        System.out.println("------------------------"+"成功清除"+"------------------------");
     }
 
     private Map queryCashConcentrationResult(String payAcc) throws IOException, InterruptedException, ParseException {
@@ -383,68 +384,78 @@ public class BankServiceImpl implements IBankService{
         return result.contains("上次登录时间");
     }
 
-    public List<Map<String, Object>> statement(Date startDate, Date endDate,Integer branch) throws Exception {
+    public List<Map<String, Object>> statement(Date startDate, Date endDate,Integer branch) throws IOException {
 
         //转换日期
         String start = DateTimeUtil.dateToStr(startDate, "yyyyMMdd");
         String end = DateTimeUtil.dateToStr(endDate, "yyyyMMdd");
-
-        //生成POST请求
-        WebRequest webRequest = new WebRequest(new URL(DOWNLOADURL), HttpMethod.POST);
-        List<NameValuePair> reqParams = Lists.newArrayList();
-        String accountNo = "";
-        if (branch == Const.Branch.CD.getCode()) {
-            accountNo = PINGAN_CHENGDU_ACCOUNT;
-        } else if (branch == Const.Branch.KM.getCode()){
-            accountNo = PINGAN_KUNMING_ACCOUNT;
-        }
-        //设置请求参数
-        reqParams.add(new NameValuePair("pageNum", "1"));
-        reqParams.add(new NameValuePair("pageSize", "99999"));
-        reqParams.add(new NameValuePair("accNo", accountNo));
-        reqParams.add(new NameValuePair("currType", "RMB"));
-        reqParams.add(new NameValuePair("startDate", start));
-        reqParams.add(new NameValuePair("endDate", end));
-        webRequest.setRequestParameters(reqParams);
-        //发送请求
-        Page downloadPage = webClient.getPage(webRequest);
-        logger.debug("开始发送请求");
-        //等待加载
-        Thread.sleep(3 * 1000);
-        InputStream in = downloadPage.getWebResponse().getContentAsStream();
-
+        HSSFWorkbook workbook = null;
+        InputStream in = null;
         List<Map<String, Object>> data = Lists.newArrayList();
-        HSSFWorkbook workbook = new HSSFWorkbook(in);
-        Sheet sheet = workbook.getSheetAt(0);
-        for (int i = 2; i <= sheet.getLastRowNum(); i++) {
-            Map<String, Object> repaymentMap = new HashMap<>();
-            Row row = sheet.getRow(i);
-            Cell timeCell = row.getCell(0);
-//            cell1.setCellType(Cell.CELL_TYPE_STRING);
-            Cell nameCell = row.getCell(1);
-//            cell2.setCellType(Cell.CELL_TYPE_STRING);
-            Cell accountCell = row.getCell(2);
-//            cell3.setCellType(Cell.CELL_TYPE_STRING);
-            Cell typeCell = row.getCell(3);
-//            cell4.setCellType(Cell.CELL_TYPE_STRING);
-            Cell amountCell = row.getCell(4);
-//            cell5.setCellType(Cell.CELL_TYPE_STRING);
-            Cell commentCell = row.getCell(7);
-            Cell serialCell = row.getCell(8);
-//            cell9.setCellType(Cell.CELL_TYPE_STRING);
-            if (typeCell.getStringCellValue().equals("转入")) {
-                repaymentMap.put("交易时间", timeCell.getStringCellValue());
-                repaymentMap.put("交易方姓名", nameCell.getStringCellValue());
-                repaymentMap.put("交易方账号", accountCell.getStringCellValue());
-                repaymentMap.put("交易金额", new BigDecimal(amountCell.getStringCellValue()));
-                repaymentMap.put("备注", commentCell.getStringCellValue());
-                repaymentMap.put("交易流水号", serialCell.getStringCellValue());
-                data.add(repaymentMap);
+        //生成POST请求
+        try {
+            WebRequest webRequest = new WebRequest(new URL(DOWNLOADURL), HttpMethod.POST);
+            List<NameValuePair> reqParams = Lists.newArrayList();
+            String accountNo = "";
+            if (branch == Const.Branch.CD.getCode()) {
+                accountNo = PINGAN_CHENGDU_ACCOUNT;
+            } else if (branch == Const.Branch.KM.getCode()) {
+                accountNo = PINGAN_KUNMING_ACCOUNT;
             }
+            //设置请求参数
+            reqParams.add(new NameValuePair("pageNum", "1"));
+            reqParams.add(new NameValuePair("pageSize", "99999"));
+            reqParams.add(new NameValuePair("accNo", accountNo));
+            reqParams.add(new NameValuePair("currType", "RMB"));
+            reqParams.add(new NameValuePair("startDate", start));
+            reqParams.add(new NameValuePair("endDate", end));
+            webRequest.setRequestParameters(reqParams);
+            //发送请求
+            Page downloadPage = webClient.getPage(webRequest);
+            logger.debug("开始发送请求");
+            //等待加载
+            Thread.sleep(3 * 1000);
+            in = downloadPage.getWebResponse().getContentAsStream();
+
+            data = Lists.newArrayList();
+            workbook = new HSSFWorkbook(in);
+            Sheet sheet = workbook.getSheetAt(0);
+            for (int i = 2; i <= sheet.getLastRowNum(); i++) {
+                Map<String, Object> repaymentMap = new HashMap<>();
+                Row row = sheet.getRow(i);
+                Cell timeCell = row.getCell(0);
+//            cell1.setCellType(Cell.CELL_TYPE_STRING);
+                Cell nameCell = row.getCell(1);
+//            cell2.setCellType(Cell.CELL_TYPE_STRING);
+                Cell accountCell = row.getCell(2);
+//            cell3.setCellType(Cell.CELL_TYPE_STRING);
+                Cell typeCell = row.getCell(3);
+//            cell4.setCellType(Cell.CELL_TYPE_STRING);
+                Cell amountCell = row.getCell(4);
+//            cell5.setCellType(Cell.CELL_TYPE_STRING);
+                Cell commentCell = row.getCell(7);
+                Cell serialCell = row.getCell(8);
+//            cell9.setCellType(Cell.CELL_TYPE_STRING);
+                if (typeCell.getStringCellValue().equals("转入")) {
+                    repaymentMap.put("交易时间", timeCell.getStringCellValue());
+                    repaymentMap.put("交易方姓名", nameCell.getStringCellValue());
+                    repaymentMap.put("交易方账号", accountCell.getStringCellValue());
+                    repaymentMap.put("交易金额", new BigDecimal(amountCell.getStringCellValue()));
+                    repaymentMap.put("备注", commentCell.getStringCellValue());
+                    repaymentMap.put("交易流水号", serialCell.getStringCellValue());
+                    data.add(repaymentMap);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }finally {
+            workbook.close();
+            in.close();
+
         }
-        workbook.close();
-        in.close();
         return data;
+
+
     }
 
 

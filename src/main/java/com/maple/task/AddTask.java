@@ -32,7 +32,7 @@ import java.util.List;
 @Component
 public class AddTask {
     private final static String MAC_PATH = "/Users/Maple.Ran/Downloads/2017-时利和司机详细信息表（最新）.xlsx";
-    private final static String LINUX_PATH = "/data/excel/2017-时利和司机详细信息表（最新）.xlsx";
+    private final static String LINUX_PATH = "/data/excel/2017slhsjxxxxb.xlsx";
 
 
     @Autowired

@@ -40,16 +40,16 @@ public class PaymentQueryTask {
     @Autowired
     private IBankService iBankService;
 
-    @Scheduled(cron = "0 10 0/1 * * ?")
+    @Scheduled(cron = "0 10 9,10,11,12,13,14,15,16,17,18 * * ?")
     public void queryPingAn() {
         String os = System.getProperties().getProperty("os.name");
         if (os.contains("Mac")) {
             return;
         }
 
+        Date today = new Date();
+        Date weekStartDate = DateTimeUtil.getWeekStartDate(today);
         try {
-            Date today = new Date();
-            Date weekStartDate = DateTimeUtil.getWeekStartDate(today);
             //成都数据
             iBankService.bankLogin(Const.Branch.CD.getCode());
             //请求当天数据
@@ -62,8 +62,15 @@ public class PaymentQueryTask {
             if (CollectionUtils.isNotEmpty(cdWeek)) {
                 insertByList(cdWeek);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            iBankService.closeConnection();
+        }
+        //昆明
+        try {
 
-            //昆明
+
             iBankService.bankLogin(Const.Branch.KM.getCode());
             //请求当天数据
             List<Map<String, Object>> kmToday = iBankService.statement(today, today, Const.Branch.KM.getCode());
@@ -75,10 +82,9 @@ public class PaymentQueryTask {
             if (CollectionUtils.isNotEmpty(kmWeek)) {
                 insertByList(kmWeek);
             }
-            System.out.println("------------------------"+"成功扣款"+"------------------------");
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
+        }finally {
             iBankService.closeConnection();
         }
 
@@ -145,7 +151,7 @@ public class PaymentQueryTask {
             //支付状态默认为未确认
             newPayment.setPlatformStatus(Const.PlatformStatus.UNCONFIRMED.getCode());
             //备注：添加人：系统导入
-            newPayment.setComment(comment+"-系统导入");
+            newPayment.setComment(comment + "-系统导入");
             if (payer.contains("支付宝")) {
                 //付款人变为格式comment+支付宝
                 //支付宝姓名
@@ -184,7 +190,7 @@ public class PaymentQueryTask {
             //支付状态默认为正常
             newPayment.setPlatformStatus(Const.PlatformStatus.PAID_NORMAL.getCode());
             //备注：添加人：系统导入
-            newPayment.setComment(comment+"-系统导入");
+            newPayment.setComment(comment + "-系统导入");
             //付款对应日期
             newPayment.setPayTime(weekStartDate);
             //付款时间

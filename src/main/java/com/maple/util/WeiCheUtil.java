@@ -63,7 +63,9 @@ public class WeiCheUtil {
             result= page.asText();
         }finally {
             if (webClient != null) {
+
                 webClient.close();
+
             }
         }
         return result;

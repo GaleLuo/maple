@@ -89,8 +89,6 @@ public class Test extends TestBase {
     private PaymentQueryTask paymentQueryTask;
     @Autowired
     private IBankService iBankService;
-    @Autowired
-    private AddTask addTask;
 
     private static final int CCB = 15;
     private static final int CMB = 50;
@@ -100,11 +98,7 @@ public class Test extends TestBase {
 
     @org.junit.Test
     public void Test3() throws IOException, InterruptedException, ParseException {
-        ServerResponse response = iBankService.pingAnQueryOtherBankBalance(0);
-        List<PingAnBalanceListVo> data = (List<PingAnBalanceListVo>) response.getData();
-        for (PingAnBalanceListVo pingAnBalanceListVo : data) {
-            System.out.println(pingAnBalanceListVo.getAcctName()+"-"+pingAnBalanceListVo.getAcctNo()+"-"+pingAnBalanceListVo.getAcctOpenBranchName()+"-"+pingAnBalanceListVo.getBalance()+"-"+pingAnBalanceListVo.getUpdateTime()+"成功归集金额:"+pingAnBalanceListVo.getAmount());
-        }
+        paymentQueryTask.queryPingAn();
     }
 
     @org.junit.Test
