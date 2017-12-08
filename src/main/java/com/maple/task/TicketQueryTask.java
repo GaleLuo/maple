@@ -30,7 +30,7 @@ public class TicketQueryTask {
 
 
     @Scheduled(cron = "0 0 6 1/1 * ?")
-    private void weicheQuery() {
+    public void weicheQuery() {
         String os = System.getProperties().getProperty("os.name");
         if (os.contains("Mac")) {
             return;

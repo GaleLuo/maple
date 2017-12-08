@@ -68,9 +68,8 @@ public class PaymentQueryTask {
             iBankService.closeConnection();
         }
         //昆明
+
         try {
-
-
             iBankService.bankLogin(Const.Branch.KM.getCode());
             //请求当天数据
             List<Map<String, Object>> kmToday = iBankService.statement(today, today, Const.Branch.KM.getCode());
@@ -87,9 +86,7 @@ public class PaymentQueryTask {
         }finally {
             iBankService.closeConnection();
         }
-
         //关闭连接
-
     }
 
 
